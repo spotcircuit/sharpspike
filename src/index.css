@@ -105,6 +105,19 @@
     @apply border-4 border-betting-secondaryPurple;
   }
   
+  /* Naval blue theme classes */
+  .naval-card {
+    @apply bg-betting-navyBlue rounded-md border-4 border-betting-mediumBlue shadow-lg;
+  }
+  
+  .naval-header {
+    @apply bg-naval-header text-white;
+  }
+  
+  .naval-border {
+    @apply border-4 border-betting-mediumBlue;
+  }
+  
   .fire-number {
     @apply bg-amber-600 text-white text-xs font-bold px-1.5 py-0.5 rounded;
   }

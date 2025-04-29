@@ -71,16 +71,21 @@ export default {
           dark: '#1A1F2C',
           darkerCard: '#151823',
           darkCard: '#1D2133',
-					// New gunmetal colors
+					// Gunmetal colors
 					gunmetal: '#2A3439',
 					darkGunmetal: '#1E282D',
 					lightGunmetal: '#3A444A',
 					gunmetalBorder: '#3E4A52',
-          // New purple colors for header
+          // Purple colors 
           darkPurple: '#1A1F2C',
           vividPurple: '#8B5CF6',
           secondaryPurple: '#7E69AB',
-          tertiaryPurple: '#6E59A5'
+          tertiaryPurple: '#6E59A5',
+          // New naval blues
+          navyBlue: '#0D2B45',
+          mediumBlue: '#1E5F8C',
+          lightBlue: '#33C3F0',
+          skyBlue: '#7BD4F0'
         }
 			},
 			borderRadius: {
@@ -133,12 +138,15 @@ export default {
         'card-gradient': 'linear-gradient(to bottom right, #1E293B, #0F172A)',
         'active-gradient': 'linear-gradient(to right, #3B82F6, #1E40AF)',
         'header-gradient': 'linear-gradient(to right, #1E293B, #0F172A)',
-				// New gunmetal gradients
+				// Gunmetal gradients
 				'gunmetal-gradient': 'linear-gradient(to right, #2A3439, #1E282D)',
 				'gunmetal-header': 'linear-gradient(to right, #2A3439, #3A444A)',
-        // New purple gradients
+        // Purple gradients
         'purple-gradient': 'linear-gradient(to right, #1A1F2C, #2D1A45)',
-        'purple-header': 'linear-gradient(to right, #1A1F2C, #3C1A7B)'
+        'purple-header': 'linear-gradient(to right, #1A1F2C, #3C1A7B)',
+        // New naval blue gradients
+        'naval-gradient': 'linear-gradient(to right, #0D2B45, #1E5F8C)',
+        'naval-header': 'linear-gradient(to right, #0D2B45, #33C3F0)'
       }
 		}
 	},
