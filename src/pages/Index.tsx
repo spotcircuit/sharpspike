@@ -10,6 +10,7 @@ import TrainingFigures from '../components/TrainingFigures';
 import StatusBar from '../components/StatusBar';
 import TrackProfile from '../components/TrackProfile';
 import HorseComments from '../components/HorseComments';
+import RaceNavBar from '../components/RaceNavBar';
 import { getMockData, updateOdds, Horse } from '../utils/mockData';
 
 const REFRESH_INTERVAL = 20; // seconds
@@ -19,6 +20,8 @@ const Index = () => {
   const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
   const [nextUpdateIn, setNextUpdateIn] = useState(REFRESH_INTERVAL);
   const [showUpdateNotification, setShowUpdateNotification] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState("CHURCHILL DOWNS");
+  const [currentRace, setCurrentRace] = useState(7);
   
   const refreshData = () => {
     // Update horses with new odds
@@ -52,6 +55,16 @@ const Index = () => {
     return () => clearInterval(timer);
   }, [data]);
 
+  const handleTrackChange = (track: string) => {
+    setCurrentTrack(track);
+    // In a real app, you would fetch data for this track
+  };
+
+  const handleRaceChange = (race: number) => {
+    setCurrentRace(race);
+    // In a real app, you would fetch data for this race
+  };
+
   return (
     <div className="min-h-screen bg-gradient-radial from-betting-dark to-black p-4 text-white">
       <div className="max-w-7xl mx-auto">
@@ -70,6 +83,20 @@ const Index = () => {
             </h2>
           </div>
         </header>
+        
+        <RaceNavBar 
+          currentTrack={currentTrack}
+          currentRace={currentRace}
+          mtp={21}
+          allowanceInfo={{
+            purse: "$127K",
+            age: "3YO+",
+            distance: "6F",
+            surface: "Fast"
+          }}
+          onTrackChange={handleTrackChange}
+          onRaceChange={handleRaceChange}
+        />
         
         <div className="mb-4">
           <StatusBar 
