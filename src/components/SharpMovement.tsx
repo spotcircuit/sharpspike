@@ -2,6 +2,7 @@
 import React from 'react';
 import { SharpMove } from '../utils/mockData';
 import { formatCurrency } from '../utils/formatters';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 interface SharpMovementProps {
   movements: SharpMove[];
@@ -9,12 +10,12 @@ interface SharpMovementProps {
 
 const SharpMovement: React.FC<SharpMovementProps> = ({ movements }) => {
   return (
-    <div className="betting-card h-full overflow-hidden">
-      <div className="bg-gradient-to-r from-gray-800 to-gray-900 px-4 py-3">
-        <h2 className="text-lg font-medium text-white">Sharp Movement</h2>
-      </div>
+    <Card className="border-4 border-blue-600 shadow-xl bg-betting-darkCard overflow-hidden h-full">
+      <CardHeader className="bg-gradient-to-r from-blue-900 to-blue-800 px-4 py-3">
+        <CardTitle className="text-lg font-semibold text-white">Sharp Movement</CardTitle>
+      </CardHeader>
       
-      <div className="p-2 space-y-2">
+      <CardContent className="p-2 space-y-2">
         {movements.map((move, index) => (
           <div key={index} className="p-3 hover:bg-gray-800/30 rounded">
             <div className="flex justify-between items-center">
@@ -46,8 +47,8 @@ const SharpMovement: React.FC<SharpMovementProps> = ({ movements }) => {
             </div>
           </div>
         ))}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

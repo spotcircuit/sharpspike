@@ -92,15 +92,15 @@ const Index = () => {
             postPositions={data.trackProfile.postPositions}
             timings={data.trackProfile.timings}
           />
-          <TrainingFigures figures={data.trainingFigures} />
+          <HorseComments comments={data.horseComments} />
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <HorseComments comments={data.horseComments} />
           <div className="grid grid-cols-1 gap-4">
             <PaceAnalysis paceData={data.paceData} />
-            <SharpMovement movements={data.sharpMovements} />
+            <TrainingFigures figures={data.trainingFigures} />
           </div>
+          <SharpMovement movements={data.sharpMovements} />
         </div>
       </div>
     </div>
