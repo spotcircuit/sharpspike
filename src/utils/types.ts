@@ -11,6 +11,9 @@ export interface Horse {
   difference: number;
   jockey?: string;
   trainer?: string;
+  jockeyWinPct?: number;
+  trainerWinPct?: number;
+  fireNumber?: number;
   hFactors?: {
     speed?: boolean;
     pace?: boolean;

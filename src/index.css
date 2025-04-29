@@ -91,4 +91,21 @@
   .gunmetal-border {
     @apply border-4 border-betting-gunmetalBorder;
   }
+  
+  /* Purple theme classes */
+  .purple-card {
+    @apply bg-betting-darkPurple rounded-md border-4 border-betting-secondaryPurple shadow-lg;
+  }
+  
+  .purple-header {
+    @apply bg-purple-header text-white;
+  }
+  
+  .purple-border {
+    @apply border-4 border-betting-secondaryPurple;
+  }
+  
+  .fire-number {
+    @apply bg-amber-600 text-white text-xs font-bold px-1.5 py-0.5 rounded;
+  }
 }

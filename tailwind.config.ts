@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -76,7 +75,12 @@ export default {
 					gunmetal: '#2A3439',
 					darkGunmetal: '#1E282D',
 					lightGunmetal: '#3A444A',
-					gunmetalBorder: '#3E4A52'
+					gunmetalBorder: '#3E4A52',
+          // New purple colors for header
+          darkPurple: '#1A1F2C',
+          vividPurple: '#8B5CF6',
+          secondaryPurple: '#7E69AB',
+          tertiaryPurple: '#6E59A5'
         }
 			},
 			borderRadius: {
@@ -131,7 +135,10 @@ export default {
         'header-gradient': 'linear-gradient(to right, #1E293B, #0F172A)',
 				// New gunmetal gradients
 				'gunmetal-gradient': 'linear-gradient(to right, #2A3439, #1E282D)',
-				'gunmetal-header': 'linear-gradient(to right, #2A3439, #3A444A)'
+				'gunmetal-header': 'linear-gradient(to right, #2A3439, #3A444A)',
+        // New purple gradients
+        'purple-gradient': 'linear-gradient(to right, #1A1F2C, #2D1A45)',
+        'purple-header': 'linear-gradient(to right, #1A1F2C, #3C1A7B)'
       }
 		}
 	},

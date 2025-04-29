@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import OddsTable from '../components/OddsTable';
 import LiveStreamingOdds from '../components/LiveStreamingOdds';
@@ -68,9 +67,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-radial from-betting-dark to-black p-4 text-white">
       <div className="max-w-7xl mx-auto">
-        <header className="mb-6 flex justify-between items-center p-4 bg-betting-gunmetal border-4 border-betting-gunmetalBorder rounded-lg shadow-lg">
+        <header className="mb-6 flex justify-between items-center p-4 bg-betting-darkPurple border-4 border-betting-secondaryPurple rounded-lg shadow-lg">
           <div>
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-600">
               Trackside Odds Pulse
             </h1>
             <p className="text-gray-400">
@@ -78,7 +77,7 @@ const Index = () => {
             </p>
           </div>
           <div className="text-right">
-            <h2 className="text-2xl font-bold text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-blue-600">
+            <h2 className="text-2xl font-bold text-white bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-betting-vividPurple">
               5D Racing Odds Pulse
             </h2>
           </div>

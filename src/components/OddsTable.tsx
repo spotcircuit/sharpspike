@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Horse } from '../utils/mockData';
+import { Horse } from '../utils/types';
 import { formatOdds, getChangeClass, formatDifference } from '../utils/formatters';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
@@ -11,8 +11,8 @@ interface OddsTableProps {
 
 const OddsTable: React.FC<OddsTableProps> = ({ horses, highlightUpdates = false }) => {
   return (
-    <Card className="border-4 border-blue-600 shadow-xl bg-betting-darkCard overflow-hidden w-full">
-      <CardHeader className="bg-gradient-to-r from-blue-900 to-blue-800 px-4 py-3">
+    <Card className="border-4 border-betting-vividPurple shadow-xl bg-betting-darkCard overflow-hidden w-full">
+      <CardHeader className="bg-purple-gradient px-4 py-3">
         <CardTitle className="text-lg font-semibold text-white">Odds Table</CardTitle>
       </CardHeader>
       
@@ -29,6 +29,7 @@ const OddsTable: React.FC<OddsTableProps> = ({ horses, highlightUpdates = false 
                 <th className="px-4 py-3 text-right">Difference</th>
                 <th className="px-4 py-3 text-left">Jockey</th>
                 <th className="px-4 py-3 text-left">Trainer</th>
+                <th className="px-4 py-3 text-center">J/T Stats</th>
                 <th className="px-4 py-3 text-center">HFactors</th>
               </tr>
             </thead>
@@ -62,6 +63,16 @@ const OddsTable: React.FC<OddsTableProps> = ({ horses, highlightUpdates = false 
                   </td>
                   <td className="px-4 py-3 text-left">
                     {horse.trainer || 'N/A'}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <div className="flex items-center justify-center space-x-2">
+                      <span className="text-xs">{horse.jockeyWinPct || '0'}%</span>
+                      <span className="text-gray-400">/</span>
+                      <span className="text-xs">{horse.trainerWinPct || '0'}%</span>
+                      {horse.fireNumber && (
+                        <span className="fire-number ml-1">{horse.fireNumber}</span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-center">
                     <div className="flex items-center justify-center space-x-1">

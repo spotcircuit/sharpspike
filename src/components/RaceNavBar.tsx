@@ -71,7 +71,7 @@ const RaceNavBar: React.FC<RaceNavBarProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between bg-gunmetal-gradient p-3 rounded-md shadow-md mb-4 border-4 border-betting-gunmetalBorder">
+    <div className="flex items-center justify-between bg-purple-gradient p-3 rounded-md shadow-md mb-4 border-4 border-betting-secondaryPurple">
       <div className="flex items-center space-x-2">
         <Select value={track} onValueChange={handleTrackChange}>
           <SelectTrigger className="w-[200px] bg-white text-black">
@@ -92,7 +92,7 @@ const RaceNavBar: React.FC<RaceNavBarProps> = ({
             size="icon"
             onClick={navigateToPreviousRace}
             disabled={race <= 1}
-            className="bg-white text-betting-gunmetal"
+            className="bg-white text-betting-darkPurple"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -117,13 +117,13 @@ const RaceNavBar: React.FC<RaceNavBarProps> = ({
             size="icon"
             onClick={navigateToNextRace}
             disabled={race >= 12}
-            className="bg-white text-betting-gunmetal"
+            className="bg-white text-betting-darkPurple"
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
         </div>
         
-        <div className="ml-2 rounded-md bg-betting-gunmetal text-white px-4 py-2 font-bold">
+        <div className="ml-2 rounded-md bg-betting-darkPurple text-white px-4 py-2 font-bold">
           {mtp} MTP
         </div>
       </div>
@@ -131,7 +131,7 @@ const RaceNavBar: React.FC<RaceNavBarProps> = ({
       <div className="text-white flex items-center space-x-2">
         <span className="font-semibold">ALLOWANCE</span>
         <span>Purse: {allowanceInfo.purse} | {allowanceInfo.age} | {allowanceInfo.distance} | Dirt: {allowanceInfo.surface}</span>
-        <Button variant="link" className="text-blue-300 hover:text-blue-100">
+        <Button variant="link" className="text-betting-vividPurple hover:text-blue-100">
           MORE
         </Button>
       </div>
