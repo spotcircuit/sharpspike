@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import OddsTable from '../components/OddsTable';
 import LiveStreamingOdds from '../components/LiveStreamingOdds';
@@ -127,12 +126,6 @@ const Index = () => {
           <PoolsPanel poolData={data.poolData} exoticPools={data.exoticPools} />
         </div>
         
-        {/* New row for Paddock Comments and AI-Thorian Value */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-          <LivePaddockComments comments={data.paddockComments} />
-          <AIThorianValue valuePicks={data.valuePicks} pick3Combos={data.pick3Combos} />
-        </div>
-        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           <TrackProfile 
             statistics={data.trackProfile.statistics} 
@@ -142,11 +135,17 @@ const Index = () => {
           <HorseComments comments={data.horseComments} />
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           <div className="grid grid-cols-1 gap-4">
             <PaceAnalysis paceData={data.paceData} />
             <TrainingFigures figures={data.trainingFigures} />
           </div>
+        </div>
+        
+        {/* Moved Live Paddock Comments and AI-Thorian Value to the bottom */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+          <LivePaddockComments comments={data.paddockComments} />
+          <AIThorianValue valuePicks={data.valuePicks} pick3Combos={data.pick3Combos} />
         </div>
       </div>
     </div>
