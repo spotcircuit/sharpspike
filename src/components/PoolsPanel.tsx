@@ -14,20 +14,22 @@ const PoolsPanel: React.FC<PoolsPanelProps> = ({ poolData, exoticPools }) => {
   
   const renderTotals = () => (
     <div className="mt-4">
-      <div className="grid grid-cols-4 gap-2 px-3 py-2 bg-gray-800/50 rounded text-gray-300 text-sm">
+      <div className="grid grid-cols-5 gap-2 px-3 py-2 bg-gray-800/50 rounded text-gray-300 text-sm">
         <div>#</div>
         <div className="text-center">ODDS</div>
         <div className="text-center">WIN</div>
         <div className="text-center">PLACE</div>
+        <div className="text-center">SHOW</div>
       </div>
       
       <div className="space-y-1 mt-2">
         {poolData.map((pool) => (
-          <div key={pool.number} className="grid grid-cols-4 gap-2 px-3 py-2 hover:bg-gray-800/30 rounded">
+          <div key={pool.number} className="grid grid-cols-5 gap-2 px-3 py-2 hover:bg-gray-800/30 rounded">
             <div>{pool.number}</div>
             <div className="text-center">{pool.odds}</div>
             <div className="text-center">{formatCurrency(pool.win)}</div>
             <div className="text-center">{formatCurrency(pool.place)}</div>
+            <div className="text-center">{formatCurrency(pool.show)}</div>
           </div>
         ))}
       </div>
