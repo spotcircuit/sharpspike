@@ -46,6 +46,7 @@ interface BettingTimelineProps {
   runnerColors: RunnerColorsMap;
   maxVolume: number;
   maxOdds: number;
+  smallText?: boolean;
 }
 
 const BettingTimeline: React.FC<BettingTimelineProps> = ({ 
@@ -54,7 +55,8 @@ const BettingTimeline: React.FC<BettingTimelineProps> = ({
   runnerNames, 
   runnerColors,
   maxVolume,
-  maxOdds
+  maxOdds,
+  smallText = false
 }) => {
   return (
     <div className="h-80">
@@ -67,28 +69,38 @@ const BettingTimeline: React.FC<BettingTimelineProps> = ({
           <XAxis 
             dataKey="time" 
             stroke="#cbd5e1" 
-            tick={{ fill: '#cbd5e1' }} 
+            tick={{ fill: '#cbd5e1', fontSize: smallText ? 9 : 12 }}
+            height={smallText ? 15 : 30}
           />
           <YAxis 
             yAxisId="volume"
             orientation="left"
             stroke="#cbd5e1" 
-            tick={{ fill: '#cbd5e1' }} 
+            tick={{ fill: '#cbd5e1', fontSize: smallText ? 9 : 12 }}
+            width={smallText ? 30 : 40}
             domain={[0, maxVolume * 1.2]} 
           />
           <YAxis 
             yAxisId="odds"
             orientation="right"
             stroke="#f59e0b" 
-            tick={{ fill: '#f59e0b' }} 
+            tick={{ fill: '#f59e0b', fontSize: smallText ? 9 : 12 }}
+            width={smallText ? 30 : 40}
             domain={[0, maxOdds * 1.2]} 
-            label={{ value: 'Odds', angle: -90, position: 'insideRight', fill: '#f59e0b' }}
+            label={{ 
+              value: 'Odds', 
+              angle: -90, 
+              position: 'insideRight', 
+              fill: '#f59e0b',
+              fontSize: smallText ? 10 : 12
+            }}
           />
           <Tooltip 
             contentStyle={{ 
               backgroundColor: '#1D2133', 
               borderColor: '#3B82F6',
-              color: '#fff' 
+              color: '#fff',
+              fontSize: smallText ? 10 : 12
             }} 
             labelFormatter={(time) => `Time: ${time}`}
             formatter={(value, name) => {
@@ -112,6 +124,9 @@ const BettingTimeline: React.FC<BettingTimelineProps> = ({
               const runnerNumber = value.toString().replace('runner', '');
               return runnerNames[value as keyof typeof runnerNames] || `Runner ${runnerNumber}`;
             }}
+            wrapperStyle={{ 
+              fontSize: smallText ? 9 : 12 
+            }}
           />
           
           {/* Main volume line */}
@@ -122,8 +137,8 @@ const BettingTimeline: React.FC<BettingTimelineProps> = ({
             name="volume"
             stroke="#3B82F6" 
             strokeWidth={2} 
-            dot={{ r: 3 }} 
-            activeDot={{ r: 6, fill: '#60A5FA' }} 
+            dot={{ r: smallText ? 2 : 3 }} 
+            activeDot={{ r: smallText ? 4 : 6, fill: '#60A5FA' }} 
           />
           
           {/* Runner position lines */}
@@ -143,14 +158,14 @@ const BettingTimeline: React.FC<BettingTimelineProps> = ({
                 
                 return (
                   <g key={`dot-${runner}-${cx}-${cy}`}>
-                    <circle cx={cx} cy={cy} r={4} fill={color} />
+                    <circle cx={cx} cy={cy} r={smallText ? 3 : 4} fill={color} />
                     <text
                       x={cx}
                       y={cy}
                       dy={-8}
                       textAnchor="middle"
                       fill={color}
-                      fontSize={10}
+                      fontSize={smallText ? 8 : 10}
                       fontWeight="bold"
                     >
                       {value}
@@ -189,7 +204,7 @@ const BettingTimeline: React.FC<BettingTimelineProps> = ({
                 value: 'Spike',
                 position: 'top',
                 fill: '#F87171',
-                fontSize: 12
+                fontSize: smallText ? 9 : 12
               }}
             />
           ))}

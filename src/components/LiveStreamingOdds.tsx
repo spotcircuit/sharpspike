@@ -47,7 +47,10 @@ const LiveStreamingOdds: React.FC<LiveStreamingOddsProps> = ({ horses }) => {
                   {horse.isFavorite && (
                     <span className="h-2 w-2 rounded-full bg-red-500 inline-block"></span>
                   )}
-                  <span className="font-semibold">{horse.name}</span>
+                  <span className="font-semibold">
+                    <span className="text-xs text-gray-400 mr-1">PP{horse.postPosition}</span>
+                    {horse.name}
+                  </span>
                 </div>
                 
                 <div className="flex items-center space-x-4">

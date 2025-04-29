@@ -80,6 +80,7 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
           runnerColors={runnerColors}
           maxVolume={maxVolume}
           maxOdds={maxOdds}
+          smallText={true}
         />
         
         <ChartInfoPanel 
