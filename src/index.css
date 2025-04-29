@@ -35,6 +35,12 @@
     --input: 217 33% 25%;
     --ring: 224 76% 48%;
 
+    /* Gunmetal theme colors - can be switched out via palette */
+    --gunmetal-dark: 200 17% 18%;
+    --gunmetal-medium: 200 12% 24%;
+    --gunmetal-light: 200 10% 30%;
+    --gunmetal-border: 200 14% 26%;
+
     --radius: 0.5rem;
   }
 }
@@ -71,5 +77,18 @@
 
   .table-row-highlight {
     @apply bg-gray-800/30;
+  }
+  
+  /* Gunmetal theme classes */
+  .gunmetal-card {
+    @apply bg-betting-gunmetal rounded-md border border-betting-gunmetalBorder shadow-lg;
+  }
+  
+  .gunmetal-header {
+    @apply bg-gunmetal-header text-white;
+  }
+  
+  .gunmetal-border {
+    @apply border-4 border-betting-gunmetalBorder;
   }
 }

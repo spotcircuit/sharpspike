@@ -71,7 +71,12 @@ export default {
           highlight: '#3B82F6',
           dark: '#1A1F2C',
           darkerCard: '#151823',
-          darkCard: '#1D2133'
+          darkCard: '#1D2133',
+					// New gunmetal colors
+					gunmetal: '#2A3439',
+					darkGunmetal: '#1E282D',
+					lightGunmetal: '#3A444A',
+					gunmetalBorder: '#3E4A52'
         }
 			},
 			borderRadius: {
@@ -124,6 +129,9 @@ export default {
         'card-gradient': 'linear-gradient(to bottom right, #1E293B, #0F172A)',
         'active-gradient': 'linear-gradient(to right, #3B82F6, #1E40AF)',
         'header-gradient': 'linear-gradient(to right, #1E293B, #0F172A)',
+				// New gunmetal gradients
+				'gunmetal-gradient': 'linear-gradient(to right, #2A3439, #1E282D)',
+				'gunmetal-header': 'linear-gradient(to right, #2A3439, #3A444A)'
       }
 		}
 	},

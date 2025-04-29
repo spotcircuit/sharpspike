@@ -68,7 +68,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-radial from-betting-dark to-black p-4 text-white">
       <div className="max-w-7xl mx-auto">
-        <header className="mb-6 flex justify-between items-center">
+        <header className="mb-6 flex justify-between items-center p-4 bg-betting-gunmetal border-4 border-betting-gunmetalBorder rounded-lg shadow-lg">
           <div>
             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
               Trackside Odds Pulse

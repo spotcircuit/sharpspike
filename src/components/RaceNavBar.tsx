@@ -71,7 +71,7 @@ const RaceNavBar: React.FC<RaceNavBarProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between bg-gradient-to-r from-blue-900 to-blue-800 p-3 rounded-md shadow-md mb-4">
+    <div className="flex items-center justify-between bg-gunmetal-gradient p-3 rounded-md shadow-md mb-4 border-4 border-betting-gunmetalBorder">
       <div className="flex items-center space-x-2">
         <Select value={track} onValueChange={handleTrackChange}>
           <SelectTrigger className="w-[200px] bg-white text-black">
@@ -92,7 +92,7 @@ const RaceNavBar: React.FC<RaceNavBarProps> = ({
             size="icon"
             onClick={navigateToPreviousRace}
             disabled={race <= 1}
-            className="bg-white text-blue-800"
+            className="bg-white text-betting-gunmetal"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -117,13 +117,13 @@ const RaceNavBar: React.FC<RaceNavBarProps> = ({
             size="icon"
             onClick={navigateToNextRace}
             disabled={race >= 12}
-            className="bg-white text-blue-800"
+            className="bg-white text-betting-gunmetal"
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
         </div>
         
-        <div className="ml-2 rounded-md bg-blue-500 text-white px-4 py-2 font-bold">
+        <div className="ml-2 rounded-md bg-betting-gunmetal text-white px-4 py-2 font-bold">
           {mtp} MTP
         </div>
       </div>
