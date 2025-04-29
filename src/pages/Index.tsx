@@ -109,9 +109,14 @@ const Index = () => {
           <OddsTable horses={data.horses} highlightUpdates={showUpdateNotification} />
         </div>
         
-        {/* Full width Sharp Bettor Timeline */}
-        <div className="grid grid-cols-1 gap-4 mb-4">
-          <SharpBettorTimeline bettingData={data.bettingTimeline} />
+        {/* Sharp Bettor Timeline with Sharp Movement on the right */}
+        <div className="grid grid-cols-5 gap-4 mb-4">
+          <div className="col-span-4">
+            <SharpBettorTimeline bettingData={data.bettingTimeline} />
+          </div>
+          <div className="col-span-1">
+            <SharpMovement movements={data.sharpMovements} />
+          </div>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
@@ -129,7 +134,6 @@ const Index = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <SharpMovement movements={data.sharpMovements} />
           <div className="grid grid-cols-1 gap-4">
             <PaceAnalysis paceData={data.paceData} />
             <TrainingFigures figures={data.trainingFigures} />
