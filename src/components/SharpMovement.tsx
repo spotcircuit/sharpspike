@@ -10,8 +10,8 @@ interface SharpMovementProps {
 
 const SharpMovement: React.FC<SharpMovementProps> = ({ movements }) => {
   return (
-    <Card className="border-4 border-blue-600 shadow-xl bg-betting-darkCard overflow-hidden h-full">
-      <CardHeader className="bg-gradient-to-r from-blue-900 to-blue-800 px-4 py-3">
+    <Card className="border-4 border-betting-mediumBlue shadow-xl bg-betting-darkCard overflow-hidden h-full">
+      <CardHeader className="bg-naval-gradient px-4 py-3">
         <CardTitle className="text-lg font-semibold text-white">Sharp Movement</CardTitle>
       </CardHeader>
       

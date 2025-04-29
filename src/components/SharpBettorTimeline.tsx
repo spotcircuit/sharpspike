@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import BettingTimeline from './charts/BettingTimeline';
@@ -67,8 +66,8 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
   const lastSpikeTimestamp = spikes.length > 0 ? spikes[spikes.length - 1].timestamp : null;
 
   return (
-    <Card className="border-4 border-blue-600 shadow-xl bg-betting-darkCard overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-blue-900 to-blue-800 px-4 py-3">
+    <Card className="border-4 border-betting-mediumBlue shadow-xl bg-betting-darkCard overflow-hidden">
+      <CardHeader className="bg-naval-gradient px-4 py-3">
         <CardTitle className="text-lg font-semibold text-white">Sharp Bettor Timeline</CardTitle>
       </CardHeader>
       

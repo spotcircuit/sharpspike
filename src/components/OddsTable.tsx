@@ -11,8 +11,8 @@ interface OddsTableProps {
 
 const OddsTable: React.FC<OddsTableProps> = ({ horses, highlightUpdates = false }) => {
   return (
-    <Card className="border-4 border-betting-vividPurple shadow-xl bg-betting-darkCard overflow-hidden w-full">
-      <CardHeader className="bg-purple-gradient px-4 py-3">
+    <Card className="border-4 border-betting-mediumBlue shadow-xl bg-betting-darkCard overflow-hidden w-full">
+      <CardHeader className="bg-naval-gradient px-4 py-3">
         <CardTitle className="text-lg font-semibold text-white">Odds Table</CardTitle>
       </CardHeader>
       
