@@ -3,7 +3,7 @@ import React from 'react';
 import { Horse } from '../utils/mockData';
 import { formatOdds, getChangeClass, formatDifference } from '../utils/formatters';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { TrendingDown, TrendingUp } from 'lucide-react';
+import { TrendingDown, TrendingUp, ChartLine } from 'lucide-react';
 
 interface LiveStreamingOddsProps {
   horses: Horse[];
@@ -24,7 +24,10 @@ const LiveStreamingOdds: React.FC<LiveStreamingOddsProps> = ({ horses }) => {
   return (
     <Card className="border-4 border-blue-600 shadow-xl bg-betting-darkCard overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-blue-900 to-blue-800 px-4 py-3">
-        <CardTitle className="text-lg font-semibold text-white">Live Streaming Odds</CardTitle>
+        <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+          <ChartLine className="h-5 w-5" />
+          Live Streaming Odds
+        </CardTitle>
       </CardHeader>
       
       <CardContent className="p-2 space-y-1">
@@ -44,7 +47,7 @@ const LiveStreamingOdds: React.FC<LiveStreamingOddsProps> = ({ horses }) => {
                   {horse.isFavorite && (
                     <span className="h-2 w-2 rounded-full bg-red-500 inline-block"></span>
                   )}
-                  <span>{horse.name}</span>
+                  <span className="font-semibold">{horse.name}</span>
                 </div>
                 
                 <div className="flex items-center space-x-4">
@@ -60,30 +63,45 @@ const LiveStreamingOdds: React.FC<LiveStreamingOddsProps> = ({ horses }) => {
               </div>
               
               {/* Historical odds visualization */}
-              <div className="flex items-center h-6 mt-1 space-x-1">
-                {oddsHistory.map((odds, idx) => (
-                  <div 
-                    key={idx}
-                    className={`h-full w-1 rounded-sm ${
-                      idx === oddsHistory.length - 1 
-                        ? 'bg-blue-500' 
-                        : idx % 2 === 0 
+              <div className="flex flex-col mt-1">
+                {/* Visualization bars */}
+                <div className="flex items-end h-6 mt-1 space-x-1">
+                  {oddsHistory.map((odds, idx) => (
+                    <div 
+                      key={idx}
+                      className={`h-full w-1 rounded-sm ${
+                        idx % 2 === 0 
                           ? 'bg-gray-700' 
                           : 'bg-gray-600'
-                    }`}
+                      }`}
+                      style={{ 
+                        height: `${Math.min(100, Math.max(30, (1 / odds) * 50))}%` 
+                      }}
+                      title={`${formatOdds(odds)}`}
+                    />
+                  ))}
+                  <div 
+                    className="h-full w-2 rounded-sm bg-blue-400 animate-pulse"
                     style={{ 
-                      height: `${Math.min(100, Math.max(30, (1 / odds) * 50))}%` 
+                      height: `${Math.min(100, Math.max(30, (1 / horse.liveOdds) * 50))}%` 
                     }}
-                    title={`${formatOdds(odds)}`}
+                    title={`Current: ${formatOdds(horse.liveOdds)}`}
                   />
-                ))}
-                <div 
-                  className="h-full w-2 rounded-sm bg-blue-400"
-                  style={{ 
-                    height: `${Math.min(100, Math.max(30, (1 / horse.liveOdds) * 50))}%` 
-                  }}
-                  title={`Current: ${formatOdds(horse.liveOdds)}`}
-                />
+                </div>
+                
+                {/* Historical odds values */}
+                <div className="flex items-center mt-1 text-xs text-gray-400 overflow-x-auto scrollbar-hide">
+                  <div className="flex space-x-1 min-w-full">
+                    {oddsHistory.map((odds, idx) => (
+                      <div key={idx} className="text-center min-w-4" title={`Historical odds ${idx + 1}`}>
+                        {formatOdds(odds)}
+                      </div>
+                    ))}
+                    <div className="text-center min-w-4 font-bold text-blue-400" title="Current odds">
+                      {formatOdds(horse.liveOdds)}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           );
