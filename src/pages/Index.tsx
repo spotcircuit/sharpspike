@@ -55,13 +55,20 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-radial from-betting-dark to-black p-4 text-white">
       <div className="max-w-7xl mx-auto">
-        <header className="mb-6">
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
-            Trackside Odds Pulse
-          </h1>
-          <p className="text-gray-400">
-            Live race track odds and pool movement dashboard
-          </p>
+        <header className="mb-6 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
+              Trackside Odds Pulse
+            </h1>
+            <p className="text-gray-400">
+              Live race track odds and pool movement dashboard
+            </p>
+          </div>
+          <div className="text-right">
+            <h2 className="text-2xl font-bold text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-blue-600">
+              5D Racing Odds Pulse
+            </h2>
+          </div>
         </header>
         
         <div className="mb-4">
@@ -96,11 +103,11 @@ const Index = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <SharpMovement movements={data.sharpMovements} />
           <div className="grid grid-cols-1 gap-4">
             <PaceAnalysis paceData={data.paceData} />
             <TrainingFigures figures={data.trainingFigures} />
           </div>
-          <SharpMovement movements={data.sharpMovements} />
         </div>
       </div>
     </div>

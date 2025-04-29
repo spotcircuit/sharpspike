@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { PoolData, ExoticPool } from '../utils/mockData';
 import { formatCurrency } from '../utils/formatters';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 interface PoolsPanelProps {
   poolData: PoolData[];
@@ -49,30 +50,36 @@ const PoolsPanel: React.FC<PoolsPanelProps> = ({ poolData, exoticPools }) => {
   );
   
   return (
-    <div className="betting-card h-full overflow-hidden">
-      <div className="flex border-b border-gray-800">
-        {(['POOLS', 'PROBABLES', 'WILL PAYS', 'TOTALS'] as const).map((tab) => (
-          <button
-            key={tab}
-            className={`flex-1 px-4 py-3 text-center ${
-              activeTab === tab 
-                ? 'bg-blue-600 text-white font-medium' 
-                : 'text-gray-400 hover:bg-gray-800/50'
-            }`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+    <Card className="border-4 border-blue-600 shadow-xl bg-betting-darkCard overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-blue-900 to-blue-800 px-4 py-3">
+        <CardTitle className="text-lg font-semibold text-white">Pool Data</CardTitle>
+      </CardHeader>
       
-      <div className="p-2">
-        {activeTab === 'TOTALS' && renderTotals()}
-        {activeTab === 'POOLS' && renderPlaceholder('Pools')}
-        {activeTab === 'PROBABLES' && renderPlaceholder('Probables')}
-        {activeTab === 'WILL PAYS' && renderPlaceholder('Will Pays')}
-      </div>
-    </div>
+      <CardContent className="p-0">
+        <div className="flex border-b border-gray-800">
+          {(['POOLS', 'PROBABLES', 'WILL PAYS', 'TOTALS'] as const).map((tab) => (
+            <button
+              key={tab}
+              className={`flex-1 px-4 py-3 text-center ${
+                activeTab === tab 
+                  ? 'bg-blue-600 text-white font-medium' 
+                  : 'text-gray-400 hover:bg-gray-800/50'
+              }`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+        
+        <div className="p-2">
+          {activeTab === 'TOTALS' && renderTotals()}
+          {activeTab === 'POOLS' && renderPlaceholder('Pools')}
+          {activeTab === 'PROBABLES' && renderPlaceholder('Probables')}
+          {activeTab === 'WILL PAYS' && renderPlaceholder('Will Pays')}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

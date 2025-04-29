@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { PaceData } from '../utils/mockData';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 interface PaceAnalysisProps {
   paceData: PaceData[];
@@ -34,12 +35,12 @@ const PaceAnalysis: React.FC<PaceAnalysisProps> = ({ paceData }) => {
   };
   
   return (
-    <div className="betting-card h-full overflow-hidden">
-      <div className="bg-gradient-to-r from-gray-800 to-gray-900 px-4 py-3">
-        <h2 className="text-lg font-medium text-white">Pace Analysis</h2>
-      </div>
+    <Card className="border-4 border-blue-600 shadow-xl bg-betting-darkCard overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-blue-900 to-blue-800 px-4 py-3">
+        <CardTitle className="text-lg font-semibold text-white">Pace Analysis</CardTitle>
+      </CardHeader>
       
-      <div className="p-2">
+      <CardContent className="p-2">
         <div className="grid grid-cols-4 gap-2 px-3 py-2 bg-gray-800/50 rounded text-gray-300 text-sm">
           <div>Runner</div>
           <div className="text-center">Early</div>
@@ -57,8 +58,8 @@ const PaceAnalysis: React.FC<PaceAnalysisProps> = ({ paceData }) => {
             </div>
           ))}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

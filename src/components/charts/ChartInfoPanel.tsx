@@ -15,7 +15,7 @@ const ChartInfoPanel: React.FC<ChartInfoPanelProps> = ({ spikesCount, lastSpikeT
         <span>Last spike: {lastSpikeTimestamp ? 
           formatTime(lastSpikeTimestamp) : 'None'}</span>
       </div>
-      <div className="mt-1 text-center text-betting-highlight">
+      <div className="mt-1 text-center text-blue-400">
         * Red lines indicate significant money movement
       </div>
     </div>
