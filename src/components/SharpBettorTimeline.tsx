@@ -199,6 +199,7 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
                 />
               ))}
               
+              {/* Fixed the issue: Added yAxisId to ReferenceLine components */}
               {spikes.map((spike, index) => (
                 <ReferenceLine 
                   key={index} 
@@ -206,6 +207,7 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
                   stroke="#F87171" 
                   strokeWidth={2} 
                   strokeDasharray="3 3"
+                  yAxisId="volume"
                   label={{
                     value: 'Spike',
                     position: 'top',
