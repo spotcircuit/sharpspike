@@ -21,6 +21,25 @@ const LiveStreamingOdds: React.FC<LiveStreamingOddsProps> = ({ horses }) => {
     return history;
   };
 
+  // Function to determine heatmap color based on ML to current odds difference
+  const getHeatmapColor = (mlOdds: number | undefined, liveOdds: number): string => {
+    if (!mlOdds) return 'bg-gray-700'; // No ML odds available
+    
+    const diff = liveOdds - mlOdds;
+    const percentChange = (diff / mlOdds) * 100;
+    
+    // Higher intensity colors for bigger changes
+    if (percentChange <= -20) return 'bg-blue-600'; // Much lower odds (better)
+    if (percentChange <= -10) return 'bg-blue-500';
+    if (percentChange <= -5) return 'bg-blue-400';
+    if (percentChange < 0) return 'bg-blue-300';
+    if (percentChange === 0) return 'bg-gray-500';
+    if (percentChange < 5) return 'bg-red-300';
+    if (percentChange < 10) return 'bg-red-400';
+    if (percentChange < 20) return 'bg-red-500';
+    return 'bg-red-600'; // Much higher odds (worse)
+  };
+
   return (
     <Card className="border-4 border-blue-600 shadow-xl bg-betting-darkCard overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-blue-900 to-blue-800 px-4 py-3">
@@ -40,6 +59,9 @@ const LiveStreamingOdds: React.FC<LiveStreamingOddsProps> = ({ horses }) => {
           const secondHalfAvg = oddsHistory.slice(5).reduce((sum, odds) => sum + odds, 0) / 5;
           const trending = secondHalfAvg < firstHalfAvg ? 'down' : 'up';
           
+          // Calculate heatmap color based on ML vs current odds
+          const heatmapColor = getHeatmapColor(horse.mlOdds, horse.liveOdds);
+          
           return (
             <div key={horse.id} className="flex flex-col py-2 px-4 hover:bg-gray-800/30 rounded">
               <div className="flex justify-between items-center mb-1">
@@ -47,10 +69,13 @@ const LiveStreamingOdds: React.FC<LiveStreamingOddsProps> = ({ horses }) => {
                   {horse.isFavorite && (
                     <span className="h-2 w-2 rounded-full bg-red-500 inline-block"></span>
                   )}
-                  <span className="font-semibold">
-                    <span className="text-xs text-gray-400 mr-1">PP{horse.postPosition}</span>
-                    {horse.name}
-                  </span>
+                  <div className="flex items-center">
+                    <span className="text-xs text-gray-400 mr-1">PP{horse.pp}</span>
+                    <div className="flex items-center">
+                      <div className={`w-1.5 h-full ${heatmapColor} mr-1`}></div>
+                      <span className="font-semibold">{horse.name}</span>
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="flex items-center space-x-4">
