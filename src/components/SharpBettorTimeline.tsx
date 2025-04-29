@@ -25,6 +25,12 @@ interface BettingDataPoint {
   runner4?: number;
   runner5?: number;
   runner6?: number;
+  runner1Odds?: number;
+  runner2Odds?: number;
+  runner3Odds?: number;
+  runner4Odds?: number;
+  runner5Odds?: number;
+  runner6Odds?: number;
 }
 
 interface SharpBettorTimelineProps {
@@ -33,6 +39,16 @@ interface SharpBettorTimelineProps {
 
 const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }) => {
   const maxVolume = Math.max(...bettingData.map(item => item.volume));
+  const maxOdds = Math.max(
+    ...bettingData.flatMap(item => [
+      item.runner1Odds || 0,
+      item.runner2Odds || 0,
+      item.runner3Odds || 0,
+      item.runner4Odds || 0,
+      item.runner5Odds || 0,
+      item.runner6Odds || 0,
+    ])
+  );
   
   // Find spike points
   const spikes = bettingData.filter(item => item.isSpike);
@@ -47,6 +63,16 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
     runner6: "#10B981", // Emerald Green
   };
 
+  // Runner names
+  const runnerNames = {
+    runner1: "Gold Search",
+    runner2: "Rivalry",
+    runner3: "Beer With Ice",
+    runner4: "Quebrancho",
+    runner5: "Dancing Noah",
+    runner6: "More Than Five",
+  };
+
   return (
     <Card className="border-4 border-blue-600 shadow-xl bg-betting-darkCard overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-blue-900 to-blue-800 px-4 py-3">
@@ -54,11 +80,11 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
       </CardHeader>
       
       <CardContent className="p-2 pt-4">
-        <div className="h-64">
+        <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={bettingData}
-              margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+              margin={{ top: 10, right: 30, left: 0, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis 
@@ -67,9 +93,19 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
                 tick={{ fill: '#cbd5e1' }} 
               />
               <YAxis 
+                yAxisId="volume"
+                orientation="left"
                 stroke="#cbd5e1" 
                 tick={{ fill: '#cbd5e1' }} 
                 domain={[0, maxVolume * 1.2]} 
+              />
+              <YAxis 
+                yAxisId="odds"
+                orientation="right"
+                stroke="#f59e0b" 
+                tick={{ fill: '#f59e0b' }} 
+                domain={[0, maxOdds * 1.2]} 
+                label={{ value: 'Odds', angle: -90, position: 'insideRight', fill: '#f59e0b' }}
               />
               <Tooltip 
                 contentStyle={{ 
@@ -80,7 +116,24 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
                 labelFormatter={(time) => `Time: ${time}`}
                 formatter={(value, name) => {
                   if (name === 'volume') return [`$${value.toLocaleString()}`, 'Bet Volume'];
-                  return [`#${value}`, `Runner ${name.toString().replace('runner', '')}`];
+                  if (name.toString().includes('Odds')) {
+                    const runnerNumber = name.toString().replace('runnerOdds', '');
+                    return [`${value}`, `${runnerNames[`runner${runnerNumber}` as keyof typeof runnerNames]} Odds`];
+                  }
+                  const runnerNumber = name.toString().replace('runner', '');
+                  const runnerName = runnerNames[name as keyof typeof runnerNames] || `Runner ${runnerNumber}`;
+                  return [`#${value}`, runnerName];
+                }}
+              />
+              <Legend 
+                formatter={(value) => {
+                  if (value === 'volume') return 'Bet Volume';
+                  if (value.toString().includes('Odds')) {
+                    const runnerNumber = value.toString().replace('runnerOdds', '');
+                    return `${runnerNames[`runner${runnerNumber}` as keyof typeof runnerNames]} Odds`;
+                  }
+                  const runnerNumber = value.toString().replace('runner', '');
+                  return runnerNames[value as keyof typeof runnerNames] || `Runner ${runnerNumber}`;
                 }}
               />
               
@@ -88,6 +141,8 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
               <Line 
                 type="monotone" 
                 dataKey="volume" 
+                yAxisId="volume"
+                name="volume"
                 stroke="#3B82F6" 
                 strokeWidth={2} 
                 dot={{ r: 3 }} 
@@ -101,6 +156,7 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
                   type="monotone"
                   dataKey={runner}
                   name={runner}
+                  yAxisId="volume"
                   stroke={color}
                   strokeWidth={1.5}
                   dot={(props) => {
@@ -125,6 +181,21 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
                       </g>
                     );
                   }}
+                />
+              ))}
+              
+              {/* Runner odds lines */}
+              {Object.entries(runnerColors).map(([runner, color]) => (
+                <Line
+                  key={`${runner}Odds`}
+                  type="monotone"
+                  dataKey={`${runner}Odds`}
+                  name={`${runner}Odds`}
+                  yAxisId="odds"
+                  stroke={`${color}80`}
+                  strokeDasharray="5 5"
+                  strokeWidth={1.5}
+                  dot={false}
                 />
               ))}
               
@@ -156,10 +227,10 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
             * Red lines indicate significant money movement
           </div>
           <div className="mt-1 flex flex-wrap gap-2 justify-center">
-            {Object.entries(runnerColors).map(([runner, color]) => (
+            {Object.entries(runnerNames).map(([runner, name], index) => (
               <div key={runner} className="flex items-center gap-1">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }}></div>
-                <span>Runner {runner.replace('runner', '')}</span>
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: runnerColors[runner as keyof typeof runnerColors] }}></div>
+                <span>#{index + 1} {name}</span>
               </div>
             ))}
           </div>

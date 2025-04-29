@@ -44,6 +44,18 @@ export interface BettingDataPoint {
   volume: number;
   timestamp: number;
   isSpike?: boolean;
+  runner1?: number;
+  runner2?: number;
+  runner3?: number;
+  runner4?: number;
+  runner5?: number;
+  runner6?: number;
+  runner1Odds?: number;
+  runner2Odds?: number;
+  runner3Odds?: number;
+  runner4Odds?: number;
+  runner5Odds?: number;
+  runner6Odds?: number;
 }
 
 export interface TrainingFigure {
@@ -53,6 +65,35 @@ export interface TrainingFigure {
   track: string;
   distance: string;
   improvement: number;
+}
+
+export interface TrackStatistics {
+  totalRaces: number;
+  frontRunnerWin: number;
+  pressersWin: number;
+  midPackWin: number;
+  closersWin: number;
+  frontRunnerPercentage: number;
+  pressersPercentage: number;
+  midPackPercentage: number;
+  closersPercentage: number;
+}
+
+export interface PostPosition {
+  position: number;
+  count: number;
+  percentage: number;
+}
+
+export interface TrackTiming {
+  distance: string;
+  bestTime: string;
+  averageTime: string;
+}
+
+export interface HorseComment {
+  name: string;
+  comment: string;
 }
 
 // Generate mock horse data
@@ -162,11 +203,44 @@ const generateBettingTimeline = (): BettingDataPoint[] => {
     
     // Base volume with some randomness
     const volume = Math.round(5000 + Math.random() * 15000);
+    
+    // Generate runner positions and odds
+    const runner1 = Math.floor(Math.random() * 6) + 1;
+    const runner2 = Math.floor(Math.random() * 6) + 1;
+    const runner3 = Math.floor(Math.random() * 6) + 1;
+    const runner4 = Math.floor(Math.random() * 6) + 1;
+    const runner5 = Math.floor(Math.random() * 6) + 1;
+    const runner6 = Math.floor(Math.random() * 6) + 1;
+    
+    // Generate odds (starting around 2.0-15.0 with small fluctuations)
+    const baseOdds = {
+      runner1: 8.0,
+      runner2: 4.5,
+      runner3: 11.0,
+      runner4: 15.0,
+      runner5: 9.0,
+      runner6: 2.2,
+    };
+    
+    const oddsVariation = 0.3; // Maximum variation per time period
+    
     data.push({ 
       time: timeStr,
       volume,
       timestamp,
-      isSpike: false
+      isSpike: false,
+      runner1,
+      runner2,
+      runner3,
+      runner4,
+      runner5,
+      runner6,
+      runner1Odds: baseOdds.runner1 + (Math.random() * oddsVariation * 2 - oddsVariation) * i,
+      runner2Odds: baseOdds.runner2 + (Math.random() * oddsVariation * 2 - oddsVariation) * i,
+      runner3Odds: baseOdds.runner3 + (Math.random() * oddsVariation * 2 - oddsVariation) * i,
+      runner4Odds: baseOdds.runner4 + (Math.random() * oddsVariation * 2 - oddsVariation) * i,
+      runner5Odds: baseOdds.runner5 + (Math.random() * oddsVariation * 2 - oddsVariation) * i,
+      runner6Odds: baseOdds.runner6 + (Math.random() * oddsVariation * 2 - oddsVariation) * i,
     });
   }
   
@@ -237,6 +311,68 @@ const generateTrainingFigures = (): TrainingFigure[] => {
   ];
 };
 
+// Generate track profile data
+const generateTrackProfile = () => {
+  return {
+    statistics: {
+      totalRaces: 19,
+      frontRunnerWin: 7,
+      pressersWin: 3,
+      midPackWin: 7,
+      closersWin: 2,
+      frontRunnerPercentage: 36.8,
+      pressersPercentage: 15.8,
+      midPackPercentage: 36.8,
+      closersPercentage: 10.5,
+    },
+    postPositions: [
+      { position: 1, count: 3, percentage: 15.8 },
+      { position: 2, count: 2, percentage: 10.5 },
+      { position: 3, count: 1, percentage: 5.3 },
+      { position: 4, count: 2, percentage: 10.5 },
+      { position: 5, count: 4, percentage: 21.1 },
+      { position: 6, count: 0, percentage: 0 },
+      { position: 7, count: 3, percentage: 15.8 },
+      { position: 8, count: 1, percentage: 5.3 },
+    ],
+    timings: [
+      { distance: '6f', bestTime: '1:09.2', averageTime: '1:11.5' },
+      { distance: '1m', bestTime: '1:35.7', averageTime: '1:37.2' },
+      { distance: '1 1/8m', bestTime: '1:48.4', averageTime: '1:50.6' },
+    ],
+  };
+};
+
+// Generate horse comments
+const generateHorseComments = () => {
+  return [
+    {
+      name: 'Gold Search',
+      comment: 'Gold Search is ideally positioned for a stalk-and-pounce trip. Foley works of note, he looks tough to endorse, has a good record of 18% with horses dropping in class, and this colt's top-ranked FIRE and Fast Fig make him a solid threat. Recent races at tougher levels only enhance his appeal today.'
+    },
+    {
+      name: 'Rivalry',
+      comment: 'Rivalry cuts back to a sprint for the third start off the layoff. He\'s previously faced much tougher, and today\'s lower level combined with a sharp early pace figures positions him as a serious late threat. Distance change should suit.'
+    },
+    {
+      name: 'Beer With Ice',
+      comment: 'Son of A Giant figures to lead early but couldn\'t outfinish softer at Turfway. Recent upward class moves have not helped his cause, and despite decent early speed figures, he looks vulnerable late.'
+    },
+    {
+      name: 'Quebrancho',
+      comment: 'Quebrancho is questionable at this distance, having never recently contested a similar sprint. Trainer Bahena's stable's decent recent results but his horse needs considerable improvement.'
+    },
+    {
+      name: 'Dancing Noah',
+      comment: 'Dancing Noah has limited sprint experience and no meaningful recent trainer stats. His efforts have been mediocre, and improvement would be needed. Quebrancho exits a key race and could improve late with the right pace upfront. Still, Wainwright's recent cold streak and mediocre dirt sprint stats temper enthusiasm.'
+    },
+    {
+      name: 'More Than Five',
+      comment: 'More Than Five boasts decent recent performances against tougher and has strong figures to back him. Garcia's respectable dirt figures further strengthens his case as a solid contender.'
+    }
+  ];
+};
+
 // Simulate changing odds
 export const updateOdds = (horses: Horse[]): Horse[] => {
   return horses.map(horse => {
@@ -265,6 +401,8 @@ export const getMockData = () => {
     sharpMovements: generateSharpMovements(),
     bettingTimeline: generateBettingTimeline(),
     trainingFigures: generateTrainingFigures(),
+    trackProfile: generateTrackProfile(),
+    horseComments: generateHorseComments(),
     lastUpdated: new Date().toLocaleTimeString()
   };
 };

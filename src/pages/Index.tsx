@@ -8,6 +8,8 @@ import SharpMovement from '../components/SharpMovement';
 import SharpBettorTimeline from '../components/SharpBettorTimeline';
 import TrainingFigures from '../components/TrainingFigures';
 import StatusBar from '../components/StatusBar';
+import TrackProfile from '../components/TrackProfile';
+import HorseComments from '../components/HorseComments';
 import { getMockData, updateOdds, Horse } from '../utils/mockData';
 
 const REFRESH_INTERVAL = 20; // seconds
@@ -74,19 +76,31 @@ const Index = () => {
           <OddsTable horses={data.horses} highlightUpdates={showUpdateNotification} />
         </div>
         
+        {/* Full width Sharp Bettor Timeline */}
+        <div className="grid grid-cols-1 gap-4 mb-4">
+          <SharpBettorTimeline bettingData={data.bettingTimeline} />
+        </div>
+        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           <LiveStreamingOdds horses={data.horses} />
           <PoolsPanel poolData={data.poolData} exoticPools={data.exoticPools} />
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-          <SharpBettorTimeline bettingData={data.bettingTimeline} />
+          <TrackProfile 
+            statistics={data.trackProfile.statistics} 
+            postPositions={data.trackProfile.postPositions}
+            timings={data.trackProfile.timings}
+          />
           <TrainingFigures figures={data.trainingFigures} />
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <PaceAnalysis paceData={data.paceData} />
-          <SharpMovement movements={data.sharpMovements} />
+          <HorseComments comments={data.horseComments} />
+          <div className="grid grid-cols-1 gap-4">
+            <PaceAnalysis paceData={data.paceData} />
+            <SharpMovement movements={data.sharpMovements} />
+          </div>
         </div>
       </div>
     </div>
