@@ -10,6 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
+  Legend,
 } from 'recharts';
 import { formatTime } from '../utils/formatters';
 
@@ -18,6 +19,12 @@ interface BettingDataPoint {
   volume: number;
   timestamp: number;
   isSpike?: boolean;
+  runner1?: number;
+  runner2?: number;
+  runner3?: number;
+  runner4?: number;
+  runner5?: number;
+  runner6?: number;
 }
 
 interface SharpBettorTimelineProps {
@@ -29,6 +36,16 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
   
   // Find spike points
   const spikes = bettingData.filter(item => item.isSpike);
+  
+  // Runner colors
+  const runnerColors = {
+    runner1: "#8B5CF6", // Vivid Purple
+    runner2: "#D946EF", // Magenta Pink
+    runner3: "#F97316", // Bright Orange
+    runner4: "#0EA5E9", // Ocean Blue
+    runner5: "#33C3F0", // Sky Blue
+    runner6: "#10B981", // Emerald Green
+  };
 
   return (
     <Card className="border-4 border-blue-600 shadow-xl bg-betting-darkCard overflow-hidden">
@@ -61,8 +78,13 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
                   color: '#fff' 
                 }} 
                 labelFormatter={(time) => `Time: ${time}`}
-                formatter={(value) => [`$${value.toLocaleString()}`, 'Bet Volume']}
+                formatter={(value, name) => {
+                  if (name === 'volume') return [`$${value.toLocaleString()}`, 'Bet Volume'];
+                  return [`#${value}`, `Runner ${name.replace('runner', '')}`];
+                }}
               />
+              
+              {/* Main volume line */}
               <Line 
                 type="monotone" 
                 dataKey="volume" 
@@ -71,6 +93,41 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
                 dot={{ r: 3 }} 
                 activeDot={{ r: 6, fill: '#60A5FA' }} 
               />
+              
+              {/* Runner position lines */}
+              {Object.entries(runnerColors).map(([runner, color]) => (
+                <Line
+                  key={runner}
+                  type="monotone"
+                  dataKey={runner}
+                  name={runner}
+                  stroke={color}
+                  strokeWidth={1.5}
+                  dot={(props) => {
+                    const { cx, cy, payload } = props;
+                    const value = payload[runner as keyof typeof payload];
+                    if (!value) return null;
+                    
+                    return (
+                      <g key={`dot-${runner}-${cx}-${cy}`}>
+                        <circle cx={cx} cy={cy} r={4} fill={color} />
+                        <text
+                          x={cx}
+                          y={cy}
+                          dy={-8}
+                          textAnchor="middle"
+                          fill={color}
+                          fontSize={10}
+                          fontWeight="bold"
+                        >
+                          {value}
+                        </text>
+                      </g>
+                    );
+                  }}
+                />
+              ))}
+              
               {spikes.map((spike, index) => (
                 <ReferenceLine 
                   key={index} 
@@ -97,6 +154,14 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
           </div>
           <div className="mt-1 text-center text-betting-highlight">
             * Red lines indicate significant money movement
+          </div>
+          <div className="mt-1 flex flex-wrap gap-2 justify-center">
+            {Object.entries(runnerColors).map(([runner, color]) => (
+              <div key={runner} className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }}></div>
+                <span>Runner {runner.replace('runner', '')}</span>
+              </div>
+            ))}
           </div>
         </div>
       </CardContent>

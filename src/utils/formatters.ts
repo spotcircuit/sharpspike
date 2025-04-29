@@ -52,3 +52,10 @@ export const formatTrainingFigure = (figure: number): string => {
   const stars = figure >= 90 ? '★★★' : figure >= 80 ? '★★' : figure >= 70 ? '★' : '';
   return `${figure} ${stars}`;
 };
+
+/**
+ * Format runner position with PP indicator
+ */
+export const formatRunnerPosition = (position: number, runnerNumber: number): string => {
+  return `${position} (PP${runnerNumber})`;
+};
