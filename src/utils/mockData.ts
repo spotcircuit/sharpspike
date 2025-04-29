@@ -1,4 +1,3 @@
-
 import { formatTime } from './formatters';
 
 export interface Horse {
@@ -38,6 +37,22 @@ export interface SharpMove {
   oldOdds: string;
   newOdds: string;
   direction: 'up' | 'down';
+}
+
+export interface BettingDataPoint {
+  time: string;
+  volume: number;
+  timestamp: number;
+  isSpike?: boolean;
+}
+
+export interface TrainingFigure {
+  horse: string;
+  date: string;
+  figure: number;
+  track: string;
+  distance: string;
+  improvement: number;
 }
 
 // Generate mock horse data
@@ -134,6 +149,94 @@ const generateSharpMovements = (): SharpMove[] => {
   ];
 };
 
+// Generate betting timeline data
+const generateBettingTimeline = (): BettingDataPoint[] => {
+  const now = new Date();
+  const data: BettingDataPoint[] = [];
+  
+  // Generate data points for the last 30 minutes with 2 minute intervals
+  for (let i = 0; i < 15; i++) {
+    const time = new Date(now.getTime() - (30 - i * 2) * 60000);
+    const timestamp = time.getTime();
+    const timeStr = `${time.getHours()}:${String(time.getMinutes()).padStart(2, '0')}`;
+    
+    // Base volume with some randomness
+    const volume = Math.round(5000 + Math.random() * 15000);
+    data.push({ 
+      time: timeStr,
+      volume,
+      timestamp,
+      isSpike: false
+    });
+  }
+  
+  // Add spikes at specific points
+  const spikeIndices = [4, 9, 13]; // Spikes at these positions
+  spikeIndices.forEach(index => {
+    if (data[index]) {
+      // Make this a spike with significantly higher volume
+      data[index].volume = Math.round(data[index].volume * (2 + Math.random()));
+      data[index].isSpike = true;
+    }
+  });
+  
+  return data;
+};
+
+// Generate training figures
+const generateTrainingFigures = (): TrainingFigure[] => {
+  return [
+    {
+      horse: 'Silver Streak',
+      date: '04/20/25',
+      figure: 94,
+      track: 'Saratoga',
+      distance: '5f',
+      improvement: 7
+    },
+    {
+      horse: 'Dark Horse',
+      date: '04/18/25',
+      figure: 89,
+      track: 'Belmont',
+      distance: '6f',
+      improvement: 5
+    },
+    {
+      horse: 'Fast Lane',
+      date: '04/22/25',
+      figure: 91,
+      track: 'Churchill',
+      distance: '7f',
+      improvement: 3
+    },
+    {
+      horse: 'Thunder Bolt',
+      date: '04/19/25',
+      figure: 85,
+      track: 'Aqueduct',
+      distance: '4f',
+      improvement: 2
+    },
+    {
+      horse: 'Golden Arrow',
+      date: '04/21/25',
+      figure: 78,
+      track: 'Keeneland',
+      distance: '5f',
+      improvement: -2
+    },
+    {
+      horse: 'Wind Chaser',
+      date: '04/17/25',
+      figure: 72,
+      track: 'Pimlico',
+      distance: '6f',
+      improvement: -1
+    }
+  ];
+};
+
 // Simulate changing odds
 export const updateOdds = (horses: Horse[]): Horse[] => {
   return horses.map(horse => {
@@ -160,6 +263,8 @@ export const getMockData = () => {
     exoticPools: generateExoticPools(),
     paceData: generatePaceData(),
     sharpMovements: generateSharpMovements(),
+    bettingTimeline: generateBettingTimeline(),
+    trainingFigures: generateTrainingFigures(),
     lastUpdated: new Date().toLocaleTimeString()
   };
 };

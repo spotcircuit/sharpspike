@@ -10,7 +10,7 @@ interface StatusBarProps {
 
 const StatusBar: React.FC<StatusBarProps> = ({ lastUpdated, onRefresh, nextUpdateIn }) => {
   return (
-    <div className="bg-blue-600 text-white px-4 py-2 flex items-center justify-between rounded-md animate-fade-in">
+    <div className="bg-blue-600 text-white px-4 py-2 flex items-center justify-between rounded-md animate-fade-in border-4 border-blue-600 shadow-lg">
       <div className="flex items-center space-x-2">
         <span>Dashboard updated successfully!</span>
       </div>

@@ -44,3 +44,11 @@ export const formatTime = (timestamp: number): string => {
     hour12: true
   });
 };
+
+/**
+ * Format training figure with star indicator
+ */
+export const formatTrainingFigure = (figure: number): string => {
+  const stars = figure >= 90 ? '★★★' : figure >= 80 ? '★★' : figure >= 70 ? '★' : '';
+  return `${figure} ${stars}`;
+};

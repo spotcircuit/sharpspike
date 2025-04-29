@@ -5,6 +5,8 @@ import LiveStreamingOdds from '../components/LiveStreamingOdds';
 import PoolsPanel from '../components/PoolsPanel';
 import PaceAnalysis from '../components/PaceAnalysis';
 import SharpMovement from '../components/SharpMovement';
+import SharpBettorTimeline from '../components/SharpBettorTimeline';
+import TrainingFigures from '../components/TrainingFigures';
 import StatusBar from '../components/StatusBar';
 import { getMockData, updateOdds, Horse } from '../utils/mockData';
 
@@ -75,6 +77,11 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           <LiveStreamingOdds horses={data.horses} />
           <PoolsPanel poolData={data.poolData} exoticPools={data.exoticPools} />
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+          <SharpBettorTimeline bettingData={data.bettingTimeline} />
+          <TrainingFigures figures={data.trainingFigures} />
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
