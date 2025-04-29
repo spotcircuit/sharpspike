@@ -79,6 +79,14 @@
     @apply bg-gray-800/30;
   }
   
+  .scrollbar-on-left {
+    direction: rtl;
+  }
+
+  .scrollbar-on-left > * {
+    direction: ltr;
+  }
+  
   /* Gunmetal theme classes */
   .gunmetal-card {
     @apply bg-betting-gunmetal rounded-md border border-betting-gunmetalBorder shadow-lg;

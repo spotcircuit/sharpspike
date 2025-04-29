@@ -21,13 +21,13 @@ const TrainingFigures: React.FC<TrainingFiguresProps> = ({ figures }) => {
   const sortedFigures = [...figures].sort((a, b) => b.figure - a.figure);
   
   return (
-    <Card className="border-4 border-betting-mediumBlue shadow-xl bg-betting-darkCard overflow-hidden">
+    <Card className="border-4 border-betting-mediumBlue shadow-xl bg-betting-darkCard overflow-hidden h-full">
       <CardHeader className="bg-naval-gradient px-4 py-3">
         <CardTitle className="text-lg font-semibold text-white">Best Recent Training Figures</CardTitle>
       </CardHeader>
       
       <CardContent className="p-0">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto h-full">
           <table className="w-full text-sm">
             <thead className="bg-gray-800/60">
               <tr>

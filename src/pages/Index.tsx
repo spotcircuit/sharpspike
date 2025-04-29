@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import OddsTable from '../components/OddsTable';
 import LiveStreamingOdds from '../components/LiveStreamingOdds';
@@ -137,15 +136,11 @@ const Index = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-          <div>
-            <TrainingFigures figures={data.trainingFigures} />
-          </div>
-          <div>
-            <PaceAnalysis paceData={data.paceData} />
-          </div>
+          <PaceAnalysis paceData={data.paceData} />
+          <TrainingFigures figures={data.trainingFigures} />
         </div>
         
-        {/* Moved Live Paddock Comments and AI-Thorian Value to the bottom */}
+        {/* Live Paddock Comments and AI-Thorian Value at the bottom */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           <LivePaddockComments comments={data.paddockComments} />
           <AIThorianValue valuePicks={data.valuePicks} pick3Combos={data.pick3Combos} />
