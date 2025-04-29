@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import OddsTable from '../components/OddsTable';
 import LiveStreamingOdds from '../components/LiveStreamingOdds';
@@ -10,6 +11,8 @@ import StatusBar from '../components/StatusBar';
 import TrackProfile from '../components/TrackProfile';
 import HorseComments from '../components/HorseComments';
 import RaceNavBar from '../components/RaceNavBar';
+import LivePaddockComments from '../components/LivePaddockComments';
+import AIThorianValue from '../components/AIThorianValue';
 import { getMockData, updateOdds, Horse } from '../utils/mockData';
 
 const REFRESH_INTERVAL = 20; // seconds
@@ -122,6 +125,12 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           <LiveStreamingOdds horses={data.horses} />
           <PoolsPanel poolData={data.poolData} exoticPools={data.exoticPools} />
+        </div>
+        
+        {/* New row for Paddock Comments and AI-Thorian Value */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+          <LivePaddockComments comments={data.paddockComments} />
+          <AIThorianValue valuePicks={data.valuePicks} pick3Combos={data.pick3Combos} />
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">

@@ -108,3 +108,22 @@ export interface HorseComment {
   comment: string;
 }
 
+// New interfaces for paddock comments and AI-Thorian
+export interface PaddockComment {
+  timestamp: string;
+  horse: string;
+  comment: string;
+}
+
+export interface ValuePick {
+  horse: string;
+  odds: string;
+  value: number;
+  confidence: number;
+}
+
+export interface PickCombination {
+  combination: string;
+  probability: number;
+  payout: string;
+}

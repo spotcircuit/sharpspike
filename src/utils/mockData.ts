@@ -9,6 +9,8 @@ import { generateBettingTimeline } from './data/betting';
 import { generateTrainingFigures } from './data/training';
 import { generateTrackProfile } from './data/track';
 import { generateHorseComments } from './data/comments';
+import { generatePaddockComments } from './data/paddock';
+import { generateValuePicks, generatePick3Combos } from './data/ai-thorian';
 
 // Re-export types and functions that were previously part of mockData.ts
 export * from './types';
@@ -26,6 +28,9 @@ export const getMockData = () => {
     trainingFigures: generateTrainingFigures(),
     trackProfile: generateTrackProfile(),
     horseComments: generateHorseComments(),
+    paddockComments: generatePaddockComments(),
+    valuePicks: generateValuePicks(),
+    pick3Combos: generatePick3Combos(),
     lastUpdated: new Date().toLocaleTimeString()
   };
 };
