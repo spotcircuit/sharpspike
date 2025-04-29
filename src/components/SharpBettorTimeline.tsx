@@ -80,7 +80,7 @@ const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }
                 labelFormatter={(time) => `Time: ${time}`}
                 formatter={(value, name) => {
                   if (name === 'volume') return [`$${value.toLocaleString()}`, 'Bet Volume'];
-                  return [`#${value}`, `Runner ${name.replace('runner', '')}`];
+                  return [`#${value}`, `Runner ${name.toString().replace('runner', '')}`];
                 }}
               />
               
