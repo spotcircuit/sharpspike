@@ -3,6 +3,7 @@ import React from 'react';
 import { Horse } from '../utils/types';
 import { formatOdds, getChangeClass, formatDifference } from '../utils/formatters';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { TrendingDown, TrendingUp } from 'lucide-react';
 
 interface OddsTableProps {
   horses: Horse[];
@@ -55,8 +56,15 @@ const OddsTable: React.FC<OddsTableProps> = ({ horses, highlightUpdates = false 
                   <td className="px-4 py-3 text-right font-mono">
                     {formatOdds(horse.modelOdds)}
                   </td>
-                  <td className={`px-4 py-3 text-right font-mono ${getChangeClass(horse.difference)}`}>
-                    {formatDifference(horse.difference)}
+                  <td className="px-4 py-3 text-right font-mono flex justify-end items-center">
+                    <span className={getChangeClass(horse.difference)}>
+                      {formatDifference(horse.difference)}
+                    </span>
+                    {horse.difference < 0 ? (
+                      <TrendingDown className="h-4 w-4 ml-1 text-betting-positive" />
+                    ) : horse.difference > 0 ? (
+                      <TrendingUp className="h-4 w-4 ml-1 text-betting-negative" />
+                    ) : null}
                   </td>
                   <td className="px-4 py-3 text-left">
                     {horse.jockey || 'N/A'}
