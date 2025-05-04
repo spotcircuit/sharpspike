@@ -87,6 +87,14 @@
     direction: ltr;
   }
   
+  .irregular-betting-indicator {
+    @apply bg-red-500 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1;
+  }
+  
+  .irregular-betting-row {
+    @apply bg-red-900/20;
+  }
+  
   /* Gunmetal theme classes */
   .gunmetal-card {
     @apply bg-betting-gunmetal rounded-md border border-betting-gunmetalBorder shadow-lg;

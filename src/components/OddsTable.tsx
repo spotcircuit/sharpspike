@@ -3,7 +3,8 @@ import React from 'react';
 import { Horse } from '../utils/types';
 import { formatOdds, getChangeClass, formatDifference } from '../utils/formatters';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { TrendingDown, TrendingUp } from 'lucide-react';
+import { TrendingDown, TrendingUp, AlertCircle } from 'lucide-react';
+import { Badge } from './ui/badge';
 
 interface OddsTableProps {
   horses: Horse[];
@@ -38,7 +39,7 @@ const OddsTable: React.FC<OddsTableProps> = ({ horses, highlightUpdates = false 
               {horses.map((horse) => (
                 <tr 
                   key={horse.id}
-                  className={`${highlightUpdates ? 'transition-all duration-500' : ''}`}
+                  className={`${horse.irregularBetting ? 'bg-red-900/20' : ''} ${highlightUpdates ? 'transition-all duration-500' : ''}`}
                 >
                   <td className="px-4 py-3 text-left">{horse.pp}</td>
                   <td className="px-4 py-3 text-left flex items-center space-x-2">
@@ -46,6 +47,12 @@ const OddsTable: React.FC<OddsTableProps> = ({ horses, highlightUpdates = false 
                       <span className="h-2 w-2 rounded-full bg-red-500 inline-block"></span>
                     )}
                     <span>{horse.name}</span>
+                    {horse.irregularBetting && (
+                      <Badge variant="destructive" className="ml-2 bg-red-500 text-white text-xs flex items-center gap-1 px-2 py-0.5">
+                        <AlertCircle className="h-3 w-3" />
+                        <span>Irregular</span>
+                      </Badge>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-right font-mono">
                     {formatOdds(horse.liveOdds)}

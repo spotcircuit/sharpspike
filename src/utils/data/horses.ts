@@ -7,85 +7,87 @@ export const generateHorses = (): Horse[] => {
     { 
       id: 1, 
       pp: 1, 
-      name: 'Dark Horse', 
-      liveOdds: 12.81, 
-      mlOdds: 15.00,
-      modelOdds: 10.58, 
-      difference: 2.23, 
+      name: 'Fast Lightning', 
+      liveOdds: 6.5, 
+      mlOdds: 6.0,
+      modelOdds: 7.0, 
+      difference: -0.5, 
       isFavorite: false,
-      jockey: "K. Carmouche",
-      trainer: "C. Brown",
+      jockey: "J. Smith",
+      trainer: "T. Brown",
       hFactors: { speed: true, form: true }
     },
     { 
       id: 2, 
       pp: 2, 
-      name: 'Silver Streak', 
-      liveOdds: 2.87, 
-      mlOdds: 2.50,
-      modelOdds: 2.54, 
-      difference: 0.37, 
-      isFavorite: true,
-      jockey: "J. Rosario",
-      trainer: "T. Pletcher",
+      name: 'Lucky Star', 
+      liveOdds: 9.2, 
+      mlOdds: 8.0,
+      modelOdds: 10.4, 
+      difference: -1.2, 
+      isFavorite: false,
+      jockey: "M. Johnson",
+      trainer: "R. Davis",
       hFactors: { speed: true, pace: true, class: true }
     },
     { 
       id: 3, 
       pp: 3, 
-      name: 'Fast Lane', 
-      liveOdds: 3.13, 
-      mlOdds: 3.00,
-      modelOdds: 2.90, 
-      difference: 0.23, 
+      name: 'Thunder Bolt', 
+      liveOdds: 4.4, 
+      mlOdds: 2.5,
+      modelOdds: 6.3, 
+      difference: -1.9, 
       isFavorite: true,
-      jockey: "F. Prat",
-      trainer: "B. Cox",
+      irregularBetting: true,
+      jockey: "A. Williams",
+      trainer: "S. Miller",
       hFactors: { pace: true, form: true }
     },
     { 
       id: 4, 
       pp: 4, 
-      name: 'Wind Chaser', 
-      liveOdds: 15.22, 
-      mlOdds: 12.00,
-      modelOdds: 12.78, 
-      difference: 2.41, 
+      name: 'Silver Streak', 
+      liveOdds: 5.4, 
+      mlOdds: 5.0,
+      modelOdds: 5.8, 
+      difference: -0.4, 
       isFavorite: false,
-      jockey: "J. Velazquez",
-      trainer: "S. Asmussen",
+      jockey: "D. Jones",
+      trainer: "J. Wilson",
       hFactors: { form: true }
     },
     { 
       id: 5, 
       pp: 5, 
       name: 'Golden Arrow', 
-      liveOdds: 7.31, 
-      mlOdds: 8.00,
-      modelOdds: 8.00, 
-      difference: -0.69, 
+      liveOdds: 7.8, 
+      mlOdds: 10.0,
+      modelOdds: 5.6, 
+      difference: 2.2, 
       isFavorite: false,
-      jockey: "I. Ortiz Jr.",
-      trainer: "W. Mott",
+      irregularBetting: true,
+      jockey: "R. Martinez",
+      trainer: "L. Garcia",
       hFactors: { speed: true, class: true }
     },
     { 
       id: 6, 
       pp: 6, 
       name: 'Midnight Runner', 
-      liveOdds: 8.45, 
-      mlOdds: 10.00,
-      modelOdds: 9.32, 
-      difference: -0.87, 
+      liveOdds: 4.5, 
+      mlOdds: 4.0,
+      modelOdds: 5.0, 
+      difference: -0.5, 
       isFavorite: false,
-      jockey: "L. Saez",
-      trainer: "D. Romans",
+      jockey: "C. Taylor",
+      trainer: "P. Anderson",
       hFactors: { pace: true }
     },
     { 
       id: 7, 
       pp: 7, 
-      name: 'Thunder Bolt', 
+      name: 'Wind Chaser', 
       liveOdds: 5.39, 
       mlOdds: 6.00,
       modelOdds: 5.80, 
@@ -98,7 +100,7 @@ export const generateHorses = (): Horse[] => {
     { 
       id: 8, 
       pp: 8, 
-      name: 'Lightning Flash', 
+      name: 'Dark Horse', 
       liveOdds: 9.61, 
       mlOdds: 8.00,
       modelOdds: 11.30, 
@@ -123,10 +125,17 @@ export const updateOdds = (horses: Horse[]): Horse[] => {
     // Update the difference
     const newDifference = parseFloat((newLiveOdds - horse.modelOdds).toFixed(2));
     
+    // Occasionally toggle irregular betting for demonstration purposes
+    const toggleIrregular = Math.random() > 0.995;
+    const irregularBetting = toggleIrregular 
+      ? !horse.irregularBetting 
+      : horse.irregularBetting;
+    
     return {
       ...horse,
       liveOdds: parseFloat(newLiveOdds.toFixed(2)),
-      difference: newDifference
+      difference: newDifference,
+      irregularBetting
     };
   });
 };

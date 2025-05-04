@@ -1,4 +1,3 @@
-
 // Define all type interfaces
 export interface Horse {
   id: number;
@@ -14,6 +13,7 @@ export interface Horse {
   jockeyWinPct?: number;
   trainerWinPct?: number;
   fireNumber?: number;
+  irregularBetting?: boolean;
   hFactors?: {
     speed?: boolean;
     pace?: boolean;
