@@ -11,6 +11,29 @@ interface OddsTableProps {
   highlightUpdates?: boolean;
 }
 
+// Map to convert post position to standard colors
+const getPostPositionColor = (position: number): string => {
+  switch (position) {
+    case 1: return "#DC2626"; // red-600
+    case 2: return "#FFFFFF"; // white
+    case 3: return "#2563EB"; // blue-600
+    case 4: return "#FACC15"; // yellow-400
+    case 5: return "#16A34A"; // green-600
+    case 6: return "#000000"; // black
+    case 7: return "#F97316"; // orange-500
+    case 8: return "#EC4899"; // pink-500
+    case 9: return "#10B981"; // emerald-500
+    case 10: return "#9333EA"; // purple-600
+    case 11: return "#84CC16"; // lime-500
+    case 12: return "#9CA3AF"; // gray-400
+    case 13: return "#9F1239"; // rose-800
+    case 14: return "#14B8A6"; // teal-500
+    case 15: return "#4338CA"; // indigo-700
+    case 16: return "#F59E0B"; // amber-500
+    default: return "#3B82F6"; // blue-500 (default)
+  }
+};
+
 const OddsTable: React.FC<OddsTableProps> = ({ horses, highlightUpdates = false }) => {
   return (
     <Card className="border-4 border-betting-mediumBlue shadow-xl bg-betting-darkCard overflow-hidden w-full">
@@ -36,77 +59,89 @@ const OddsTable: React.FC<OddsTableProps> = ({ horses, highlightUpdates = false 
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {horses.map((horse) => (
-                <tr 
-                  key={horse.id}
-                  className={`${horse.irregularBetting ? 'bg-red-900/20' : ''} ${highlightUpdates ? 'transition-all duration-500' : ''}`}
-                >
-                  <td className="px-4 py-3 text-left">
-                    <div className={`pp-box pp-${horse.pp}`}>{horse.pp}</div>
-                  </td>
-                  <td className="px-4 py-3 text-left flex items-center space-x-2">
-                    {horse.isFavorite && (
-                      <span className="h-2 w-2 rounded-full bg-red-500 inline-block"></span>
-                    )}
-                    <span>{horse.name}</span>
-                    {horse.irregularBetting && (
-                      <Badge variant="destructive" className="ml-2 bg-red-500 text-white text-xs flex items-center gap-1 px-2 py-0.5">
-                        <AlertCircle className="h-3 w-3" />
-                        <span>Irregular</span>
-                      </Badge>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono">
-                    {formatOdds(horse.liveOdds)}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono">
-                    {formatOdds(horse.mlOdds || 0)}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono">
-                    {formatOdds(horse.modelOdds)}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono flex justify-end items-center">
-                    <span className={getChangeClass(horse.difference)}>
-                      {formatDifference(horse.difference)}
-                    </span>
-                    {horse.difference < 0 ? (
-                      <TrendingDown className="h-4 w-4 ml-1 text-betting-positive" />
-                    ) : horse.difference > 0 ? (
-                      <TrendingUp className="h-4 w-4 ml-1 text-betting-negative" />
-                    ) : null}
-                  </td>
-                  <td className="px-4 py-3 text-left">
-                    {horse.jockey || 'N/A'}
-                  </td>
-                  <td className="px-4 py-3 text-left">
-                    {horse.trainer || 'N/A'}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <div className="flex items-center justify-center space-x-2">
-                      <span className="text-xs">{horse.jockeyWinPct || '0'}%</span>
-                      <span className="text-gray-400">/</span>
-                      <span className="text-xs">{horse.trainerWinPct || '0'}%</span>
-                      {horse.fireNumber && (
-                        <span className="fire-number ml-1">{horse.fireNumber}</span>
+              {horses.map((horse) => {
+                // Get proper color based on post position
+                const ppColor = getPostPositionColor(horse.pp);
+                // Determine text color for legibility
+                const textColor = horse.pp === 2 || horse.pp === 4 || horse.pp === 12 ? "text-black" : "text-white";
+                
+                return (
+                  <tr 
+                    key={horse.id}
+                    className={`${horse.irregularBetting ? 'bg-red-900/20' : ''} ${highlightUpdates ? 'transition-all duration-500' : ''}`}
+                  >
+                    <td className="px-4 py-3 text-left">
+                      <div 
+                        className="w-6 h-6 flex items-center justify-center border border-gray-500"
+                        style={{ backgroundColor: ppColor }}
+                      >
+                        <span className={`text-xs font-bold ${textColor}`}>{horse.pp}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-left flex items-center space-x-2">
+                      {horse.isFavorite && (
+                        <span className="h-2 w-2 rounded-full bg-red-500 inline-block"></span>
                       )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <div className="flex items-center justify-center space-x-1">
-                      {horse.hFactors ? (
-                        <>
-                          {horse.hFactors.speed && <span className="px-1 py-0.5 text-xs bg-blue-700 text-white rounded">S</span>}
-                          {horse.hFactors.pace && <span className="px-1 py-0.5 text-xs bg-green-700 text-white rounded">P</span>}
-                          {horse.hFactors.form && <span className="px-1 py-0.5 text-xs bg-yellow-700 text-white rounded">F</span>}
-                          {horse.hFactors.class && <span className="px-1 py-0.5 text-xs bg-red-700 text-white rounded">C</span>}
-                        </>
-                      ) : (
-                        <span className="text-gray-500">-</span>
+                      <span>{horse.name}</span>
+                      {horse.irregularBetting && (
+                        <Badge variant="destructive" className="ml-2 bg-red-500 text-white text-xs flex items-center gap-1 px-2 py-0.5">
+                          <AlertCircle className="h-3 w-3" />
+                          <span>Irregular</span>
+                        </Badge>
                       )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono">
+                      {formatOdds(horse.liveOdds)}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono">
+                      {formatOdds(horse.mlOdds || 0)}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono">
+                      {formatOdds(horse.modelOdds)}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono flex justify-end items-center">
+                      <span className={getChangeClass(horse.difference)}>
+                        {formatDifference(horse.difference)}
+                      </span>
+                      {horse.difference < 0 ? (
+                        <TrendingDown className="h-4 w-4 ml-1 text-betting-positive" />
+                      ) : horse.difference > 0 ? (
+                        <TrendingUp className="h-4 w-4 ml-1 text-betting-negative" />
+                      ) : null}
+                    </td>
+                    <td className="px-4 py-3 text-left">
+                      {horse.jockey || 'N/A'}
+                    </td>
+                    <td className="px-4 py-3 text-left">
+                      {horse.trainer || 'N/A'}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex items-center justify-center space-x-2">
+                        <span className="text-xs">{horse.jockeyWinPct || '0'}%</span>
+                        <span className="text-gray-400">/</span>
+                        <span className="text-xs">{horse.trainerWinPct || '0'}%</span>
+                        {horse.fireNumber && (
+                          <span className="fire-number ml-1">{horse.fireNumber}</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex items-center justify-center space-x-1">
+                        {horse.hFactors ? (
+                          <>
+                            {horse.hFactors.speed && <span className="px-1 py-0.5 text-xs bg-blue-700 text-white rounded">S</span>}
+                            {horse.hFactors.pace && <span className="px-1 py-0.5 text-xs bg-green-700 text-white rounded">P</span>}
+                            {horse.hFactors.form && <span className="px-1 py-0.5 text-xs bg-yellow-700 text-white rounded">F</span>}
+                            {horse.hFactors.class && <span className="px-1 py-0.5 text-xs bg-red-700 text-white rounded">C</span>}
+                          </>
+                        ) : (
+                          <span className="text-gray-500">-</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
