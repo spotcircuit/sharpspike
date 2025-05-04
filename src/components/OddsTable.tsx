@@ -41,7 +41,9 @@ const OddsTable: React.FC<OddsTableProps> = ({ horses, highlightUpdates = false 
                   key={horse.id}
                   className={`${horse.irregularBetting ? 'bg-red-900/20' : ''} ${highlightUpdates ? 'transition-all duration-500' : ''}`}
                 >
-                  <td className="px-4 py-3 text-left">{horse.pp}</td>
+                  <td className="px-4 py-3 text-left">
+                    <div className={`pp-box pp-${horse.pp}`}>{horse.pp}</div>
+                  </td>
                   <td className="px-4 py-3 text-left flex items-center space-x-2">
                     {horse.isFavorite && (
                       <span className="h-2 w-2 rounded-full bg-red-500 inline-block"></span>

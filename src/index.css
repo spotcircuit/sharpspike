@@ -137,4 +137,73 @@
   .fire-number {
     @apply bg-amber-600 text-white text-xs font-bold px-1.5 py-0.5 rounded;
   }
+
+  /* Post position (PP) standard industry colors */
+  .pp-box {
+    @apply w-6 h-6 flex items-center justify-center text-white text-xs font-bold border border-gray-500;
+  }
+  
+  .pp-1 {
+    @apply bg-red-600; /* Red */
+  }
+  
+  .pp-2 {
+    @apply bg-white text-black; /* White */
+  }
+  
+  .pp-3 {
+    @apply bg-blue-600; /* Blue */
+  }
+  
+  .pp-4 {
+    @apply bg-yellow-400 text-black; /* Yellow */
+  }
+  
+  .pp-5 {
+    @apply bg-green-600; /* Green */
+  }
+  
+  .pp-6 {
+    @apply bg-black; /* Black */
+  }
+  
+  .pp-7 {
+    @apply bg-orange-500; /* Orange */
+  }
+  
+  .pp-8 {
+    @apply bg-pink-500; /* Pink */
+  }
+  
+  .pp-9 {
+    @apply bg-emerald-500; /* Turquoise */
+  }
+  
+  .pp-10 {
+    @apply bg-purple-600; /* Purple */
+  }
+  
+  .pp-11 {
+    @apply bg-lime-500; /* Lime Green */
+  }
+  
+  .pp-12 {
+    @apply bg-gray-400 text-black; /* Gray */
+  }
+  
+  .pp-13 {
+    @apply bg-rose-800; /* Brown/Maroon */
+  }
+  
+  .pp-14 {
+    @apply bg-teal-500; /* Teal */
+  }
+  
+  .pp-15 {
+    @apply bg-indigo-700; /* Indigo */
+  }
+  
+  .pp-16 {
+    @apply bg-amber-500; /* Amber */
+  }
 }

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import BettingTimeline from './charts/BettingTimeline';
@@ -28,14 +29,14 @@ interface SharpBettorTimelineProps {
 }
 
 const SharpBettorTimeline: React.FC<SharpBettorTimelineProps> = ({ bettingData }) => {
-  // Runner colors
+  // Post position colors (industry standard)
   const runnerColors = {
-    runner1: "#8B5CF6", // Vivid Purple
-    runner2: "#D946EF", // Magenta Pink
-    runner3: "#F97316", // Bright Orange
-    runner4: "#0EA5E9", // Ocean Blue
-    runner5: "#33C3F0", // Sky Blue
-    runner6: "#10B981", // Emerald Green
+    runner1: "#DC2626", // red-600
+    runner2: "#FFFFFF", // white
+    runner3: "#2563EB", // blue-600
+    runner4: "#FACC15", // yellow-400
+    runner5: "#16A34A", // green-600
+    runner6: "#000000", // black
   };
 
   // Runner names
