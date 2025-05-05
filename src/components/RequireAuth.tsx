@@ -1,7 +1,8 @@
 
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/components/ui/sonner';
 
 interface RequireAuthProps {
   children: React.ReactNode;
@@ -11,6 +12,18 @@ interface RequireAuthProps {
 const RequireAuth: React.FC<RequireAuthProps> = ({ children, requireAdmin = false }) => {
   const { user, isLoading, isAdmin } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        console.log("No user found, should redirect to auth");
+      } else if (requireAdmin && !isAdmin) {
+        console.log("User is not admin, should redirect to home", { isAdmin });
+        toast.error("You don't have permission to access the admin area");
+      }
+    }
+  }, [user, isLoading, isAdmin, requireAdmin]);
 
   if (isLoading) {
     // You could render a loading spinner here
@@ -23,11 +36,13 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children, requireAdmin = fals
 
   if (!user) {
     // Redirect to the login page if not logged in
+    console.log("Redirecting to auth page, no user found");
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
   if (requireAdmin && !isAdmin) {
     // Redirect to home if admin access is required but user is not an admin
+    console.log("Redirecting to home, user is not admin");
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 

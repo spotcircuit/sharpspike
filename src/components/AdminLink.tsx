@@ -3,12 +3,19 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Settings } from 'lucide-react';
+import { toast } from '@/components/ui/sonner';
 
 const AdminLink = () => {
   const navigate = useNavigate();
   
   const handleAdminClick = () => {
-    navigate('/admin');
+    try {
+      console.log("Admin button clicked, navigating to /admin");
+      navigate('/admin');
+    } catch (error) {
+      console.error("Navigation error:", error);
+      toast.error("Failed to navigate to admin page");
+    }
   };
 
   return (
