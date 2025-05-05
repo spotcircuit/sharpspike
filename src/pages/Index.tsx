@@ -12,6 +12,7 @@ import HorseComments from '../components/HorseComments';
 import RaceNavBar from '../components/RaceNavBar';
 import LivePaddockComments from '../components/LivePaddockComments';
 import AIThorianValue from '../components/AIThorianValue';
+import AdminLink from '../components/AdminLink';
 import { getMockData, updateOdds, Horse } from '../utils/mockData';
 
 const REFRESH_INTERVAL = 20; // seconds
@@ -55,6 +56,23 @@ const Index = () => {
     
     return () => clearInterval(timer);
   }, [data]);
+
+  // Effect to check for updated mock data
+  useEffect(() => {
+    const checkForUpdates = () => {
+      const latestData = getMockData();
+      if (latestData.lastUpdated !== data.lastUpdated) {
+        setData(latestData);
+        setLastUpdated(latestData.lastUpdated);
+        setShowUpdateNotification(true);
+        setTimeout(() => setShowUpdateNotification(false), 3000);
+      }
+    };
+    
+    // Check for updates every 5 seconds
+    const updateChecker = setInterval(checkForUpdates, 5000);
+    return () => clearInterval(updateChecker);
+  }, [data.lastUpdated]);
 
   const handleTrackChange = (track: string) => {
     setCurrentTrack(track);
@@ -146,6 +164,9 @@ const Index = () => {
           <AIThorianValue valuePicks={data.valuePicks} pick3Combos={data.pick3Combos} />
         </div>
       </div>
+      
+      {/* Add admin link */}
+      <AdminLink />
     </div>
   );
 };

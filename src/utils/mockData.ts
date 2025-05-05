@@ -12,25 +12,38 @@ import { generateHorseComments } from './data/comments';
 import { generatePaddockComments } from './data/paddock';
 import { generateValuePicks, generatePick3Combos } from './data/ai-thorian';
 
+// Store the mock data in memory so we can update it
+let mockData = {
+  horses: generateHorses(),
+  poolData: generatePoolData(),
+  exoticPools: generateExoticPools(),
+  paceData: generatePaceData(),
+  sharpMovements: generateSharpMovements(),
+  bettingTimeline: generateBettingTimeline(),
+  trainingFigures: generateTrainingFigures(),
+  trackProfile: generateTrackProfile(),
+  horseComments: generateHorseComments(),
+  paddockComments: generatePaddockComments(),
+  valuePicks: generateValuePicks(),
+  pick3Combos: generatePick3Combos(),
+  lastUpdated: new Date().toLocaleTimeString()
+};
+
 // Re-export types and functions that were previously part of mockData.ts
 export * from './types';
 export { updateOdds } from './data/horses';
 
-// Export all mock data
+// Get the current mock data
 export const getMockData = () => {
-  return {
-    horses: generateHorses(),
-    poolData: generatePoolData(),
-    exoticPools: generateExoticPools(),
-    paceData: generatePaceData(),
-    sharpMovements: generateSharpMovements(),
-    bettingTimeline: generateBettingTimeline(),
-    trainingFigures: generateTrainingFigures(),
-    trackProfile: generateTrackProfile(),
-    horseComments: generateHorseComments(),
-    paddockComments: generatePaddockComments(),
-    valuePicks: generateValuePicks(),
-    pick3Combos: generatePick3Combos(),
+  return mockData;
+};
+
+// Update the mock data with new values
+export const updateMockData = (newData: Partial<typeof mockData>) => {
+  mockData = {
+    ...mockData,
+    ...newData,
     lastUpdated: new Date().toLocaleTimeString()
   };
+  return mockData;
 };
