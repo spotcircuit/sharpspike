@@ -4,19 +4,29 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Settings } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 const AdminLink = () => {
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
   
   const handleAdminClick = () => {
     try {
       console.log("Admin button clicked, navigating to /admin");
-      navigate('/admin');
+      if (isAdmin) {
+        navigate('/admin');
+      } else {
+        console.log("User is not an admin, cannot access admin page");
+        toast.error("You need admin privileges to access this page");
+      }
     } catch (error) {
       console.error("Navigation error:", error);
       toast.error("Failed to navigate to admin page");
     }
   };
+
+  // Don't show the button if user is not an admin
+  if (!isAdmin) return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
