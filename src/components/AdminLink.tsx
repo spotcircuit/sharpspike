@@ -1,22 +1,27 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Settings } from 'lucide-react';
 
 const AdminLink = () => {
+  const navigate = useNavigate();
+  
+  const handleAdminClick = () => {
+    navigate('/admin');
+  };
+
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      <Link to="/admin">
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="bg-betting-darkPurple/80 border-betting-secondaryPurple hover:bg-betting-darkPurple text-gray-300"
-        >
-          <Settings className="mr-2 h-4 w-4" />
-          Admin
-        </Button>
-      </Link>
+      <Button 
+        variant="outline" 
+        size="sm"
+        onClick={handleAdminClick}
+        className="bg-betting-darkPurple/80 border-betting-secondaryPurple hover:bg-betting-darkPurple text-gray-300"
+      >
+        <Settings className="mr-2 h-4 w-4" />
+        Admin
+      </Button>
     </div>
   );
 };
