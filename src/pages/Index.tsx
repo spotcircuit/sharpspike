@@ -13,7 +13,8 @@ import RaceNavBar from '../components/RaceNavBar';
 import LivePaddockComments from '../components/LivePaddockComments';
 import AIThorianValue from '../components/AIThorianValue';
 import AdminLink from '../components/AdminLink';
-import { getMockData, updateOdds, Horse } from '../utils/mockData';
+import UserProfile from '../components/UserProfile';
+import { getMockData, updateOdds } from '../utils/mockData';
 
 const REFRESH_INTERVAL = 20; // seconds
 
@@ -96,7 +97,8 @@ const Index = () => {
               Live race track odds and pool movement dashboard
             </p>
           </div>
-          <div className="text-right">
+          <div className="flex items-center gap-4">
+            <UserProfile />
             <h2 className="text-2xl font-bold text-white bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-betting-vividPurple">
               5D Racing Odds Pulse
             </h2>

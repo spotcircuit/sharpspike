@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,14 +8,49 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { updateMockData, getMockData } from '../utils/mockData';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import UserProfile from '@/components/UserProfile';
 
 const AdminPage = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [apiUrl, setApiUrl] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [isTestMode, setIsTestMode] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [testResponse, setTestResponse] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    // Load API connection settings from Supabase
+    const loadApiConnectionSettings = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('api_connections')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error loading API connection settings:', error);
+          return;
+        }
+        
+        if (data) {
+          setApiUrl(data.api_url);
+          setApiKey(data.api_key || '');
+          setIsTestMode(data.is_test_mode);
+        }
+      } catch (error) {
+        console.error('Error in loading API settings:', error);
+      }
+    };
+    
+    loadApiConnectionSettings();
+  }, [user]);
 
   const handleTestConnection = async () => {
     if (!apiUrl) {
@@ -69,8 +104,8 @@ const AdminPage = () => {
     }
   };
 
-  const handleSaveConnection = () => {
-    if (!apiUrl) {
+  const handleSaveConnection = async () => {
+    if (!apiUrl || !user) {
       toast({
         title: "Error",
         description: "Please enter an API URL",
@@ -79,15 +114,63 @@ const AdminPage = () => {
       return;
     }
 
-    // Save API connection details to localStorage
-    localStorage.setItem('oddsApiUrl', apiUrl);
-    localStorage.setItem('oddsApiKey', apiKey);
-    localStorage.setItem('oddsApiTestMode', String(isTestMode));
-
-    toast({
-      title: "Connection Saved",
-      description: "API connection settings have been saved.",
-    });
+    setIsSaving(true);
+    
+    try {
+      // Check if a connection already exists
+      const { data: existingData, error: fetchError } = await supabase
+        .from('api_connections')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (fetchError) {
+        throw fetchError;
+      }
+      
+      let result;
+      
+      if (existingData) {
+        // Update existing connection
+        result = await supabase
+          .from('api_connections')
+          .update({
+            api_url: apiUrl,
+            api_key: apiKey,
+            is_test_mode: isTestMode,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingData.id);
+      } else {
+        // Create new connection
+        result = await supabase
+          .from('api_connections')
+          .insert({
+            user_id: user.id,
+            api_url: apiUrl,
+            api_key: apiKey,
+            is_test_mode: isTestMode
+          });
+      }
+      
+      if (result.error) {
+        throw result.error;
+      }
+      
+      toast({
+        title: "Connection Saved",
+        description: "API connection settings have been saved.",
+      });
+    } catch (error) {
+      console.error('Error saving connection:', error);
+      toast({
+        title: "Error Saving Connection",
+        description: "An error occurred while saving the connection.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleImportData = async () => {
@@ -123,17 +206,6 @@ const AdminPage = () => {
     }
   };
 
-  // Load saved settings on component mount
-  React.useEffect(() => {
-    const savedApiUrl = localStorage.getItem('oddsApiUrl');
-    const savedApiKey = localStorage.getItem('oddsApiKey');
-    const savedTestMode = localStorage.getItem('oddsApiTestMode');
-    
-    if (savedApiUrl) setApiUrl(savedApiUrl);
-    if (savedApiKey) setApiKey(savedApiKey);
-    if (savedTestMode !== null) setIsTestMode(savedTestMode === 'true');
-  }, []);
-
   return (
     <div className="min-h-screen bg-gradient-radial from-betting-dark to-black p-6 text-white">
       <div className="max-w-4xl mx-auto">
@@ -142,9 +214,12 @@ const AdminPage = () => {
             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-600">
               Odds Admin Panel
             </h1>
-            <Button variant="outline" onClick={() => window.location.href = "/"}>
-              Back to Dashboard
-            </Button>
+            <div className="flex items-center gap-4">
+              <Button variant="outline" onClick={() => window.location.href = "/"}>
+                Back to Dashboard
+              </Button>
+              <UserProfile />
+            </div>
           </div>
           <p className="text-gray-400 mt-2">
             Configure API connections and import race data
@@ -205,9 +280,9 @@ const AdminPage = () => {
                 <Button 
                   variant="outline"
                   onClick={handleSaveConnection}
-                  disabled={isLoading}
+                  disabled={isLoading || isSaving}
                 >
-                  Save Connection
+                  {isSaving ? "Saving..." : "Save Connection"}
                 </Button>
               </CardFooter>
             </Card>
