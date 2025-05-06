@@ -1,191 +1,117 @@
 
-import React, { useState, useEffect } from 'react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
-import { OddsData, ExoticWillPay } from '@/types/ScraperTypes';
-import { RaceResult } from '@/types/RaceResultTypes';
-import { loadRaces, loadRaceData } from './utils/scraper-utils';
-import EmptyStatePrompt from './EmptyStatePrompt';
-import { toast } from '@/components/ui/sonner';
-import ActiveScrapeJobsList from './ActiveScrapeJobsList';
-import ScraperStatusMonitor from './ScraperStatusMonitor';
-import { supabase } from '@/integrations/supabase/client';
-import DashboardHeader from './DashboardHeader';
-import NoRacesAlert from './NoRacesAlert';
-import DataDisplaySection from './DataDisplaySection';
+import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { useScrapeJobs } from '@/hooks/useScrapeJobs';
+import StatsCards from '@/components/admin/stats/StatsCards';
+import JobsTable from '@/components/admin/jobs/JobsTable';
+import CreateJobDialog from '@/components/admin/jobs/CreateJobDialog';
+import ActiveScrapeJobsList from '@/components/dashboard/ActiveScrapeJobsList';
+import ScheduledJobsMonitor from '@/components/dashboard/ScheduledJobsMonitor';
+import { RefreshCcw } from 'lucide-react';
+import { format } from 'date-fns';
 
-const ScraperDataDashboard = () => {
-  const [selectedTrack, setSelectedTrack] = useState<string>('');
-  const [selectedRace, setSelectedRace] = useState<number | null>(null);
-  const [races, setRaces] = useState<number[]>([]);
-  const [oddsData, setOddsData] = useState<OddsData[]>([]);
-  const [willPays, setWillPays] = useState<ExoticWillPay[]>([]);
-  const [results, setResults] = useState<RaceResult[]>([]);
-  const [lastUpdateTime, setLastUpdateTime] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showActiveJobs, setShowActiveJobs] = useState(false);
-  const [showDatabaseMonitor, setShowDatabaseMonitor] = useState(false);
-  const [jobsCount, setJobsCount] = useState(0);
+const ScraperDataDashboard: React.FC = () => {
+  const [open, setOpen] = useState(false);
+  const { 
+    jobs, 
+    stats, 
+    isLoading, 
+    loadJobs, 
+    loadStats, 
+    createJob, 
+    toggleJobStatus, 
+    deleteJob, 
+    runJobManually, 
+    lastRefresh
+  } = useScrapeJobs();
 
-  // Check active jobs count
-  useEffect(() => {
-    const fetchActiveJobsCount = async () => {
-      const { count, error } = await supabase
-        .from('scrape_jobs')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_active', true);
-      
-      if (!error && count !== null) {
-        setJobsCount(count);
-      }
-    };
-    
-    fetchActiveJobsCount();
-  }, []);
-
-  // Load races when track changes
-  useEffect(() => {
-    if (selectedTrack) {
-      handleLoadRaces(selectedTrack);
-    }
-  }, [selectedTrack]);
-
-  // Load data when track and race are selected
-  useEffect(() => {
-    if (selectedTrack && selectedRace !== null) {
-      handleLoadData(selectedTrack, selectedRace);
-    }
-  }, [selectedTrack, selectedRace]);
-
-  // Handler for loading races
-  const handleLoadRaces = async (trackName: string) => {
-    setIsLoading(true);
-    setRaces([]);
-    setSelectedRace(null);
-    
-    try {
-      const raceNumbers = await loadRaces(trackName);
-      setRaces(raceNumbers);
-      
-      // Select the first race if we have races and none is selected
-      if (raceNumbers.length > 0) {
-        setSelectedRace(raceNumbers[0]);
-      } else {
-        setSelectedRace(null);
-        toast(`No races available for ${trackName}. Data may still be loading.`);
-      }
-    } catch (error) {
-      console.error('Error loading races:', error);
-      toast.error("Failed to load races");
-      setSelectedRace(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Handler for loading race data
-  const handleLoadData = async (trackName: string, raceNumber: number) => {
-    setIsLoading(true);
-    try {
-      const { oddsData, willPays, results, lastUpdateTime } = await loadRaceData(trackName, raceNumber);
-      
-      setOddsData(oddsData);
-      setWillPays(willPays);
-      setResults(results);
-      setLastUpdateTime(lastUpdateTime);
-    } catch (error) {
-      console.error('Error loading data:', error);
-      toast.error("Failed to load race data");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Handler for track change
-  const handleTrackChange = (track: string) => {
-    if (track !== selectedTrack) {
-      setSelectedTrack(track);
-      setSelectedRace(null);
-      setOddsData([]);
-      setWillPays([]);
-      setResults([]);
-    }
-  };
-
-  // Handler for race change
-  const handleRaceChange = (race: number) => {
-    if (race !== selectedRace) {
-      setSelectedRace(race);
-    }
-  };
-
-  // Handler for refresh button
   const handleRefresh = () => {
-    if (selectedTrack && selectedRace !== null) {
-      handleLoadData(selectedTrack, selectedRace);
-    }
-  };
-
-  // Toggle active jobs list
-  const toggleActiveJobs = () => {
-    setShowActiveJobs(!showActiveJobs);
-    
-    // Close database monitor if opening jobs list
-    if (!showActiveJobs) {
-      setShowDatabaseMonitor(false);
-    }
-  };
-  
-  // Toggle database monitor
-  const toggleDatabaseMonitor = () => {
-    setShowDatabaseMonitor(!showDatabaseMonitor);
-    
-    // Close jobs list if opening database monitor
-    if (!showDatabaseMonitor) {
-      setShowActiveJobs(false);
-    }
+    loadJobs();
+    loadStats();
   };
 
   return (
     <div className="space-y-6">
-      <DashboardHeader
-        selectedTrack={selectedTrack}
-        selectedRace={selectedRace}
-        races={races}
-        onTrackChange={handleTrackChange}
-        onRaceChange={handleRaceChange}
-        isLoading={isLoading}
-        lastUpdateTime={lastUpdateTime}
-        onRefresh={handleRefresh}
-        jobsCount={jobsCount}
-        showActiveJobs={showActiveJobs}
-        showDatabaseMonitor={showDatabaseMonitor}
-        toggleActiveJobs={toggleActiveJobs}
-        toggleDatabaseMonitor={toggleDatabaseMonitor}
-      />
-      
-      {showDatabaseMonitor && (
-        <ScraperStatusMonitor />
-      )}
-      
-      {showActiveJobs && (
-        <ActiveScrapeJobsList />
-      )}
-      
-      <NoRacesAlert selectedTrack={selectedTrack} races={races} />
-      
-      {selectedTrack && selectedRace !== null ? (
-        <DataDisplaySection
-          selectedTrack={selectedTrack}
-          selectedRace={selectedRace}
-          oddsData={oddsData}
-          willPays={willPays}
-          results={results}
-          isLoading={isLoading}
-        />
-      ) : (
-        <EmptyStatePrompt />
-      )}
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-2">Scraper Dashboard</h2>
+          <p className="text-gray-400">
+            Manage web scraping jobs and view data statistics
+          </p>
+        </div>
+        <div className="flex items-center space-x-4">
+          <Button onClick={handleRefresh} variant="outline" className="flex items-center gap-2">
+            <RefreshCcw className="h-4 w-4" />
+            Refresh
+          </Button>
+          <Button onClick={() => setOpen(true)} variant="default">
+            Create Scrape Job
+          </Button>
+        </div>
+      </div>
+
+      <div className="text-xs text-gray-500">
+        Last updated: {format(lastRefresh, 'MMM d, yyyy h:mm:ss a')}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <StatsCards stats={stats} isLoading={isLoading} />
+        </div>
+        <div className="lg:col-span-1">
+          <ScheduledJobsMonitor />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6">
+        <Card className="bg-betting-navyBlue border-betting-mediumBlue">
+          <CardHeader>
+            <CardTitle>Active Scrape Jobs</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ActiveScrapeJobsList />
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="all" className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="all">All Jobs</TabsTrigger>
+          <TabsTrigger value="active">Active Jobs</TabsTrigger>
+          <TabsTrigger value="inactive">Inactive Jobs</TabsTrigger>
+        </TabsList>
+        <TabsContent value="all">
+          <JobsTable 
+            jobs={jobs} 
+            isLoading={isLoading} 
+            toggleJobStatus={toggleJobStatus} 
+            deleteJob={deleteJob}
+            runJobManually={runJobManually}
+          />
+        </TabsContent>
+        <TabsContent value="active">
+          <JobsTable 
+            jobs={jobs.filter(job => job.is_active)} 
+            isLoading={isLoading} 
+            toggleJobStatus={toggleJobStatus} 
+            deleteJob={deleteJob}
+            runJobManually={runJobManually}
+          />
+        </TabsContent>
+        <TabsContent value="inactive">
+          <JobsTable 
+            jobs={jobs.filter(job => !job.is_active)} 
+            isLoading={isLoading} 
+            toggleJobStatus={toggleJobStatus} 
+            deleteJob={deleteJob}
+            runJobManually={runJobManually}
+          />
+        </TabsContent>
+      </Tabs>
+
+      <CreateJobDialog open={open} setOpen={setOpen} createJob={createJob} />
     </div>
   );
 };
