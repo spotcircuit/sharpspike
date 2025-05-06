@@ -177,9 +177,22 @@ export const useScrapeJobs = () => {
   const runJobManually = async (job: ScrapeJob) => {
     setIsRunningJob(true);
     try {
-      // Call the edge function to run the job
+      // Update job to run immediately
+      const { error: updateError } = await supabase
+        .from('scrape_jobs')
+        .update({ 
+          next_run_at: new Date().toISOString(),
+          status: 'pending'
+        })
+        .eq('id', job.id);
+      
+      if (updateError) {
+        throw updateError;
+      }
+      
+      // Call the edge function with the specific job ID to run it immediately
       const { data, error } = await supabase.functions.invoke('run-scrape-jobs', {
-        body: { jobId: job.id }
+        body: { jobId: job.id, force: true }
       });
       
       if (error) {
@@ -187,12 +200,17 @@ export const useScrapeJobs = () => {
       }
       
       toast.success('Job executed successfully');
-      await loadJobs();
-      await loadStats();
+      
+      // Wait a moment before refreshing to allow the edge function to complete
+      setTimeout(async () => {
+        await loadJobs();
+        await loadStats();
+        setIsRunningJob(false);
+      }, 3000);
+      
     } catch (error) {
       console.error('Error running job:', error);
       toast.error('Failed to execute job');
-    } finally {
       setIsRunningJob(false);
     }
   };

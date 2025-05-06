@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,13 +11,13 @@ import WillPaysDisplay from './WillPaysDisplay';
 import ResultsDisplay from './ResultsDisplay';
 import TrackSelector from './TrackSelector';
 import EmptyStatePrompt from './EmptyStatePrompt';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import ActiveScrapeJobsList from './ActiveScrapeJobsList';
+import ScraperStatusMonitor from './ScraperStatusMonitor';
 import { supabase } from '@/integrations/supabase/client';
 
 const ScraperDataDashboard = () => {
-  const { toast } = useToast();
   const [selectedTrack, setSelectedTrack] = useState<string>('');
   const [selectedRace, setSelectedRace] = useState<number | null>(null);
   const [races, setRaces] = useState<number[]>([]);
@@ -26,6 +27,7 @@ const ScraperDataDashboard = () => {
   const [lastUpdateTime, setLastUpdateTime] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showActiveJobs, setShowActiveJobs] = useState(false);
+  const [showDatabaseMonitor, setShowDatabaseMonitor] = useState(false);
   const [jobsCount, setJobsCount] = useState(0);
   const [isRefreshingJobs, setIsRefreshingJobs] = useState(false);
 
@@ -145,7 +147,9 @@ const ScraperDataDashboard = () => {
     setIsRefreshingJobs(true);
     try {
       // Call the edge function to execute jobs
-      const { error } = await supabase.functions.invoke('run-scrape-jobs');
+      const { data, error } = await supabase.functions.invoke('run-scrape-jobs', {
+        body: { force: true }
+      });
       
       if (error) {
         throw error;
@@ -179,6 +183,21 @@ const ScraperDataDashboard = () => {
   // Toggle active jobs list
   const toggleActiveJobs = () => {
     setShowActiveJobs(!showActiveJobs);
+    
+    // Close database monitor if opening jobs list
+    if (!showActiveJobs) {
+      setShowDatabaseMonitor(false);
+    }
+  };
+  
+  // Toggle database monitor
+  const toggleDatabaseMonitor = () => {
+    setShowDatabaseMonitor(!showDatabaseMonitor);
+    
+    // Close jobs list if opening database monitor
+    if (!showDatabaseMonitor) {
+      setShowActiveJobs(false);
+    }
   };
 
   return (
@@ -217,12 +236,22 @@ const ScraperDataDashboard = () => {
           </Button>
           
           <Button
-            variant="outline"
+            variant={showActiveJobs ? "default" : "outline"}
             size="sm"
             onClick={toggleActiveJobs}
             className="ml-2"
           >
             <span>Active Jobs ({jobsCount})</span>
+          </Button>
+          
+          <Button
+            variant={showDatabaseMonitor ? "default" : "outline"}
+            size="sm"
+            onClick={toggleDatabaseMonitor}
+            className="ml-2"
+          >
+            <Database className="h-4 w-4 mr-2" />
+            <span>DB Monitor</span>
           </Button>
           
           <Button
@@ -241,6 +270,10 @@ const ScraperDataDashboard = () => {
           </Button>
         </div>
       </div>
+      
+      {showDatabaseMonitor && (
+        <ScraperStatusMonitor />
+      )}
       
       {showActiveJobs && (
         <Card className="bg-betting-darkCard border-betting-mediumBlue mb-6">
@@ -262,6 +295,7 @@ const ScraperDataDashboard = () => {
           <AlertDescription>
             No races found for {selectedTrack}. There may be a scrape job running to fetch this data.
             Click the "Active Jobs" button to check the status of running jobs, or click "Run All Jobs" to trigger the scraper.
+            You can also check the "DB Monitor" to see if any data is being added to the database.
           </AlertDescription>
         </Alert>
       )}

@@ -16,16 +16,21 @@ serve(async (req) => {
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
+    console.log("=== Starting scrape job runner ===");
     console.log("Checking for pending scrape jobs...");
     
     // Get specific job ID if provided
     let jobId = null;
+    let forcedRun = false;
     
     try {
       const requestData = await req.json();
       jobId = requestData?.jobId;
+      forcedRun = requestData?.force === true;
+      console.log(`Request data: ${JSON.stringify(requestData)}`);
     } catch (e) {
       // No request body or invalid JSON, proceed with all pending jobs
+      console.log("No specific job ID provided, will check all pending jobs");
     }
     
     // If jobId is provided, only get that specific job
@@ -37,7 +42,7 @@ serve(async (req) => {
     if (jobId) {
       console.log(`Processing specific job: ${jobId}`);
       jobsQuery = jobsQuery.eq('id', jobId);
-    } else {
+    } else if (!forcedRun) {
       // Get jobs that are due to run (next_run_at <= current time)
       jobsQuery = jobsQuery.lte('next_run_at', new Date().toISOString());
     }
@@ -58,15 +63,25 @@ serve(async (req) => {
       );
     }
     
-    console.log(`Found ${jobs.length} jobs to process`);
+    console.log(`Found ${jobs.length} jobs to process: ${jobs.map(j => j.id).join(', ')}`);
     
     const results = [];
     
     // Process each job
     for (const job of jobs) {
       console.log(`Processing job: ${job.id} (${job.job_type}) for ${job.track_name}`);
+      console.log(`URL: "${job.url || 'No URL provided'}"`);
       
       try {
+        // Generate default URL if none provided
+        let jobUrl = job.url;
+        if (!jobUrl || jobUrl.trim() === '') {
+          // Generate a default URL based on track and job type
+          const trackSlug = job.track_name.toLowerCase().replace(/\s+/g, '-');
+          jobUrl = `https://www.offtrackbetting.com/tracks/${trackSlug}`;
+          console.log(`No URL provided, using default: ${jobUrl}`);
+        }
+        
         // Update job status to "running"
         await supabase
           .from('scrape_jobs')
@@ -78,13 +93,16 @@ serve(async (req) => {
         // Execute the job based on its type
         switch (job.job_type) {
           case 'odds':
-            jobResult = await scrapeOdds(job.url, job.track_name, supabase);
+            console.log(`Scraping odds for ${job.track_name}`);
+            jobResult = await scrapeOdds(jobUrl, job.track_name, supabase);
             break;
           case 'will_pays':
-            jobResult = await scrapeWillPays(job.url, job.track_name, supabase);
+            console.log(`Scraping will-pays for ${job.track_name}`);
+            jobResult = await scrapeWillPays(jobUrl, job.track_name, supabase);
             break;
           case 'results':
-            jobResult = await scrapeResults(job.url, job.track_name, supabase);
+            console.log(`Scraping results for ${job.track_name}`);
+            jobResult = await scrapeResults(jobUrl, job.track_name, supabase);
             break;
           default:
             throw new Error(`Unknown job type: ${job.job_type}`);
@@ -93,6 +111,8 @@ serve(async (req) => {
         // Calculate next run time
         const nextRunAt = new Date();
         nextRunAt.setSeconds(nextRunAt.getSeconds() + job.interval_seconds);
+        
+        console.log(`Job ${job.id} completed successfully. Next run at: ${nextRunAt.toISOString()}`);
         
         // Update job status to "completed" and set next_run_at
         await supabase
@@ -107,8 +127,10 @@ serve(async (req) => {
         results.push({ 
           id: job.id, 
           type: job.job_type, 
+          track: job.track_name,
           success: true, 
-          data: jobResult 
+          data: jobResult,
+          message: `Successfully scraped ${job.job_type} data for ${job.track_name}`
         });
         
       } catch (error) {
@@ -117,6 +139,8 @@ serve(async (req) => {
         // Calculate next run time even for failed jobs
         const nextRunAt = new Date();
         nextRunAt.setSeconds(nextRunAt.getSeconds() + job.interval_seconds);
+        
+        console.log(`Job ${job.id} failed. Next run at: ${nextRunAt.toISOString()}`);
         
         // Update job status to "failed"
         await supabase
@@ -131,11 +155,15 @@ serve(async (req) => {
         results.push({ 
           id: job.id, 
           type: job.job_type, 
+          track: job.track_name,
           success: false, 
-          error: error.message 
+          error: error.message,
+          message: `Failed to scrape ${job.job_type} data for ${job.track_name}: ${error.message}`
         });
       }
     }
+    
+    console.log(`Job processing complete. Results: ${JSON.stringify(results)}`);
     
     return new Response(
       JSON.stringify({ success: true, results }),
