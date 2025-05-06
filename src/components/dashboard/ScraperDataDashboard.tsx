@@ -38,37 +38,32 @@ const ScraperDataDashboard = () => {
   const loadRaces = async (trackName: string) => {
     setIsLoading(true);
     try {
-      // Get race numbers from odds_data table
-      const { data: oddsRaces, error: oddsError } = await supabase
+      // Get race numbers from odds_data table - using .select().in() instead of .distinct()
+      const { data: oddsData, error: oddsError } = await supabase
         .from('odds_data')
         .select('race_number')
         .eq('track_name', trackName)
-        .order('race_number')
-        .distinct();
+        .order('race_number');
       
       if (oddsError) throw oddsError;
       
-      const raceNumbers = oddsRaces.map(r => r.race_number);
+      // Create a Set to get unique race numbers
+      const uniqueRaceNumbers = new Set(oddsData.map(r => r.race_number));
       
       // Also check race_results table
-      const { data: resultRaces, error: resultsError } = await supabase
+      const { data: resultData, error: resultsError } = await supabase
         .from('race_results')
         .select('race_number')
         .eq('track_name', trackName)
-        .order('race_number')
-        .distinct();
+        .order('race_number');
       
       if (resultsError) throw resultsError;
       
-      // Combine race numbers from both tables
-      resultRaces.forEach(r => {
-        if (!raceNumbers.includes(r.race_number)) {
-          raceNumbers.push(r.race_number);
-        }
-      });
+      // Add race numbers from results to the Set
+      resultData.forEach(r => uniqueRaceNumbers.add(r.race_number));
       
-      // Sort race numbers
-      raceNumbers.sort((a, b) => a - b);
+      // Convert Set to array and sort
+      const raceNumbers = Array.from(uniqueRaceNumbers).sort((a, b) => a - b);
       
       setRaces(raceNumbers);
       
@@ -322,7 +317,9 @@ const ScraperDataDashboard = () => {
                 {Object.entries(payouts).map(([bet, amount]) => (
                   <div key={bet} className="flex justify-between items-center border-b border-betting-mediumBlue pb-2">
                     <span className="font-medium">{bet}</span>
-                    <span className="font-bold text-lg">${typeof amount === 'number' ? amount.toFixed(2) : amount}</span>
+                    <span className="font-bold text-lg">
+                      ${typeof amount === 'number' ? amount.toFixed(2) : String(amount)}
+                    </span>
                   </div>
                 ))}
               </div>
