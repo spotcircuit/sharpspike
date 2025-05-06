@@ -171,3 +171,27 @@ export interface RaceHorse {
   created_at: string;
   updated_at: string;
 }
+
+// Add MockData interface to explicitly define the structure of our mock data
+export interface MockData {
+  horses: Horse[];
+  poolData: PoolData[];
+  exoticPools: ExoticPool[];
+  paceData: PaceData[];
+  sharpMovements: SharpMove[];
+  bettingTimeline: BettingDataPoint[];
+  trainingFigures: TrainingFigure[];
+  trackProfile: {
+    statistics: TrackStatistics;
+    postPositions: PostPosition[];
+    timings: TrackTiming[];
+  };
+  horseComments: HorseComment[];
+  paddockComments: PaddockComment[];
+  valuePicks: ValuePick[];
+  pick3Combos: PickCombination[];
+  lastUpdated: string;
+  // Add the missing properties
+  trackName?: string;
+  raceNumber?: number;
+}

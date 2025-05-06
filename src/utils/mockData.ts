@@ -1,6 +1,6 @@
 
 import { formatTime } from './formatters';
-import { Horse } from './types';
+import { Horse, MockData } from './types';
 import { generateHorses, updateOdds } from './data/horses';
 import { generatePoolData, generateExoticPools } from './data/pools';
 import { generatePaceData } from './data/pace';
@@ -13,7 +13,7 @@ import { generatePaddockComments } from './data/paddock';
 import { generateValuePicks, generatePick3Combos } from './data/ai-thorian';
 
 // Store the mock data in memory so we can update it
-let mockData = {
+let mockData: MockData = {
   horses: generateHorses(),
   poolData: generatePoolData(),
   exoticPools: generateExoticPools(),
@@ -39,7 +39,7 @@ export const getMockData = () => {
 };
 
 // Update the mock data with new values
-export const updateMockData = (newData: Partial<typeof mockData>) => {
+export const updateMockData = (newData: Partial<MockData>) => {
   mockData = {
     ...mockData,
     ...newData,
