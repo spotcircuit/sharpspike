@@ -1,225 +1,75 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { ScrapeJob, ScraperStats } from '@/types/ScraperTypes';
+import { ScrapeJob } from '@/types/ScraperTypes';
+import { useJobFetching } from './useJobFetching';
+import { useScraperStats } from './useScraperStats';
+import { useJobOperations } from './useJobOperations';
 import { toast } from '@/components/ui/sonner';
 
 export const useScrapeJobs = () => {
-  const [jobs, setJobs] = useState<ScrapeJob[]>([]);
-  const [stats, setStats] = useState<ScraperStats>({
-    totalJobs: 0,
-    activeJobs: 0,
-    completedJobs: 0,
-    failedJobs: 0,
-    oddsRecords: 0,
-    willPaysRecords: 0,
-    resultsRecords: 0,
-    lastExecutionTime: null
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [isRunningJob, setIsRunningJob] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  
+  // Use our smaller hooks
+  const { jobs, isLoading, loadJobs, setJobs } = useJobFetching();
+  const { stats, loadStats } = useScraperStats();
+  const { isRunningJob, createJob: createJobOperation, toggleJobStatus: toggleJobStatusOperation, deleteJob: deleteJobOperation, runJobManually: runJobManuallyOperation } = useJobOperations();
 
-  // Load jobs and stats
-  const loadJobs = async () => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('scrape_jobs')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        throw error;
-      }
-      
-      setJobs(data as ScrapeJob[]);
-    } catch (error) {
-      console.error('Error loading scrape jobs:', error);
-      toast.error('Failed to load scrape jobs');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Load statistics
-  const loadStats = async () => {
-    try {
-      // Get counts from each table
-      const [
-        jobsResponse,
-        activeJobsResponse,
-        completedJobsResponse,
-        failedJobsResponse,
-        oddsResponse,
-        willPaysResponse,
-        resultsResponse
-      ] = await Promise.all([
-        supabase.from('scrape_jobs').select('id', { count: 'exact', head: true }),
-        supabase.from('scrape_jobs').select('id', { count: 'exact', head: true }).eq('is_active', true),
-        supabase.from('scrape_jobs').select('id', { count: 'exact', head: true }).eq('status', 'completed'),
-        supabase.from('scrape_jobs').select('id', { count: 'exact', head: true }).eq('status', 'failed'),
-        supabase.from('odds_data').select('id', { count: 'exact', head: true }),
-        supabase.from('exotic_will_pays').select('id', { count: 'exact', head: true }),
-        supabase.from('race_results').select('id', { count: 'exact', head: true })
-      ]);
-      
-      // Get last execution time
-      const { data: lastJobData } = await supabase
-        .from('scrape_jobs')
-        .select('last_run_at')
-        .not('last_run_at', 'is', null)
-        .order('last_run_at', { ascending: false })
-        .limit(1);
-      
-      setStats({
-        totalJobs: jobsResponse.count || 0,
-        activeJobs: activeJobsResponse.count || 0,
-        completedJobs: completedJobsResponse.count || 0,
-        failedJobs: failedJobsResponse.count || 0,
-        oddsRecords: oddsResponse.count || 0,
-        willPaysRecords: willPaysResponse.count || 0,
-        resultsRecords: resultsResponse.count || 0,
-        lastExecutionTime: lastJobData && lastJobData.length > 0 ? lastJobData[0].last_run_at : null
-      });
-    } catch (error) {
-      console.error('Error loading stats:', error);
-    }
-  };
-
-  // Create a new job
-  const createJob = async (values: any) => {
-    try {
-      const { data, error } = await supabase
-        .from('scrape_jobs')
-        .insert({
-          url: values.url,
-          track_name: values.track_name,
-          job_type: values.job_type,
-          interval_seconds: values.interval_seconds,
-          is_active: values.is_active,
-          status: 'pending',
-          next_run_at: new Date().toISOString()
-        })
-        .select()
-        .single();
-      
-      if (error) {
-        throw error;
-      }
-      
-      setJobs([data as ScrapeJob, ...jobs]);
-      toast.success('Scrape job created successfully');
+  // Auto-refresh data every 30 seconds
+  useEffect(() => {
+    const refreshInterval = setInterval(() => {
+      loadJobs();
       loadStats();
-      return true;
-    } catch (error) {
-      console.error('Error creating scrape job:', error);
-      toast.error('Failed to create scrape job');
-      return false;
-    }
-  };
-
-  // Toggle job status
-  const toggleJobStatus = async (job: ScrapeJob) => {
-    try {
-      const updatedIsActive = !job.is_active;
-      
-      const { error } = await supabase
-        .from('scrape_jobs')
-        .update({ 
-          is_active: updatedIsActive,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', job.id);
-      
-      if (error) {
-        throw error;
-      }
-      
-      // Update jobs state
-      setJobs(jobs.map(j => 
-        j.id === job.id ? { ...j, is_active: updatedIsActive } : j
-      ));
-      
-      toast.success(`Job ${updatedIsActive ? 'activated' : 'paused'} successfully`);
-      loadStats();
-    } catch (error) {
-      console.error('Error toggling job status:', error);
-      toast.error('Failed to update job status');
-    }
-  };
-
-  // Delete a job
-  const deleteJob = async (jobId: string) => {
-    if (!confirm('Are you sure you want to delete this job?')) {
-      return;
-    }
+      setLastRefresh(new Date());
+    }, 30000);
     
-    try {
-      const { error } = await supabase
-        .from('scrape_jobs')
-        .delete()
-        .eq('id', jobId);
-      
-      if (error) {
-        throw error;
-      }
-      
-      setJobs(jobs.filter(job => job.id !== jobId));
-      toast.success('Job deleted successfully');
-      loadStats();
-    } catch (error) {
-      console.error('Error deleting job:', error);
-      toast.error('Failed to delete job');
-    }
-  };
-
-  // Run a job manually
-  const runJobManually = async (job: ScrapeJob) => {
-    setIsRunningJob(true);
-    try {
-      // Update job to run immediately
-      const { error: updateError } = await supabase
-        .from('scrape_jobs')
-        .update({ 
-          next_run_at: new Date().toISOString(),
-          status: 'pending'
-        })
-        .eq('id', job.id);
-      
-      if (updateError) {
-        throw updateError;
-      }
-      
-      // Call the edge function with the specific job ID to run it immediately
-      const { data, error } = await supabase.functions.invoke('run-scrape-jobs', {
-        body: { jobId: job.id, force: true }
-      });
-      
-      if (error) {
-        throw error;
-      }
-      
-      toast.success('Job executed successfully');
-      
-      // Wait a moment before refreshing to allow the edge function to complete
-      setTimeout(async () => {
-        await loadJobs();
-        await loadStats();
-        setIsRunningJob(false);
-      }, 3000);
-      
-    } catch (error) {
-      console.error('Error running job:', error);
-      toast.error('Failed to execute job');
-      setIsRunningJob(false);
-    }
-  };
+    return () => clearInterval(refreshInterval);
+  }, []);
 
   // Load data on mount
   useEffect(() => {
     loadJobs();
     loadStats();
   }, []);
+
+  // Enhanced versions of the operations that update local state
+  const createJob = async (values: any) => {
+    const result = await createJobOperation(values);
+    if (result.success && result.data) {
+      setJobs([result.data as ScrapeJob, ...jobs]);
+      loadStats();
+    }
+    return result.success;
+  };
+
+  const toggleJobStatus = async (job: ScrapeJob) => {
+    const result = await toggleJobStatusOperation(job);
+    if (result.success) {
+      // Update jobs state
+      setJobs(jobs.map(j => 
+        j.id === job.id ? { ...j, is_active: result.isActive } : j
+      ));
+      loadStats();
+    }
+  };
+
+  const deleteJob = async (jobId: string) => {
+    const result = await deleteJobOperation(jobId);
+    if (result.success) {
+      setJobs(jobs.filter(job => job.id !== jobId));
+      loadStats();
+    }
+  };
+
+  const runJobManually = async (job: ScrapeJob) => {
+    const result = await runJobManuallyOperation(job);
+    if (result.success) {
+      // Wait a moment before refreshing to allow the edge function to complete
+      setTimeout(async () => {
+        await loadJobs();
+        await loadStats();
+      }, 3000);
+    }
+  };
 
   return {
     jobs,
@@ -231,6 +81,7 @@ export const useScrapeJobs = () => {
     createJob,
     toggleJobStatus,
     deleteJob,
-    runJobManually
+    runJobManually,
+    lastRefresh
   };
 };
