@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -23,41 +22,78 @@ const LiveDataStream: React.FC<LiveDataStreamProps> = ({
     setIsLoading(true);
     setError(null);
     
-    let tableToQuery = '';
-    
-    switch(jobType) {
-      case 'odds':
-        tableToQuery = 'odds_data';
-        break;
-      case 'will_pays':
-        tableToQuery = 'exotic_will_pays';
-        break;
-      case 'results':
-        tableToQuery = 'race_results';
-        break;
-      default:
-        tableToQuery = 'odds_data';
-    }
-    
     const fetchData = async () => {
       try {
-        let query = supabase
-          .from(tableToQuery)
-          .select('*')
-          .order('scraped_at', { ascending: false })
-          .limit(15);
+        // Use direct table references instead of dynamic string variables
+        let data;
+        
+        if (jobType === 'odds') {
+          let query = supabase
+            .from('odds_data')
+            .select('*')
+            .order('scraped_at', { ascending: false })
+            .limit(15);
+            
+          if (trackName) {
+            query = query.eq('track_name', trackName);
+          }
           
-        if (trackName) {
-          query = query.eq('track_name', trackName);
-        }
-        
-        const { data, error } = await query;
-        
-        if (error) {
-          throw error;
+          const response = await query;
+          if (response.error) throw response.error;
+          data = response.data;
+          
+        } else if (jobType === 'will_pays') {
+          let query = supabase
+            .from('exotic_will_pays')
+            .select('*')
+            .order('scraped_at', { ascending: false })
+            .limit(15);
+            
+          if (trackName) {
+            query = query.eq('track_name', trackName);
+          }
+          
+          const response = await query;
+          if (response.error) throw response.error;
+          data = response.data;
+          
+        } else if (jobType === 'results') {
+          let query = supabase
+            .from('race_results')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(15);
+            
+          if (trackName) {
+            query = query.eq('track_name', trackName);
+          }
+          
+          const response = await query;
+          if (response.error) throw response.error;
+          data = response.data;
+          
+        } else {
+          // Default to odds data if no type specified
+          let query = supabase
+            .from('odds_data')
+            .select('*')
+            .order('scraped_at', { ascending: false })
+            .limit(15);
+            
+          if (trackName) {
+            query = query.eq('track_name', trackName);
+          }
+          
+          const response = await query;
+          if (response.error) throw response.error;
+          data = response.data;
         }
         
         setStreamData(data || []);
+        
+        if (data && data.length > 0) {
+          
+        }
       } catch (err: any) {
         console.error('Error fetching stream data:', err);
         setError(err.message || 'Failed to fetch data');
@@ -69,21 +105,71 @@ const LiveDataStream: React.FC<LiveDataStreamProps> = ({
     // Initial fetch
     fetchData();
     
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('table-db-changes')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: tableToQuery,
-        filter: trackName ? `track_name=eq.${trackName}` : undefined
-      }, (payload) => {
-        setStreamData(prevData => {
-          const newData = [payload.new, ...prevData].slice(0, 15);
-          return newData;
-        });
-      })
-      .subscribe();
+    // Set up real-time subscription - using the correct table name directly
+    let channel;
+    
+    if (jobType === 'odds') {
+      channel = supabase
+        .channel('odds-data-changes')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'odds_data',
+          filter: trackName ? `track_name=eq.${trackName}` : undefined
+        }, (payload) => {
+          setStreamData(prevData => {
+            const newData = [payload.new, ...prevData].slice(0, 15);
+            return newData;
+          });
+        })
+        .subscribe();
+    } else if (jobType === 'will_pays') {
+      channel = supabase
+        .channel('will-pays-changes')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'exotic_will_pays',
+          filter: trackName ? `track_name=eq.${trackName}` : undefined
+        }, (payload) => {
+          setStreamData(prevData => {
+            const newData = [payload.new, ...prevData].slice(0, 15);
+            return newData;
+          });
+        })
+        .subscribe();
+    } else if (jobType === 'results') {
+      channel = supabase
+        .channel('results-changes')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'race_results',
+          filter: trackName ? `track_name=eq.${trackName}` : undefined
+        }, (payload) => {
+          setStreamData(prevData => {
+            const newData = [payload.new, ...prevData].slice(0, 15);
+            return newData;
+          });
+        })
+        .subscribe();
+    } else {
+      // Default to odds data if no type specified
+      channel = supabase
+        .channel('odds-data-changes')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'odds_data',
+          filter: trackName ? `track_name=eq.${trackName}` : undefined
+        }, (payload) => {
+          setStreamData(prevData => {
+            const newData = [payload.new, ...prevData].slice(0, 15);
+            return newData;
+          });
+        })
+        .subscribe();
+    }
     
     // Refresh data every 10 seconds as backup
     const interval = setInterval(fetchData, 10000);
