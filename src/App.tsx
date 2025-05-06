@@ -12,6 +12,7 @@ import RaceResultsPage from "./pages/RaceResultsPage";
 import RequireAuth from "./components/RequireAuth";
 import { AuthProvider } from "./contexts/AuthContext";
 import DataDashboardPage from "./pages/DataDashboardPage";
+import QuantumRankingsPage from "./pages/QuantumRankingsPage";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,14 @@ const App = () => (
               element={
                 <RequireAuth>
                   <DataDashboardPage />
+                </RequireAuth>
+              } 
+            />
+            <Route 
+              path="/quantum-rankings" 
+              element={
+                <RequireAuth>
+                  <QuantumRankingsPage />
                 </RequireAuth>
               } 
             />

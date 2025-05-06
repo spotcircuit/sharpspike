@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -109,15 +110,15 @@
   
   /* Purple theme classes */
   .purple-card {
-    @apply bg-betting-darkPurple rounded-md border-4 border-betting-secondaryPurple shadow-lg;
+    @apply bg-betting-darkPurple rounded-md border-4 border-betting-tertiaryPurple shadow-lg;
   }
   
   .purple-header {
-    @apply bg-purple-header text-white;
+    @apply bg-purple-gradient text-white;
   }
   
   .purple-border {
-    @apply border-4 border-betting-secondaryPurple;
+    @apply border-4 border-betting-tertiaryPurple;
   }
   
   /* Naval blue theme classes */

@@ -2,6 +2,8 @@
 import React from 'react';
 import AdminLink from '../AdminLink';
 import UserProfile from '../UserProfile';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -14,6 +16,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   title,
   subtitle 
 }) => {
+  const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen bg-gradient-radial from-betting-dark to-black p-4 text-white">
       <div className="max-w-7xl mx-auto">
@@ -27,10 +31,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             </p>
           </div>
           <div className="flex items-center gap-4">
+            <Button
+              onClick={() => navigate('/quantum-rankings')}
+              className="bg-orange-500 hover:bg-orange-600 text-white font-medium"
+            >
+              Quantum 5D Rankings
+            </Button>
             <UserProfile />
-            <h2 className="text-2xl font-bold text-white bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-betting-navyBlue to-betting-darkPurple">
-              Trackside Odds Pulse
-            </h2>
           </div>
         </header>
         

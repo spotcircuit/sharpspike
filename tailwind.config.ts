@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -80,7 +81,7 @@ export default {
           darkPurple: '#1A1F2C',
           vividPurple: '#8B5CF6',
           secondaryPurple: '#7E69AB',
-          tertiaryPurple: '#6E59A5',
+          tertiaryPurple: '#5C3F8F', // Deeper purple
           // New naval blues
           navyBlue: '#0D2B45',
           mediumBlue: '#1E5F8C',

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { getMockData } from '../utils/mockData';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
-import DataUpdateManager from '../components/dashboard/DataUpdateManager';
+import useDataUpdateManager from '../components/dashboard/DataUpdateManager';
 import DashboardContent from '../components/dashboard/DashboardContent';
 
 const Index = () => {
@@ -13,7 +13,7 @@ const Index = () => {
   const [currentRace, setCurrentRace] = useState(7);
   
   // Use our custom hook for data updates
-  const { nextUpdateIn, isLoading, refreshData } = DataUpdateManager({
+  const { nextUpdateIn, isLoading, refreshData } = useDataUpdateManager({
     currentTrack,
     currentRace,
     onDataUpdate: (updatedData, updatedTime) => {
