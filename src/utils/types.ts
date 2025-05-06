@@ -1,3 +1,4 @@
+
 // Define all type interfaces
 export interface Horse {
   id: number;
@@ -126,4 +127,13 @@ export interface PickCombination {
   combination: string;
   probability: number;
   payout: string;
+}
+
+// New type for PDF extraction data
+export interface PDFExtractionResult {
+  success: boolean;
+  horses?: Horse[];
+  trackName?: string;
+  raceNumber?: number;
+  error?: string;
 }

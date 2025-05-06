@@ -11,6 +11,7 @@ import { updateMockData, getMockData } from '../utils/mockData';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import UserProfile from '@/components/UserProfile';
+import PDFUploader from '@/components/PDFUploader';
 
 const AdminPage = () => {
   const { toast } = useToast();
@@ -206,6 +207,11 @@ const AdminPage = () => {
     }
   };
 
+  const handlePDFDataExtracted = (data: any) => {
+    console.log('Extracted PDF data:', data);
+    // The data is already updated in the updateMockData function in PDFUploader
+  };
+
   return (
     <div className="min-h-screen bg-gradient-radial from-betting-dark to-black p-6 text-white">
       <div className="max-w-4xl mx-auto">
@@ -227,9 +233,10 @@ const AdminPage = () => {
         </header>
 
         <Tabs defaultValue="connection" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsList className="grid w-full grid-cols-3 mb-4">
             <TabsTrigger value="connection">API Connection</TabsTrigger>
             <TabsTrigger value="import">Data Import</TabsTrigger>
+            <TabsTrigger value="pdf-import">PDF Import</TabsTrigger>
           </TabsList>
           
           <TabsContent value="connection">
@@ -338,6 +345,13 @@ const AdminPage = () => {
                 </Button>
               </CardFooter>
             </Card>
+          </TabsContent>
+          
+          <TabsContent value="pdf-import">
+            <CardHeader className="px-0 pt-0">
+              <CardTitle>Import Race Data from PDF</CardTitle>
+            </CardHeader>
+            <PDFUploader onDataExtracted={handlePDFDataExtracted} />
           </TabsContent>
         </Tabs>
       </div>
