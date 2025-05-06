@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { TRACK_OPTIONS } from '@/types/ScraperTypes';
 
 interface RaceNavBarProps {
   currentTrack?: string;
@@ -40,18 +41,6 @@ const RaceNavBar: React.FC<RaceNavBarProps> = ({
   const [track, setTrack] = useState(currentTrack);
   const [race, setRace] = useState(currentRace);
 
-  const tracks = [
-    "CHURCHILL DOWNS", 
-    "BELMONT PARK", 
-    "SANTA ANITA", 
-    "DEL MAR", 
-    "KEENELAND",
-    "MOUNTAINEER",
-    "LOS ALAMITOS",
-    "GULFSTREAM PARK",
-    "SARATOGA",
-    "AQUEDUCT"
-  ];
   const races = Array.from({ length: 12 }, (_, i) => i + 1);
 
   const handleTrackChange = (value: string) => {
@@ -89,9 +78,9 @@ const RaceNavBar: React.FC<RaceNavBarProps> = ({
             <SelectValue placeholder="Select Track" />
           </SelectTrigger>
           <SelectContent className="bg-white text-black">
-            {tracks.map((trackName) => (
-              <SelectItem key={trackName} value={trackName}>
-                {trackName}
+            {TRACK_OPTIONS.map((trackOption) => (
+              <SelectItem key={trackOption.value} value={trackOption.value}>
+                {trackOption.label}
               </SelectItem>
             ))}
           </SelectContent>

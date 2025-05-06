@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
+import { TRACK_OPTIONS } from '@/types/ScraperTypes';
 
 const ConfigInfo: React.FC = () => {
   return (
@@ -44,6 +45,20 @@ const ConfigInfo: React.FC = () => {
           <div className="text-sm text-gray-400">
             <p>Jobs can be scheduled with different intervals ranging from 30 seconds to 1 hour.</p>
             <p className="mt-2">Choose shorter intervals (30-60 seconds) for odds that change frequently, and longer intervals for will pays and results.</p>
+          </div>
+        </div>
+        
+        <div>
+          <h4 className="font-medium text-purple-400 mb-2">Supported Tracks</h4>
+          <div className="text-sm text-gray-400">
+            <p>The following tracks are currently supported:</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+              {TRACK_OPTIONS.map(track => (
+                <div key={track.value} className="bg-black/30 p-2 rounded">
+                  {track.label}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
