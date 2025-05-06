@@ -49,7 +49,12 @@ const RaceResultsPage: React.FC = () => {
         setResults(data as RaceResult[]);
         if (data.length > 0 && !selectedResult) {
           setSelectedResult(data[0] as RaceResult);
+        } else if (data.length === 0) {
+          setSelectedResult(null);
         }
+      } else {
+        setResults([]);
+        setSelectedResult(null);
       }
     } catch (error) {
       console.error('Error fetching results:', error);
