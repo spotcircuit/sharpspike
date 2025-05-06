@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Clock, RefreshCw, BarChart2, Zap } from 'lucide-react';
+import { Clock, RefreshCw, BarChart2, Zap, AlertCircle } from 'lucide-react';
 import { OddsData, ExoticWillPay } from '@/types/ScraperTypes';
 import { RaceResult } from '@/types/RaceResultTypes';
 import { loadRaces, loadRaceData, formatTime } from './utils/scraper-utils';
@@ -12,6 +12,9 @@ import ResultsDisplay from './ResultsDisplay';
 import TrackSelector from './TrackSelector';
 import EmptyStatePrompt from './EmptyStatePrompt';
 import { useToast } from '@/components/ui/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import ActiveScrapeJobsList from './ActiveScrapeJobsList';
+import { supabase } from '@/integrations/supabase/client';
 
 const ScraperDataDashboard = () => {
   const { toast } = useToast();
@@ -23,6 +26,24 @@ const ScraperDataDashboard = () => {
   const [results, setResults] = useState<RaceResult[]>([]);
   const [lastUpdateTime, setLastUpdateTime] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showActiveJobs, setShowActiveJobs] = useState(false);
+  const [jobsCount, setJobsCount] = useState(0);
+
+  // Check active jobs count
+  useEffect(() => {
+    const fetchActiveJobsCount = async () => {
+      const { count, error } = await supabase
+        .from('scrape_jobs')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true);
+      
+      if (!error && count !== null) {
+        setJobsCount(count);
+      }
+    };
+    
+    fetchActiveJobsCount();
+  }, []);
 
   // Load races when track changes
   useEffect(() => {
@@ -42,6 +63,7 @@ const ScraperDataDashboard = () => {
   const handleLoadRaces = async (trackName: string) => {
     setIsLoading(true);
     setRaces([]);
+    setSelectedRace(null);
     
     try {
       const raceNumbers = await loadRaces(trackName);
@@ -54,8 +76,8 @@ const ScraperDataDashboard = () => {
         setSelectedRace(null);
         toast({
           title: "No races found",
-          description: `No races available for ${trackName}`,
-          variant: "destructive",
+          description: `No races available for ${trackName}. Data may still be loading.`,
+          variant: "default",
         });
       }
     } catch (error) {
@@ -118,6 +140,11 @@ const ScraperDataDashboard = () => {
     }
   };
 
+  // Toggle active jobs list
+  const toggleActiveJobs = () => {
+    setShowActiveJobs(!showActiveJobs);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
@@ -152,8 +179,41 @@ const ScraperDataDashboard = () => {
             )}
             <span className="ml-2">Refresh</span>
           </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleActiveJobs}
+            className="ml-2"
+          >
+            <span>Active Jobs ({jobsCount})</span>
+          </Button>
         </div>
       </div>
+      
+      {showActiveJobs && (
+        <Card className="bg-betting-darkCard border-betting-mediumBlue mb-6">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-yellow-400" />
+              Active Scrape Jobs
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ActiveScrapeJobsList />
+          </CardContent>
+        </Card>
+      )}
+      
+      {races.length === 0 && selectedTrack && (
+        <Alert variant="default" className="bg-betting-darkCard border-yellow-600">
+          <AlertCircle className="h-4 w-4 text-yellow-400" />
+          <AlertDescription>
+            No races found for {selectedTrack}. There may be a scrape job running to fetch this data.
+            Click the "Active Jobs" button to check the status of running jobs.
+          </AlertDescription>
+        </Alert>
+      )}
       
       {selectedTrack && selectedRace !== null ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
