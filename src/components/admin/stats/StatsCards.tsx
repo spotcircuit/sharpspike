@@ -6,9 +6,10 @@ import { ScraperStats } from '@/types/ScraperTypes';
 
 interface StatsCardsProps {
   stats: ScraperStats;
+  isLoading?: boolean;
 }
 
-const StatsCards: React.FC<StatsCardsProps> = ({ stats }) => {
+const StatsCards: React.FC<StatsCardsProps> = ({ stats, isLoading }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <Card className="bg-betting-darkCard border-betting-mediumBlue">

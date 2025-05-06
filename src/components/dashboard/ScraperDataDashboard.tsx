@@ -13,7 +13,7 @@ import { RefreshCcw } from 'lucide-react';
 import { format } from 'date-fns';
 
 const ScraperDataDashboard: React.FC = () => {
-  const [open, setOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { 
     jobs, 
     stats, 
@@ -46,7 +46,7 @@ const ScraperDataDashboard: React.FC = () => {
             <RefreshCcw className="h-4 w-4" />
             Refresh
           </Button>
-          <Button onClick={() => setOpen(true)} variant="default">
+          <Button onClick={() => setIsDialogOpen(true)} variant="default">
             Create Scrape Job
           </Button>
         </div>
@@ -86,32 +86,39 @@ const ScraperDataDashboard: React.FC = () => {
           <JobsTable 
             jobs={jobs} 
             isLoading={isLoading} 
-            toggleJobStatus={toggleJobStatus} 
-            deleteJob={deleteJob}
-            runJobManually={runJobManually}
+            onToggleJobStatus={toggleJobStatus} 
+            onDeleteJob={deleteJob}
+            onRunJob={runJobManually}
+            isRunningJob={false}
           />
         </TabsContent>
         <TabsContent value="active">
           <JobsTable 
             jobs={jobs.filter(job => job.is_active)} 
             isLoading={isLoading} 
-            toggleJobStatus={toggleJobStatus} 
-            deleteJob={deleteJob}
-            runJobManually={runJobManually}
+            onToggleJobStatus={toggleJobStatus} 
+            onDeleteJob={deleteJob}
+            onRunJob={runJobManually}
+            isRunningJob={false}
           />
         </TabsContent>
         <TabsContent value="inactive">
           <JobsTable 
             jobs={jobs.filter(job => !job.is_active)} 
             isLoading={isLoading} 
-            toggleJobStatus={toggleJobStatus} 
-            deleteJob={deleteJob}
-            runJobManually={runJobManually}
+            onToggleJobStatus={toggleJobStatus} 
+            onDeleteJob={deleteJob}
+            onRunJob={runJobManually}
+            isRunningJob={false}
           />
         </TabsContent>
       </Tabs>
 
-      <CreateJobDialog open={open} setOpen={setOpen} createJob={createJob} />
+      <CreateJobDialog 
+        isOpen={isDialogOpen} 
+        onOpenChange={setIsDialogOpen} 
+        createJob={createJob} 
+      />
     </div>
   );
 };

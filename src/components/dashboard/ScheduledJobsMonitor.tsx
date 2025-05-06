@@ -22,7 +22,7 @@ const ScheduledJobsMonitor = () => {
 
       if (cronError) throw cronError;
 
-      if (cronData && cronData.length > 0) {
+      if (cronData && Array.isArray(cronData) && cronData.length > 0) {
         const job = cronData[0];
         
         // Calculate next run time based on schedule

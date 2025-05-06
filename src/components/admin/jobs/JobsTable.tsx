@@ -20,6 +20,7 @@ interface JobsTableProps {
   onToggleJobStatus: (job: ScrapeJob) => void;
   onDeleteJob: (jobId: string) => void;
   isRunningJob: boolean;
+  isLoading?: boolean;
 }
 
 const JobsTable: React.FC<JobsTableProps> = ({
@@ -27,7 +28,8 @@ const JobsTable: React.FC<JobsTableProps> = ({
   onRunJob,
   onToggleJobStatus,
   onDeleteJob,
-  isRunningJob
+  isRunningJob,
+  isLoading
 }) => {
   return (
     <div className="rounded-md border border-betting-mediumBlue overflow-hidden">
