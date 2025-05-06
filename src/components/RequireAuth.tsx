@@ -28,7 +28,7 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children, requireAdmin = fals
   if (isLoading) {
     // Loading spinner with updated color scheme to match the dark purple
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-betting-darkPurple via-betting-vividPurple to-betting-secondaryPurple">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-500 via-betting-vividPurple to-purple-900">
         <div className="animate-pulse text-white text-xl">Loading...</div>
       </div>
     );
