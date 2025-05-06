@@ -1,1 +1,5 @@
+
 project_id = "bqvavkzgmznjfirgfyhd"
+
+[functions.scrape-race-results]
+verify_jwt = true

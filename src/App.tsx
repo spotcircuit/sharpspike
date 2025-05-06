@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import AdminPage from "./pages/AdminPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
+import RaceResultsPage from "./pages/RaceResultsPage";
 import RequireAuth from "./components/RequireAuth";
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -35,6 +36,22 @@ const App = () => (
               element={
                 <RequireAuth requireAdmin={true}>
                   <AdminPage />
+                </RequireAuth>
+              } 
+            />
+            <Route 
+              path="/results/:trackName" 
+              element={
+                <RequireAuth>
+                  <RaceResultsPage />
+                </RequireAuth>
+              } 
+            />
+            <Route 
+              path="/results" 
+              element={
+                <RequireAuth>
+                  <RaceResultsPage />
                 </RequireAuth>
               } 
             />

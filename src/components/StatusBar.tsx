@@ -1,35 +1,72 @@
 
 import React from 'react';
-import { Clock, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { RefreshCw, ChevronDown } from 'lucide-react';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Link } from 'react-router-dom';
 
 interface StatusBarProps {
   lastUpdated: string;
-  onRefresh: () => void;
   nextUpdateIn: number;
+  onRefresh: () => void;
 }
 
-const StatusBar: React.FC<StatusBarProps> = ({ lastUpdated, onRefresh, nextUpdateIn }) => {
+const StatusBar: React.FC<StatusBarProps> = ({ lastUpdated, nextUpdateIn, onRefresh }) => {
   return (
-    <div className="bg-naval-gradient text-white px-4 py-2 flex items-center justify-between rounded-md animate-fade-in border-4 border-betting-mediumBlue shadow-lg">
-      <div className="flex items-center space-x-2">
-        <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse"></div>
-        <span>Dashboard updated successfully!</span>
+    <div className="flex items-center justify-between p-2 bg-betting-dark border border-betting-mediumBlue rounded-md text-sm">
+      <div className="flex items-center">
+        <div className="flex items-center border-r border-betting-mediumBlue pr-3 mr-3">
+          <div className="h-2 w-2 rounded-full bg-green-500 mr-2"></div>
+          <span className="text-gray-300">Live</span>
+        </div>
+        <span className="text-gray-400">
+          Last updated: <span className="text-white">{lastUpdated}</span>
+        </span>
+        <span className="text-gray-400 ml-4">
+          Next update in: <span className="text-white">{nextUpdateIn}s</span>
+        </span>
       </div>
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center space-x-2">
-          <Clock className="h-4 w-4" />
-          <span className="text-sm">Last updated: {lastUpdated}</span>
-        </div>
-        <div className="text-sm">
-          Next update in: <span className="font-mono bg-betting-navyBlue px-2 py-0.5 rounded">{nextUpdateIn}s</span>
-        </div>
-        <button 
-          onClick={onRefresh}
-          className="px-3 py-1 bg-betting-navyBlue hover:bg-betting-mediumBlue rounded text-sm flex items-center gap-1 transition-colors"
-        >
-          <RefreshCw className="h-3 w-3" />
-          Refresh Now
-        </button>
+      <div className="flex items-center space-x-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8 text-gray-400 hover:text-white">
+              Actions <ChevronDown className="ml-1 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56 bg-betting-dark border-betting-navyBlue">
+            <DropdownMenuLabel>Quick Links</DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-betting-mediumBlue" />
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <Link to="/admin" className="w-full">
+                  Admin Panel
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link to="/results/all" className="w-full">
+                  Race Results
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator className="bg-betting-mediumBlue" />
+            <DropdownMenuItem>
+              <button className="w-full text-left" onClick={onRefresh}>
+                Refresh Now
+              </button>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Button variant="outline" size="sm" className="h-8" onClick={onRefresh}>
+          <RefreshCw className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
