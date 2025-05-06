@@ -119,5 +119,40 @@ export const loadRaceData = async (
  * Format timestamp for display
  */
 export const formatTime = (timestamp: string): string => {
-  return format(parseISO(timestamp), 'HH:mm:ss');
+  try {
+    return format(parseISO(timestamp), 'HH:mm:ss');
+  } catch (error) {
+    console.error('Error formatting time:', error);
+    return 'Invalid time';
+  }
+};
+
+/**
+ * Helper to format URL for off-track betting
+ */
+export const formatOTBUrl = (trackName: string, raceNumber?: number): string => {
+  // Handle different track formats
+  let formattedTrack = trackName;
+  let programName = '';
+  
+  if (trackName.startsWith('NZ-')) {
+    // New Zealand tracks have a special format
+    const trackPart = trackName.replace('NZ-', '');
+    programName = `N12`; // This might need to be determined dynamically
+    formattedTrack = `NZ - ${trackPart}`;
+  } else {
+    // US tracks format
+    programName = trackName.toLowerCase().replace(/\s+/g, '-');
+  }
+  
+  // Construct URL with proper parameters
+  const baseUrl = 'https://app.offtrackbetting.com/#/lobby/live-racing';
+  const today = new Date().toISOString().split('T')[0];
+  
+  let url = `${baseUrl}?programDate=${today}&programName=${programName}`;
+  if (raceNumber) {
+    url += `&raceNumber=${raceNumber}`;
+  }
+  
+  return url;
 };

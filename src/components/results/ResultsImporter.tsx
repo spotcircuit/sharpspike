@@ -1,12 +1,16 @@
+
 import React, { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Link as LinkIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { RaceResult } from '@/types/RaceResultTypes';
+import { formatOTBUrl } from '../dashboard/utils/scraper-utils';
+import { toast } from 'sonner';
+import { TRACK_OPTIONS } from '@/types/ScraperTypes';
 
 interface ResultsImporterProps {
   trackName?: string;
@@ -17,7 +21,6 @@ const ResultsImporter: React.FC<ResultsImporterProps> = ({
   trackName = '',
   onResultImported 
 }) => {
-  const { toast } = useToast();
   const [url, setUrl] = useState('');
   const [raceTrack, setRaceTrack] = useState(trackName);
   const [raceNumber, setRaceNumber] = useState('');
@@ -26,17 +29,28 @@ const ResultsImporter: React.FC<ResultsImporterProps> = ({
 
   const handleTrackChange = (value: string) => {
     setRaceTrack(value);
+    
+    // When track changes, update URL suggestion
+    if (value && raceNumber) {
+      setUrl(formatOTBUrl(value, parseInt(raceNumber)));
+    }
+  };
+
+  const handleRaceNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setRaceNumber(value);
+    
+    // When race number changes, update URL suggestion
+    if (raceTrack && value) {
+      setUrl(formatOTBUrl(raceTrack, parseInt(value)));
+    }
   };
 
   const handleScrapePreview = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!url || !url.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid URL",
-        variant: "destructive",
-      });
+      toast.error("Please enter a valid URL");
       return;
     }
     
@@ -67,17 +81,10 @@ const ResultsImporter: React.FC<ResultsImporterProps> = ({
         setRaceNumber(data.results.raceNumber.toString());
       }
       
-      toast({
-        title: "Success",
-        description: "Successfully scraped race results",
-      });
+      toast.success('Successfully scraped race results');
     } catch (error) {
       console.error('Error scraping results:', error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to scrape race results",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to scrape race results");
     } finally {
       setIsImporting(false);
     }
@@ -85,29 +92,17 @@ const ResultsImporter: React.FC<ResultsImporterProps> = ({
 
   const handleImportResults = async () => {
     if (!previewData) {
-      toast({
-        title: "Error",
-        description: "No data to import. Please scrape a URL first.",
-        variant: "destructive",
-      });
+      toast.error("No data to import. Please scrape a URL first.");
       return;
     }
     
     if (!raceTrack) {
-      toast({
-        title: "Error",
-        description: "Please select a track name",
-        variant: "destructive",
-      });
+      toast.error("Please select a track name");
       return;
     }
     
     if (!raceNumber) {
-      toast({
-        title: "Error",
-        description: "Please enter a race number",
-        variant: "destructive",
-      });
+      toast.error("Please enter a race number");
       return;
     }
     
@@ -129,10 +124,7 @@ const ResultsImporter: React.FC<ResultsImporterProps> = ({
       
       if (error) throw error;
       
-      toast({
-        title: "Success",
-        description: "Race results imported successfully",
-      });
+      toast.success('Race results imported successfully');
       
       onResultImported(data as RaceResult);
       
@@ -141,14 +133,17 @@ const ResultsImporter: React.FC<ResultsImporterProps> = ({
       setPreviewData(null);
     } catch (error) {
       console.error('Error importing results:', error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to import race results",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to import race results");
     } finally {
       setIsImporting(false);
     }
+  };
+
+  const generateUrlSuggestion = () => {
+    if (raceTrack && raceNumber) {
+      return formatOTBUrl(raceTrack, parseInt(raceNumber));
+    }
+    return '';
   };
 
   return (
@@ -159,14 +154,27 @@ const ResultsImporter: React.FC<ResultsImporterProps> = ({
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Results Page URL
             </label>
-            <Input
-              type="url"
-              placeholder="https://www.example.com/race-results"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              className="bg-betting-dark border-betting-mediumBlue text-white"
-              required
-            />
+            <div className="flex gap-2">
+              <Input
+                type="url"
+                placeholder="https://www.example.com/race-results"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                className="bg-betting-dark border-betting-mediumBlue text-white flex-grow"
+                required
+              />
+              {raceTrack && raceNumber && (
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setUrl(generateUrlSuggestion())}
+                  className="shrink-0"
+                  title="Generate URL for selected track/race"
+                >
+                  <LinkIcon className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
             <p className="text-xs text-gray-400 mt-1">
               Enter the URL of the race results page you want to import
             </p>
@@ -189,11 +197,11 @@ const ResultsImporter: React.FC<ResultsImporterProps> = ({
                     <SelectValue placeholder="Select track" />
                   </SelectTrigger>
                   <SelectContent className="bg-betting-dark border-betting-mediumBlue text-white">
-                    <SelectItem value="CHURCHILL DOWNS">Churchill Downs</SelectItem>
-                    <SelectItem value="SANTA ANITA">Santa Anita</SelectItem>
-                    <SelectItem value="BELMONT PARK">Belmont Park</SelectItem>
-                    <SelectItem value="AQUEDUCT">Aqueduct</SelectItem>
-                    <SelectItem value="SARATOGA">Saratoga</SelectItem>
+                    {TRACK_OPTIONS.map(track => (
+                      <SelectItem key={track.value} value={track.value}>
+                        {track.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               )}
@@ -207,7 +215,7 @@ const ResultsImporter: React.FC<ResultsImporterProps> = ({
                 type="number"
                 placeholder="Race number"
                 value={raceNumber}
-                onChange={(e) => setRaceNumber(e.target.value)}
+                onChange={handleRaceNumberChange}
                 min="1"
                 className="bg-betting-dark border-betting-mediumBlue text-white"
               />
