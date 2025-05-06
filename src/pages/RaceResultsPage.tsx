@@ -35,6 +35,7 @@ const RaceResultsPage: React.FC = () => {
         .order('created_at', { ascending: false });
       
       if (trackName && trackName !== 'all') {
+        // Handle exact track name match for specific track
         query = query.eq('track_name', trackName);
       }
 
@@ -70,6 +71,11 @@ const RaceResultsPage: React.FC = () => {
     setActiveTab('view');
     toast.success('Race results imported successfully.');
   };
+
+  // Set document title
+  useEffect(() => {
+    document.title = `${trackName === 'all' ? 'All Tracks' : trackName} Race Results`;
+  }, [trackName]);
 
   return (
     <div className="min-h-screen bg-gradient-radial from-betting-dark to-black p-6 text-white">

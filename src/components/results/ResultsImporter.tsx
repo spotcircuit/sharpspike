@@ -60,7 +60,11 @@ const ResultsImporter: React.FC<ResultsImporterProps> = ({
     try {
       // Call the scraper edge function
       const { data, error } = await supabase.functions.invoke('scrape-race-results', {
-        body: { url }
+        body: { 
+          url,
+          trackName: raceTrack || undefined,
+          raceNumber: raceNumber ? parseInt(raceNumber) : undefined
+        }
       });
       
       if (error) throw error;
@@ -156,7 +160,7 @@ const ResultsImporter: React.FC<ResultsImporterProps> = ({
             <div className="flex gap-2">
               <Input
                 type="url"
-                placeholder="https://www.example.com/race-results"
+                placeholder="https://app.offtrackbetting.com/#/lobby/live-racing"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 className="bg-betting-dark border-betting-mediumBlue text-white flex-grow"
