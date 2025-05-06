@@ -76,16 +76,11 @@ const ScraperDataDashboard = () => {
         setSelectedRace(raceNumbers[0]);
       } else {
         setSelectedRace(null);
-        toast({
-          description: `No races available for ${trackName}. Data may still be loading.`,
-        });
+        toast(`No races available for ${trackName}. Data may still be loading.`);
       }
     } catch (error) {
       console.error('Error loading races:', error);
-      toast({
-        description: "Failed to load races",
-        variant: "destructive",
-      });
+      toast.error("Failed to load races");
       setSelectedRace(null);
     } finally {
       setIsLoading(false);
@@ -104,10 +99,7 @@ const ScraperDataDashboard = () => {
       setLastUpdateTime(lastUpdateTime);
     } catch (error) {
       console.error('Error loading data:', error);
-      toast({
-        description: "Failed to load race data",
-        variant: "destructive",
-      });
+      toast.error("Failed to load race data");
     } finally {
       setIsLoading(false);
     }
@@ -151,9 +143,7 @@ const ScraperDataDashboard = () => {
         throw error;
       }
       
-      toast({
-        description: "Scrape jobs triggered successfully",
-      });
+      toast.success("Scrape jobs triggered successfully");
       
       // Wait a bit and then refresh the race data
       setTimeout(() => {
@@ -164,10 +154,7 @@ const ScraperDataDashboard = () => {
       
     } catch (error) {
       console.error('Error triggering scrape jobs:', error);
-      toast({
-        description: "Failed to trigger scrape jobs",
-        variant: "destructive",
-      });
+      toast.error("Failed to trigger scrape jobs");
     } finally {
       setIsRefreshingJobs(false);
     }
