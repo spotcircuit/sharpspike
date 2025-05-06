@@ -70,7 +70,7 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-betting-darkPurple via-betting-vividPurple to-betting-secondaryPurple p-6 text-white flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-orange-500 via-betting-vividPurple to-betting-secondaryPurple p-6 text-white flex items-center justify-center">
       <div className="w-full max-w-md">
         <header className="mb-6 text-center">
           <div className="flex justify-center mb-4">
@@ -83,8 +83,8 @@ const AuthPage = () => {
           <h1 className="text-3xl font-bold text-white">
             5D Odds Pulse
           </h1>
-          <p className="text-gray-200 mt-2">
-            Sign in to access racing odds and analytics
+          <p className="text-orange-400 mt-2 font-medium">
+            Sign in to access TB Odds Pulse, AI analytics rankings and our Quantum Bets (e.g., Ex-Tri-Pick3)
           </p>
         </header>
 
@@ -138,7 +138,7 @@ const AuthPage = () => {
                   <Button 
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-betting-vividPurple to-betting-secondaryPurple hover:from-betting-secondaryPurple hover:to-betting-vividPurple text-white"
+                    className="w-full bg-gradient-to-r from-orange-500 to-betting-secondaryPurple hover:from-betting-secondaryPurple hover:to-orange-500 text-white"
                   >
                     {isLoading ? "Signing in..." : "Sign In"}
                   </Button>
@@ -193,7 +193,7 @@ const AuthPage = () => {
                   <Button 
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-betting-vividPurple to-betting-secondaryPurple hover:from-betting-secondaryPurple hover:to-betting-vividPurple text-white"
+                    className="w-full bg-gradient-to-r from-orange-500 to-betting-secondaryPurple hover:from-betting-secondaryPurple hover:to-orange-500 text-white"
                   >
                     {isLoading ? "Creating Account..." : "Create Account"}
                   </Button>
