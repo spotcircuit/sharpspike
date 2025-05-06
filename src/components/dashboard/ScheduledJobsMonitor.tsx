@@ -16,35 +16,24 @@ const ScheduledJobsMonitor = () => {
   const fetchCronStatus = async () => {
     setIsLoading(true);
     try {
-      // Get the cron job information by querying the job directly
-      const { data: jobData, error: jobError } = await supabase
-        .from('cron.job')
-        .select('*')
-        .eq('jobname', 'run-scheduled-scrape-every-15min')
-        .single();
-
-      if (jobError) throw jobError;
-
-      if (jobData) {
-        // Calculate next run time based on schedule
-        const now = new Date();
-        const minutesPart = Math.ceil(now.getMinutes() / 15) * 15;
-        const nextRunDate = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate(),
-          now.getHours(),
-          minutesPart >= 60 ? 0 : minutesPart,
-          0
-        );
-        
-        // If we calculated a time in the past, add an hour
-        if (nextRunDate <= now) {
-          nextRunDate.setHours(nextRunDate.getHours() + (minutesPart >= 60 ? 1 : 0));
-        }
-        
-        setNextRun(nextRunDate.toISOString());
+      // Calculate the next run time based on a 15-minute schedule
+      const now = new Date();
+      const minutesPart = Math.ceil(now.getMinutes() / 15) * 15;
+      const nextRunDate = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        now.getHours(),
+        minutesPart >= 60 ? 0 : minutesPart,
+        0
+      );
+      
+      // If we calculated a time in the past, add an hour
+      if (nextRunDate <= now) {
+        nextRunDate.setHours(nextRunDate.getHours() + (minutesPart >= 60 ? 1 : 0));
       }
+      
+      setNextRun(nextRunDate.toISOString());
 
       // Get the last run information from scrape_jobs
       const { data: jobsData, error: jobsError } = await supabase

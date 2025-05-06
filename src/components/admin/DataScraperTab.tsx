@@ -154,6 +154,7 @@ const DataScraperTab = () => {
       <CreateJobDialog
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
+        createJob={createJob}
         form={form}
         onSubmit={handleCreateJob}
       />
