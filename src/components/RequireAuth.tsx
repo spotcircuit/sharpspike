@@ -26,10 +26,10 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children, requireAdmin = fals
   }, [user, isLoading, isAdmin, requireAdmin]);
 
   if (isLoading) {
-    // You could render a loading spinner here
+    // Loading spinner with updated color scheme
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-radial from-betting-dark to-black">
-        <div className="animate-pulse text-betting-secondaryPurple text-xl">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-600 via-purple-700 to-blue-900">
+        <div className="animate-pulse text-orange-500 text-xl">Loading...</div>
       </div>
     );
   }

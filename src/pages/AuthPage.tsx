@@ -70,50 +70,67 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-radial from-betting-dark to-black p-6 text-white flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-red-600 via-purple-700 to-blue-900 p-6 text-white flex items-center justify-center">
       <div className="w-full max-w-md">
         <header className="mb-6 text-center">
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-600">
-            Trackside Odds Pulse
+          <div className="flex justify-center mb-4">
+            <img 
+              src="/lovable-uploads/5defcb2c-7ced-4277-920c-a9a6f9ad2358.png" 
+              alt="Quantum 5DRACING" 
+              className="h-28 object-contain"
+            />
+          </div>
+          <h1 className="text-3xl font-bold text-white">
+            5D Odds Pulse
           </h1>
-          <p className="text-gray-400 mt-2">
+          <p className="text-gray-200 mt-2">
             Sign in to access racing odds and analytics
           </p>
         </header>
 
         <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 mb-4 bg-white/10 backdrop-blur-sm">
+            <TabsTrigger 
+              value="login"
+              className="data-[state=active]:bg-white/20 data-[state=active]:text-white text-gray-200"
+            >
+              Login
+            </TabsTrigger>
+            <TabsTrigger 
+              value="signup"
+              className="data-[state=active]:bg-white/20 data-[state=active]:text-white text-gray-200"
+            >
+              Sign Up
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="login">
-            <Card className="bg-betting-navyBlue border-betting-mediumBlue">
+            <Card className="bg-black/30 border-orange-500/50 backdrop-blur-md">
               <CardHeader>
-                <CardTitle>Login</CardTitle>
+                <CardTitle className="text-white">Login</CardTitle>
               </CardHeader>
               <form onSubmit={handleLogin}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="text-gray-200">Email</Label>
                     <Input
                       id="email"
                       type="email"
                       placeholder="your.email@example.com"
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
-                      className="bg-betting-dark text-white border-betting-mediumBlue"
+                      className="bg-white/10 text-white border-white/20 placeholder:text-gray-400"
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password" className="text-gray-200">Password</Label>
                     <Input
                       id="password"
                       type="password"
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
-                      className="bg-betting-dark text-white border-betting-mediumBlue"
+                      className="bg-white/10 text-white border-white/20"
                     />
                   </div>
                 </CardContent>
@@ -121,7 +138,7 @@ const AuthPage = () => {
                   <Button 
                     type="submit"
                     disabled={isLoading}
-                    className="w-full"
+                    className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white"
                   >
                     {isLoading ? "Signing in..." : "Sign In"}
                   </Button>
@@ -131,44 +148,44 @@ const AuthPage = () => {
           </TabsContent>
           
           <TabsContent value="signup">
-            <Card className="bg-betting-navyBlue border-betting-mediumBlue">
+            <Card className="bg-black/30 border-orange-500/50 backdrop-blur-md">
               <CardHeader>
-                <CardTitle>Create Account</CardTitle>
+                <CardTitle className="text-white">Create Account</CardTitle>
               </CardHeader>
               <form onSubmit={handleSignup}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
+                    <Label htmlFor="fullName" className="text-gray-200">Full Name</Label>
                     <Input
                       id="fullName"
                       type="text"
                       placeholder="John Doe"
                       value={signupFullName}
                       onChange={(e) => setSignupFullName(e.target.value)}
-                      className="bg-betting-dark text-white border-betting-mediumBlue"
+                      className="bg-white/10 text-white border-white/20 placeholder:text-gray-400"
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="signupEmail">Email</Label>
+                    <Label htmlFor="signupEmail" className="text-gray-200">Email</Label>
                     <Input
                       id="signupEmail"
                       type="email"
                       placeholder="your.email@example.com"
                       value={signupEmail}
                       onChange={(e) => setSignupEmail(e.target.value)}
-                      className="bg-betting-dark text-white border-betting-mediumBlue"
+                      className="bg-white/10 text-white border-white/20 placeholder:text-gray-400"
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="signupPassword">Password</Label>
+                    <Label htmlFor="signupPassword" className="text-gray-200">Password</Label>
                     <Input
                       id="signupPassword"
                       type="password"
                       value={signupPassword}
                       onChange={(e) => setSignupPassword(e.target.value)}
-                      className="bg-betting-dark text-white border-betting-mediumBlue"
+                      className="bg-white/10 text-white border-white/20"
                     />
                   </div>
                 </CardContent>
@@ -176,7 +193,7 @@ const AuthPage = () => {
                   <Button 
                     type="submit"
                     disabled={isLoading}
-                    className="w-full"
+                    className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white"
                   >
                     {isLoading ? "Creating Account..." : "Create Account"}
                   </Button>
