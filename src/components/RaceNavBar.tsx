@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { TRACK_OPTIONS } from '@/types/ScraperTypes';
+import { useNavigate } from 'react-router-dom';
 
 interface RaceNavBarProps {
   currentTrack?: string;
@@ -38,6 +39,7 @@ const RaceNavBar: React.FC<RaceNavBarProps> = ({
   onTrackChange,
   onRaceChange
 }) => {
+  const navigate = useNavigate();
   const [track, setTrack] = useState(currentTrack);
   const [race, setRace] = useState(currentRace);
 
@@ -131,7 +133,10 @@ const RaceNavBar: React.FC<RaceNavBarProps> = ({
       <div className="text-white flex items-center space-x-2">
         <span className="font-semibold">ALLOWANCE</span>
         <span>Purse: {allowanceInfo.purse} | {allowanceInfo.age} | {allowanceInfo.distance} | Dirt: {allowanceInfo.surface}</span>
-        <Button variant="link" className="text-betting-skyBlue hover:text-blue-100">
+        <Button 
+          onClick={() => navigate('/model-process')}
+          className="bg-orange-500 hover:bg-orange-600 text-white font-bold"
+        >
           MORE
         </Button>
       </div>

@@ -14,6 +14,7 @@ import RequireAuth from "./components/RequireAuth";
 import { AuthProvider } from "./contexts/AuthContext";
 import DataDashboardPage from "./pages/DataDashboardPage";
 import QuantumRankingsPage from "./pages/QuantumRankingsPage";
+import ModelProcessPage from "./pages/ModelProcessPage";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,10 @@ const App = () => (
             <Route 
               path="/results" 
               element={<PublicResultsPage />} 
+            />
+            <Route 
+              path="/model-process" 
+              element={<ModelProcessPage />} 
             />
 
             {/* Protected Routes (Require Authentication) */}
