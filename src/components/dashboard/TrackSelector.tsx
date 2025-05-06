@@ -2,6 +2,7 @@
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TRACK_OPTIONS } from '@/types/ScraperTypes';
+import { Loader2 } from 'lucide-react';
 
 interface TrackSelectorProps {
   selectedTrack: string;
@@ -9,6 +10,7 @@ interface TrackSelectorProps {
   races: number[];
   onTrackChange: (track: string) => void;
   onRaceChange: (race: number) => void;
+  isLoading?: boolean;
 }
 
 const TrackSelector: React.FC<TrackSelectorProps> = ({
@@ -17,12 +19,14 @@ const TrackSelector: React.FC<TrackSelectorProps> = ({
   races,
   onTrackChange,
   onRaceChange,
+  isLoading = false,
 }) => {
   return (
     <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
       <Select
         value={selectedTrack}
         onValueChange={(value) => onTrackChange(value)}
+        disabled={isLoading}
       >
         <SelectTrigger className="w-full sm:w-40 bg-betting-dark border-betting-mediumBlue text-white">
           <SelectValue placeholder="Select track" />
@@ -40,17 +44,24 @@ const TrackSelector: React.FC<TrackSelectorProps> = ({
         <Select
           value={selectedRace?.toString() || ''}
           onValueChange={(value) => onRaceChange(parseInt(value))}
-          disabled={races.length === 0}
+          disabled={races.length === 0 || isLoading}
         >
           <SelectTrigger className="w-full sm:w-32 bg-betting-dark border-betting-mediumBlue text-white">
-            <SelectValue placeholder="Race #" />
+            <div className="flex items-center justify-between">
+              <SelectValue placeholder="Race #" />
+              {isLoading && <Loader2 className="h-4 w-4 ml-2 animate-spin" />}
+            </div>
           </SelectTrigger>
           <SelectContent className="bg-betting-dark border-betting-mediumBlue text-white">
-            {races.map(race => (
-              <SelectItem key={race} value={race.toString()}>
-                Race {race}
-              </SelectItem>
-            ))}
+            {races.length > 0 ? (
+              races.map(race => (
+                <SelectItem key={race} value={race.toString()}>
+                  Race {race}
+                </SelectItem>
+              ))
+            ) : (
+              <div className="text-center py-2 text-gray-400">No races available</div>
+            )}
           </SelectContent>
         </Select>
       )}

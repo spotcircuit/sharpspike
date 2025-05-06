@@ -11,8 +11,10 @@ import WillPaysDisplay from './WillPaysDisplay';
 import ResultsDisplay from './ResultsDisplay';
 import TrackSelector from './TrackSelector';
 import EmptyStatePrompt from './EmptyStatePrompt';
+import { useToast } from '@/components/ui/use-toast';
 
 const ScraperDataDashboard = () => {
+  const { toast } = useToast();
   const [selectedTrack, setSelectedTrack] = useState<string>('');
   const [selectedRace, setSelectedRace] = useState<number | null>(null);
   const [races, setRaces] = useState<number[]>([]);
@@ -24,14 +26,14 @@ const ScraperDataDashboard = () => {
 
   // Load races when track changes
   useEffect(() => {
-    if (selectedTrack && !selectedRace) {
+    if (selectedTrack) {
       handleLoadRaces(selectedTrack);
     }
   }, [selectedTrack]);
 
   // Load data when track and race are selected
   useEffect(() => {
-    if (selectedTrack && selectedRace) {
+    if (selectedTrack && selectedRace !== null) {
       handleLoadData(selectedTrack, selectedRace);
     }
   }, [selectedTrack, selectedRace]);
@@ -39,16 +41,31 @@ const ScraperDataDashboard = () => {
   // Handler for loading races
   const handleLoadRaces = async (trackName: string) => {
     setIsLoading(true);
+    setRaces([]);
+    
     try {
       const raceNumbers = await loadRaces(trackName);
       setRaces(raceNumbers);
       
       // Select the first race if we have races and none is selected
-      if (raceNumbers.length > 0 && !selectedRace) {
+      if (raceNumbers.length > 0) {
         setSelectedRace(raceNumbers[0]);
+      } else {
+        setSelectedRace(null);
+        toast({
+          title: "No races found",
+          description: `No races available for ${trackName}`,
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Error loading races:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load races",
+        variant: "destructive",
+      });
+      setSelectedRace(null);
     } finally {
       setIsLoading(false);
     }
@@ -66,6 +83,11 @@ const ScraperDataDashboard = () => {
       setLastUpdateTime(lastUpdateTime);
     } catch (error) {
       console.error('Error loading data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load race data",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -73,18 +95,25 @@ const ScraperDataDashboard = () => {
 
   // Handler for track change
   const handleTrackChange = (track: string) => {
-    setSelectedTrack(track);
-    setSelectedRace(null);
+    if (track !== selectedTrack) {
+      setSelectedTrack(track);
+      setSelectedRace(null);
+      setOddsData([]);
+      setWillPays([]);
+      setResults([]);
+    }
   };
 
   // Handler for race change
   const handleRaceChange = (race: number) => {
-    setSelectedRace(race);
+    if (race !== selectedRace) {
+      setSelectedRace(race);
+    }
   };
 
   // Handler for refresh button
   const handleRefresh = () => {
-    if (selectedTrack && selectedRace) {
+    if (selectedTrack && selectedRace !== null) {
       handleLoadData(selectedTrack, selectedRace);
     }
   };
@@ -98,6 +127,7 @@ const ScraperDataDashboard = () => {
           races={races}
           onTrackChange={handleTrackChange}
           onRaceChange={handleRaceChange}
+          isLoading={isLoading}
         />
         
         <div className="flex items-center gap-3 w-full md:w-auto">
@@ -112,7 +142,7 @@ const ScraperDataDashboard = () => {
             variant="outline"
             size="sm"
             onClick={handleRefresh}
-            disabled={isLoading || !selectedTrack || !selectedRace}
+            disabled={isLoading || !selectedTrack || selectedRace === null}
             className="ml-auto"
           >
             {isLoading ? (
@@ -125,7 +155,7 @@ const ScraperDataDashboard = () => {
         </div>
       </div>
       
-      {selectedTrack && selectedRace ? (
+      {selectedTrack && selectedRace !== null ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-6 space-y-6">
             <Card className="bg-betting-darkCard border-betting-mediumBlue">
