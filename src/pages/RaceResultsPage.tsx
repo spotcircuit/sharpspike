@@ -8,15 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ResultsImporter from '@/components/results/ResultsImporter';
 import ResultsDisplay from '@/components/results/ResultsDisplay';
 import { supabase } from '@/integrations/supabase/client';
-
-interface RaceResult {
-  id: string;
-  track_name: string;
-  race_number: number;
-  race_date: string;
-  results_data: any;
-  created_at: string;
-}
+import { RaceResult } from '@/types/RaceResultTypes';
 
 const RaceResultsPage: React.FC = () => {
   const { toast } = useToast();
@@ -50,9 +42,11 @@ const RaceResultsPage: React.FC = () => {
         throw error;
       }
 
-      setResults(data || []);
-      if (data && data.length > 0 && !selectedResult) {
-        setSelectedResult(data[0]);
+      if (data) {
+        setResults(data as RaceResult[]);
+        if (data.length > 0 && !selectedResult) {
+          setSelectedResult(data[0] as RaceResult);
+        }
       }
     } catch (error) {
       console.error('Error fetching results:', error);

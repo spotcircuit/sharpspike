@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,15 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { RefreshCw, Search } from 'lucide-react';
-
-interface RaceResult {
-  id: string;
-  track_name: string;
-  race_number: number;
-  race_date: string;
-  results_data: any;
-  created_at: string;
-}
+import { RaceResult } from '@/types/RaceResultTypes';
 
 interface ResultsDisplayProps {
   results: RaceResult[];

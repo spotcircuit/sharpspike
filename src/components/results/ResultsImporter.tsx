@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
@@ -7,10 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { RaceResult } from '@/types/RaceResultTypes';
 
 interface ResultsImporterProps {
   trackName?: string;
-  onResultImported: (result: any) => void;
+  onResultImported: (result: RaceResult) => void;
 }
 
 const ResultsImporter: React.FC<ResultsImporterProps> = ({ 
@@ -134,7 +134,7 @@ const ResultsImporter: React.FC<ResultsImporterProps> = ({
         description: "Race results imported successfully",
       });
       
-      onResultImported(data);
+      onResultImported(data as RaceResult);
       
       // Reset form
       setUrl('');

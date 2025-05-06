@@ -158,6 +158,36 @@ export type Database = {
           },
         ]
       }
+      race_results: {
+        Row: {
+          created_at: string
+          id: string
+          race_date: string
+          race_number: number
+          results_data: Json
+          source_url: string | null
+          track_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          race_date?: string
+          race_number: number
+          results_data: Json
+          source_url?: string | null
+          track_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          race_date?: string
+          race_number?: number
+          results_data?: Json
+          source_url?: string | null
+          track_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
