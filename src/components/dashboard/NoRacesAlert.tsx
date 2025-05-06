@@ -1,7 +1,9 @@
 
 import React from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 interface NoRacesAlertProps {
   selectedTrack: string;
@@ -16,10 +18,33 @@ const NoRacesAlert: React.FC<NoRacesAlertProps> = ({ selectedTrack, races }) => 
   return (
     <Alert variant="default" className="bg-betting-darkCard border-yellow-600">
       <AlertCircle className="h-4 w-4 text-yellow-400" />
-      <AlertDescription>
-        No races found for {selectedTrack}. There may be a scrape job running to fetch this data.
-        Click the "Active Jobs" button to check the status of running jobs, or click "Run All Jobs" to trigger the scraper.
-        You can also check the "DB Monitor" to see if any data is being added to the database.
+      <AlertDescription className="flex flex-col space-y-3">
+        <div>
+          No races found for {selectedTrack}. There may be a scrape job running to fetch this data,
+          or you can manually import race results using our Results Importer tool.
+        </div>
+        
+        <div className="flex flex-wrap gap-2 mt-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="text-yellow-400 border-yellow-600 hover:bg-yellow-900/20"
+            asChild
+          >
+            <Link to={`/results/${selectedTrack}`}>
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Import Results
+            </Link>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="text-blue-400 border-blue-600 hover:bg-blue-900/20"
+          >
+            Check Active Jobs
+          </Button>
+        </div>
       </AlertDescription>
     </Alert>
   );
