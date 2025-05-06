@@ -11,9 +11,12 @@ import ApiConnectionTab from '@/components/admin/ApiConnectionTab';
 import DataImportTab from '@/components/admin/DataImportTab';
 import DataScraperTab from '@/components/admin/DataScraperTab';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { Database } from 'lucide-react';
 
 const AdminPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [apiUrl, setApiUrl] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [isTestMode, setIsTestMode] = useState(true);
@@ -62,6 +65,14 @@ const AdminPage = () => {
               Odds Admin Panel
             </h1>
             <div className="flex items-center gap-4">
+              <Button 
+                variant="default"
+                onClick={() => navigate('/data-dashboard')}
+                className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2"
+              >
+                <Database className="h-4 w-4" />
+                Data Dashboard
+              </Button>
               <Button variant="outline" onClick={() => window.location.href = "/"}>
                 Back to Dashboard
               </Button>
