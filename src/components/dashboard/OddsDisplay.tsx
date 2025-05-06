@@ -41,7 +41,7 @@ const OddsDisplay: React.FC<OddsDisplayProps> = ({ oddsData, isLoading }) => {
     .sort((a, b) => a.horse_number - b.horse_number);
   
   return (
-    <div className="rounded-md border border-betting-mediumBlue overflow-hidden">
+    <div className="rounded-md border border-betting-tertiaryPurple overflow-hidden">
       <Table>
         <TableHeader className="bg-betting-darkPurple">
           <TableRow>

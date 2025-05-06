@@ -40,7 +40,7 @@ const WillPaysDisplay: React.FC<WillPaysDisplayProps> = ({ willPays, isLoading }
   return (
     <div className="space-y-4">
       {Object.entries(willPaysByType).map(([wagerType, pays]) => (
-        <Card key={wagerType} className="bg-betting-darkCard border-betting-mediumBlue">
+        <Card key={wagerType} className="bg-betting-darkCard border-betting-tertiaryPurple">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">{wagerType}</CardTitle>
           </CardHeader>

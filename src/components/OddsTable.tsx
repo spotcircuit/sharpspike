@@ -37,8 +37,8 @@ const getPostPositionColor = (position: number): string => {
 
 const OddsTable: React.FC<OddsTableProps> = ({ horses, highlightUpdates = false, isLoading = false }) => {
   return (
-    <Card className="border-4 border-betting-mediumBlue shadow-xl bg-betting-darkCard overflow-hidden w-full">
-      <CardHeader className="bg-naval-gradient px-4 py-3 flex flex-row justify-between items-center">
+    <Card className="border-4 border-betting-tertiaryPurple shadow-xl bg-betting-darkPurple overflow-hidden w-full">
+      <CardHeader className="bg-purple-header px-4 py-3 flex flex-row justify-between items-center">
         <CardTitle className="text-lg font-semibold text-white">Odds Table</CardTitle>
         {isLoading && (
           <div className="flex items-center text-white">
