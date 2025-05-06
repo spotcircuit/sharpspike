@@ -24,7 +24,7 @@ const AIThorianValue: React.FC<AIThorianValueProps> = ({ valuePicks, pick3Combos
   return (
     <Card className="border-4 border-betting-secondaryPurple shadow-xl bg-betting-darkCard overflow-hidden h-full">
       <CardHeader className="bg-naval-gradient px-4 py-3">
-        <CardTitle className="text-lg font-semibold text-white">AI-Thorian Value & Pick 3 Rolling Combos</CardTitle>
+        <CardTitle className="text-lg font-semibold text-white">AI Quantum Bets (e.g., Ex-Tri-Pick3)</CardTitle>
       </CardHeader>
       
       <CardContent className="p-4">
