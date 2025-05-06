@@ -33,9 +33,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <div className="flex items-center gap-4">
             <Button
               onClick={() => navigate('/quantum-rankings')}
-              className="bg-orange-500 hover:bg-orange-600 text-white font-medium"
+              className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2 rounded-lg transform hover:scale-105 transition-all shadow-lg border-2 border-orange-400"
             >
-              Quantum 5D Rankings
+              Quantum 5D AI Rankings
             </Button>
             <UserProfile />
           </div>
