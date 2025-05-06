@@ -10,3 +10,10 @@ verify_jwt = false
 [functions.scheduled-scrape]
 verify_jwt = false
 
+# Add security settings for the auth service
+[auth]
+# Set OTP expiry to recommended values (10 minutes = 600 seconds)
+otp.lifetime_seconds = 600
+
+# Enable leaked password protection
+enable_leaked_password_protection = true
