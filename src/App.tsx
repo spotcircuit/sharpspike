@@ -9,6 +9,7 @@ import AdminPage from "./pages/AdminPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import RaceResultsPage from "./pages/RaceResultsPage";
+import PublicResultsPage from "./pages/PublicResultsPage";
 import RequireAuth from "./components/RequireAuth";
 import { AuthProvider } from "./contexts/AuthContext";
 import DataDashboardPage from "./pages/DataDashboardPage";
@@ -24,44 +25,19 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            {/* Public Routes */}
             <Route path="/auth" element={<AuthPage />} />
+            <Route 
+              path="/results" 
+              element={<PublicResultsPage />} 
+            />
+
+            {/* Protected Routes (Require Authentication) */}
             <Route 
               path="/" 
               element={
                 <RequireAuth>
                   <Index />
-                </RequireAuth>
-              } 
-            />
-            <Route 
-              path="/admin" 
-              element={
-                <RequireAuth requireAdmin={true}>
-                  <AdminPage />
-                </RequireAuth>
-              } 
-            />
-            <Route 
-              path="/results/:trackName" 
-              element={
-                <RequireAuth>
-                  <RaceResultsPage />
-                </RequireAuth>
-              } 
-            />
-            <Route 
-              path="/results" 
-              element={
-                <RequireAuth>
-                  <RaceResultsPage />
-                </RequireAuth>
-              } 
-            />
-            <Route 
-              path="/data-dashboard" 
-              element={
-                <RequireAuth>
-                  <DataDashboardPage />
                 </RequireAuth>
               } 
             />
@@ -73,7 +49,34 @@ const App = () => (
                 </RequireAuth>
               } 
             />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
+            {/* Admin Routes (Require Admin Role) */}
+            <Route 
+              path="/admin" 
+              element={
+                <RequireAuth requireAdmin={true}>
+                  <AdminPage />
+                </RequireAuth>
+              } 
+            />
+            <Route 
+              path="/data-dashboard" 
+              element={
+                <RequireAuth requireAdmin={true}>
+                  <DataDashboardPage />
+                </RequireAuth>
+              } 
+            />
+            <Route 
+              path="/results/:trackName" 
+              element={
+                <RequireAuth requireAdmin={true}>
+                  <RaceResultsPage />
+                </RequireAuth>
+              } 
+            />
+            
+            {/* Catch-all Route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

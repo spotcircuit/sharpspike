@@ -21,9 +21,10 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children, requireAdmin = fals
       } else if (requireAdmin && !isAdmin) {
         console.log("User is not admin, should redirect to home", { isAdmin });
         toast.error("You don't have permission to access the admin area");
+        navigate('/');
       }
     }
-  }, [user, isLoading, isAdmin, requireAdmin]);
+  }, [user, isLoading, isAdmin, requireAdmin, navigate]);
 
   if (isLoading) {
     // Loading spinner with updated color scheme to match the gradient

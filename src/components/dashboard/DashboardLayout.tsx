@@ -9,12 +9,14 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
   title: string;
   subtitle: string;
+  extraButtons?: React.ReactNode;
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ 
   children, 
   title,
-  subtitle 
+  subtitle,
+  extraButtons
 }) => {
   const navigate = useNavigate();
   
@@ -31,6 +33,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             </p>
           </div>
           <div className="flex items-center gap-4">
+            {extraButtons}
             <Button
               onClick={() => navigate('/quantum-rankings')}
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2 rounded-lg transform hover:scale-105 transition-all shadow-lg border-2 border-orange-400"

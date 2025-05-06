@@ -4,8 +4,12 @@ import { getMockData } from '../utils/mockData';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
 import useDataUpdateManager from '../components/dashboard/DataUpdateManager';
 import DashboardContent from '../components/dashboard/DashboardContent';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { Database } from 'lucide-react';
 
 const Index = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState(getMockData());
   const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
   const [showUpdateNotification, setShowUpdateNotification] = useState(false);
@@ -36,6 +40,16 @@ const Index = () => {
     <DashboardLayout 
       title="5D ODDS PULSE"
       subtitle="Live race track odds and pool movement dashboard"
+      extraButtons={
+        <Button 
+          variant="outline" 
+          onClick={() => navigate("/results")}
+          className="flex items-center gap-2 border-betting-tertiaryPurple bg-betting-darkPurple hover:bg-betting-tertiaryPurple/20"
+        >
+          <Database className="h-4 w-4" />
+          Race Results
+        </Button>
+      }
     >
       <DashboardContent 
         data={data}
