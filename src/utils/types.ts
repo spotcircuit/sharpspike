@@ -129,11 +129,45 @@ export interface PickCombination {
   payout: string;
 }
 
-// New type for PDF extraction data
+// Updated type for PDF extraction data to match our database schema
 export interface PDFExtractionResult {
   success: boolean;
-  horses?: Horse[];
-  trackName?: string;
-  raceNumber?: number;
+  data?: {
+    raceId?: string;
+    trackName: string;
+    raceNumber: number;
+    raceDate?: string;
+    raceConditions?: string;
+    horses: Array<{
+      pp: number;
+      name: string;
+      jockey?: string;
+      trainer?: string;
+      mlOdds?: number;
+    }>;
+  };
   error?: string;
+}
+
+// Database types that match our Supabase schema
+export interface RaceData {
+  id: string;
+  track_name: string;
+  race_number: number;
+  race_date: string;
+  race_conditions?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RaceHorse {
+  id: string;
+  race_id: string;
+  pp: number;
+  name: string;
+  jockey?: string;
+  trainer?: string;
+  ml_odds?: number;
+  created_at: string;
+  updated_at: string;
 }

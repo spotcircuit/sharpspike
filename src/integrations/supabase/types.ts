@@ -84,6 +84,80 @@ export type Database = {
         }
         Relationships: []
       }
+      race_data: {
+        Row: {
+          created_at: string
+          id: string
+          race_conditions: string | null
+          race_date: string
+          race_number: number
+          track_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          race_conditions?: string | null
+          race_date?: string
+          race_number: number
+          track_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          race_conditions?: string | null
+          race_date?: string
+          race_number?: number
+          track_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      race_horses: {
+        Row: {
+          created_at: string
+          id: string
+          jockey: string | null
+          ml_odds: number | null
+          name: string
+          pp: number
+          race_id: string
+          trainer: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          jockey?: string | null
+          ml_odds?: number | null
+          name: string
+          pp: number
+          race_id: string
+          trainer?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          jockey?: string | null
+          ml_odds?: number | null
+          name?: string
+          pp?: number
+          race_id?: string
+          trainer?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "race_horses_race_id_fkey"
+            columns: ["race_id"]
+            isOneToOne: false
+            referencedRelation: "race_data"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

@@ -9,6 +9,7 @@ import { FileUp, AlertCircle, Check } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { updateMockData, getMockData } from '@/utils/mockData';
+import { PDFExtractionResult } from '@/utils/types';
 
 interface PDFUploaderProps {
   onDataExtracted?: (data: any) => void;
@@ -77,19 +78,44 @@ const PDFUploader: React.FC<PDFUploaderProps> = ({ onDataExtracted }) => {
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       // For demonstration, generate mock data based on the file name
-      const mockExtractedData = processMockPDFData(file.name);
+      const mockExtractedData = await processMockPDFData(file.name);
       
       // Update the application data with the extracted data
-      updateMockData(mockExtractedData);
+      updateMockData({
+        horses: mockExtractedData.data?.horses.map((horse, index) => ({
+          id: index + 1,
+          pp: horse.pp,
+          name: horse.name,
+          isFavorite: index === 0,
+          liveOdds: horse.mlOdds || 3.5 + (Math.random() * 3),
+          mlOdds: horse.mlOdds,
+          modelOdds: (horse.mlOdds || 3.5) + (Math.random() * 0.5 - 0.25),
+          difference: parseFloat((Math.random() * 0.6 - 0.3).toFixed(2)),
+          jockey: horse.jockey,
+          trainer: horse.trainer,
+          jockeyWinPct: Math.floor(10 + Math.random() * 20),
+          trainerWinPct: Math.floor(10 + Math.random() * 20),
+          hFactors: {
+            speed: Math.random() > 0.5,
+            pace: Math.random() > 0.5,
+            form: Math.random() > 0.5,
+            class: Math.random() > 0.5,
+          },
+          irregularBetting: Math.random() > 0.9,
+        })) || [],
+        lastUpdated: new Date().toLocaleTimeString(),
+        trackName: mockExtractedData.data?.trackName,
+        raceNumber: mockExtractedData.data?.raceNumber,
+      });
       
       setExtractionStatus('success');
       toast({
         title: "Data extracted successfully",
-        description: `Extracted data for ${mockExtractedData.horses.length} horses`,
+        description: `Extracted data for ${mockExtractedData.data?.horses.length} horses`,
       });
       
-      if (onDataExtracted) {
-        onDataExtracted(mockExtractedData);
+      if (onDataExtracted && mockExtractedData.data) {
+        onDataExtracted(mockExtractedData.data);
       }
       
     } catch (error) {
@@ -107,45 +133,80 @@ const PDFUploader: React.FC<PDFUploaderProps> = ({ onDataExtracted }) => {
   };
   
   // This function simulates extracting data from a PDF based on the filename
-  // In a real implementation, this would be done by a serverless function or API
-  const processMockPDFData = (filename: string) => {
-    // Extract track name from filename for demonstration
-    const trackName = filename.split('.')[0].toUpperCase();
-    
-    // Get existing data
-    const currentData = getMockData();
-    
-    // Create mock horse data based on the track name
-    const mockHorses = Array.from({ length: 10 }, (_, i) => ({
-      id: i + 1,
-      pp: i + 1,
-      name: `${trackName} Runner ${i + 1}`,
-      isFavorite: i === 0,
-      liveOdds: parseFloat((2 + i * 0.5).toFixed(1)),
-      mlOdds: parseFloat((2 + i * 0.5).toFixed(1)),
-      modelOdds: parseFloat((2 + i * 0.5 + (Math.random() * 0.5 - 0.25)).toFixed(1)),
-      difference: parseFloat((Math.random() * 0.6 - 0.3).toFixed(2)),
-      jockey: `Jockey ${String.fromCharCode(65 + i)}`,
-      trainer: `Trainer ${String.fromCharCode(65 + i)}`,
-      jockeyWinPct: Math.floor(10 + Math.random() * 20),
-      trainerWinPct: Math.floor(10 + Math.random() * 20),
-      hFactors: {
-        speed: Math.random() > 0.5,
-        pace: Math.random() > 0.5,
-        form: Math.random() > 0.5,
-        class: Math.random() > 0.5,
-      },
-      irregularBetting: Math.random() > 0.9,
-    }));
-    
-    // Return the mock data
-    return {
-      ...currentData,
-      horses: mockHorses,
-      lastUpdated: new Date().toLocaleTimeString(),
-      trackName: trackName,
-      raceNumber: 1,
-    };
+  // and saves it to the Supabase database
+  const processMockPDFData = async (filename: string): Promise<PDFExtractionResult> => {
+    try {
+      // Extract track name from filename for demonstration
+      const trackName = filename.split('.')[0].toUpperCase();
+      const raceNumber = Math.floor(Math.random() * 10) + 1;
+      const raceDate = new Date().toISOString();
+      const raceConditions = "Allowance - For Three Year Olds - 6 Furlongs";
+      
+      // Create mock horse data based on the track name
+      const mockHorses = Array.from({ length: 10 }, (_, i) => ({
+        pp: i + 1,
+        name: `${trackName} Runner ${i + 1}`,
+        jockey: `Jockey ${String.fromCharCode(65 + i)}`,
+        trainer: `Trainer ${String.fromCharCode(65 + i)}`,
+        mlOdds: parseFloat((2 + i * 0.5).toFixed(1)),
+      }));
+      
+      // Insert race data into Supabase
+      const { data: raceData, error: raceError } = await supabase
+        .from('race_data')
+        .insert({
+          track_name: trackName,
+          race_number: raceNumber,
+          race_date: raceDate,
+          race_conditions: raceConditions,
+        })
+        .select()
+        .single();
+      
+      if (raceError) {
+        console.error('Error saving race data:', raceError);
+        throw new Error(`Failed to save race data: ${raceError.message}`);
+      }
+      
+      // Insert horse data into Supabase
+      const horsesWithRaceId = mockHorses.map(horse => ({
+        race_id: raceData.id,
+        pp: horse.pp,
+        name: horse.name,
+        jockey: horse.jockey,
+        trainer: horse.trainer,
+        ml_odds: horse.mlOdds,
+      }));
+      
+      const { data: horsesData, error: horsesError } = await supabase
+        .from('race_horses')
+        .insert(horsesWithRaceId)
+        .select();
+      
+      if (horsesError) {
+        console.error('Error saving horse data:', horsesError);
+        throw new Error(`Failed to save horse data: ${horsesError.message}`);
+      }
+      
+      // Return the extracted data
+      return {
+        success: true,
+        data: {
+          raceId: raceData.id,
+          trackName: trackName,
+          raceNumber: raceNumber,
+          raceDate: raceDate,
+          raceConditions: raceConditions,
+          horses: mockHorses,
+        },
+      };
+    } catch (error) {
+      console.error('Error in processMockPDFData:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'An unknown error occurred',
+      };
+    }
   };
   
   return (
@@ -204,7 +265,7 @@ const PDFUploader: React.FC<PDFUploaderProps> = ({ onDataExtracted }) => {
               <Check className="h-4 w-4 text-green-500" />
               <AlertTitle>Success</AlertTitle>
               <AlertDescription>
-                Race data successfully extracted and loaded into the application.
+                Race data successfully extracted and saved to the database.
               </AlertDescription>
             </Alert>
           )}
@@ -228,8 +289,8 @@ const PDFUploader: React.FC<PDFUploaderProps> = ({ onDataExtracted }) => {
             Currently supported race cards: Churchill Downs, Belmont Park, Santa Anita, and more.
           </p>
           <p className="text-sm text-gray-300 mt-2">
-            <strong>Note:</strong> For demonstration purposes, this will generate sample race data
-            based on the PDF filename. In a production environment, this would use a specialized
+            <strong>Note:</strong> Data will be saved to the database and can be accessed
+            throughout the application. In a production environment, this would use a specialized
             PDF parsing service.
           </p>
         </div>

@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import UserProfile from '@/components/UserProfile';
 import PDFUploader from '@/components/PDFUploader';
+import RaceDataManager from '@/components/RaceDataManager';
 
 const AdminPage = () => {
   const { toast } = useToast();
@@ -214,7 +215,7 @@ const AdminPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-radial from-betting-dark to-black p-6 text-white">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <header className="mb-6">
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-600">
@@ -233,10 +234,11 @@ const AdminPage = () => {
         </header>
 
         <Tabs defaultValue="connection" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-4">
+          <TabsList className="grid w-full grid-cols-4 mb-4">
             <TabsTrigger value="connection">API Connection</TabsTrigger>
             <TabsTrigger value="import">Data Import</TabsTrigger>
             <TabsTrigger value="pdf-import">PDF Import</TabsTrigger>
+            <TabsTrigger value="race-data">Race Database</TabsTrigger>
           </TabsList>
           
           <TabsContent value="connection">
@@ -352,6 +354,13 @@ const AdminPage = () => {
               <CardTitle>Import Race Data from PDF</CardTitle>
             </CardHeader>
             <PDFUploader onDataExtracted={handlePDFDataExtracted} />
+          </TabsContent>
+          
+          <TabsContent value="race-data">
+            <CardHeader className="px-0 pt-0">
+              <CardTitle>Manage Race Database</CardTitle>
+            </CardHeader>
+            <RaceDataManager />
           </TabsContent>
         </Tabs>
       </div>
