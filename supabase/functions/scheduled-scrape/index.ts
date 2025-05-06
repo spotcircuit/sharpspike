@@ -11,6 +11,10 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
 
+// Time-based scheduling constants (Eastern Time)
+const START_HOUR_ET = 8; // 8 AM Eastern
+const END_HOUR_ET = 24; // Midnight Eastern
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -21,7 +25,28 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
-    console.log("Starting scheduled race results scrape");
+    console.log("Starting scheduled scrape job");
+    
+    // Check if current time is within operating hours (Eastern Time)
+    const currentTime = new Date();
+    
+    // Convert current time to Eastern Time
+    const etOffset = -4; // EDT is UTC-4, EST is UTC-5 (adjust based on daylight savings)
+    const utcHour = currentTime.getUTCHours();
+    const etHour = (utcHour + 24 + etOffset) % 24; // Ensure positive hour
+    
+    console.log(`Current hour in ET: ${etHour}`);
+    
+    if (etHour < START_HOUR_ET || etHour >= END_HOUR_ET) {
+      console.log("Outside of operating hours (8 AM - Midnight ET). Skipping execution.");
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "Outside of operating hours (8 AM - Midnight ET). Skipping execution." 
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     
     let requestData = {};
     try {
@@ -34,21 +59,45 @@ serve(async (req) => {
     // Get the job ID if specified
     const jobId = requestData?.jobId;
     const forceRun = requestData?.force === true;
+    const jobType = requestData?.jobType;
     
-    // Get active scrape jobs of type 'results'
+    // Determine which job types to process in this run
+    // For high-frequency jobs (odds, will_pays) run every minute
+    // For results jobs, run every 15 minutes
+    const currentMinute = currentTime.getMinutes();
+    const isFullRunMinute = currentMinute % 15 === 0;
+    
+    console.log(`Current minute: ${currentMinute}, Is 15-minute mark: ${isFullRunMinute}`);
+    
+    // Start with base query for active jobs
     let jobsQuery = supabase.from('scrape_jobs')
       .select('*')
-      .eq('is_active', true)
-      .eq('job_type', 'results');
+      .eq('is_active', true);
     
+    // If job ID is provided, only get that specific job
     if (jobId) {
-      // If specific job ID provided, only get that job
+      console.log(`Processing specific job: ${jobId}`);
       jobsQuery = jobsQuery.eq('id', jobId);
+    } else if (jobType) {
+      // If job type is specified
+      console.log(`Processing specific job type: ${jobType}`);
+      jobsQuery = jobsQuery.eq('job_type', jobType);
     } else if (!forceRun) {
-      // Only get jobs that are due to run
-      jobsQuery = jobsQuery.lte('next_run_at', new Date().toISOString());
+      // Apply different scheduling logic based on job type
+      if (isFullRunMinute) {
+        // At 15-minute intervals, run all job types that are due
+        console.log("Running full 15-minute interval jobs including results");
+        jobsQuery = jobsQuery.lte('next_run_at', currentTime.toISOString());
+      } else {
+        // At other minutes, only run odds and will_pays jobs
+        console.log("Running high-frequency jobs (odds, will_pays) only");
+        jobsQuery = jobsQuery
+          .in('job_type', ['odds', 'will_pays'])
+          .lte('next_run_at', currentTime.toISOString());
+      }
     }
     
+    // Get jobs to process
     const { data: jobs, error: jobsError } = await jobsQuery.order('next_run_at');
     
     if (jobsError) {
@@ -56,20 +105,20 @@ serve(async (req) => {
     }
     
     if (!jobs || jobs.length === 0) {
-      console.log("No pending scrape jobs for race results");
+      console.log("No pending scrape jobs to process");
       return new Response(
-        JSON.stringify({ success: true, message: "No pending scrape jobs for race results" }),
+        JSON.stringify({ success: true, message: "No pending scrape jobs to process" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
     
-    console.log(`Found ${jobs.length} result scrape jobs to process`);
+    console.log(`Found ${jobs.length} scrape jobs to process`);
     
     const results = [];
     
     // Process each job
     for (const job of jobs) {
-      console.log(`Processing job: ${job.id} for ${job.track_name} Race ${job.race_number || 'all races'}`);
+      console.log(`Processing job: ${job.id} for ${job.track_name} (${job.job_type})`);
       
       try {
         // Update job status to "running"
@@ -102,9 +151,21 @@ serve(async (req) => {
           throw scrapeError;
         }
         
+        // Set different scheduling intervals based on job type
+        let intervalSeconds = job.interval_seconds;
+        
+        // If we're overriding the schedule, use 60 seconds for odds/will_pays and 15 minutes for results
+        if (!jobId && !forceRun) {
+          if (job.job_type === 'odds' || job.job_type === 'will_pays') {
+            intervalSeconds = 60; // Every minute for odds and will_pays
+          } else if (job.job_type === 'results') {
+            intervalSeconds = 900; // Every 15 minutes for results
+          }
+        }
+        
         // Calculate next run time
         const nextRunAt = new Date();
-        nextRunAt.setSeconds(nextRunAt.getSeconds() + job.interval_seconds);
+        nextRunAt.setSeconds(nextRunAt.getSeconds() + intervalSeconds);
         
         // Update job status to "completed" and set next_run_at
         await supabase
@@ -118,10 +179,11 @@ serve(async (req) => {
         
         results.push({
           id: job.id,
+          type: job.job_type,
           track: job.track_name,
           race: job.race_number || 'all',
           success: true,
-          message: `Successfully scraped results for ${job.track_name} Race ${job.race_number || 'all'}`
+          message: `Successfully scraped ${job.job_type} for ${job.track_name}`
         });
         
       } catch (error) {
@@ -143,6 +205,7 @@ serve(async (req) => {
         
         results.push({
           id: job.id,
+          type: job.job_type,
           track: job.track_name,
           race: job.race_number || 'all',
           success: false,

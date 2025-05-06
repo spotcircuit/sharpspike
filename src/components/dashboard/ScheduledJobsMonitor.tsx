@@ -12,28 +12,23 @@ const ScheduledJobsMonitor = () => {
   const [lastRun, setLastRun] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [operatingHours, setOperatingHours] = useState<string>('');
 
   const fetchCronStatus = async () => {
     setIsLoading(true);
     try {
-      // Calculate the next run time based on a 15-minute schedule
+      // Calculate the next run time based on the current time
       const now = new Date();
-      const minutesPart = Math.ceil(now.getMinutes() / 15) * 15;
-      const nextRunDate = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        now.getHours(),
-        minutesPart >= 60 ? 0 : minutesPart,
-        0
-      );
       
-      // If we calculated a time in the past, add an hour
-      if (nextRunDate <= now) {
-        nextRunDate.setHours(nextRunDate.getHours() + (minutesPart >= 60 ? 1 : 0));
-      }
+      // For next run, we use 1 minute for high-frequency jobs
+      const nextRunDate = new Date(now);
+      nextRunDate.setSeconds(0);
+      nextRunDate.setMinutes(nextRunDate.getMinutes() + 1);
       
       setNextRun(nextRunDate.toISOString());
+      
+      // Set operating hours info
+      setOperatingHours('8:00 AM - 12:00 AM Eastern Time');
 
       // Get the last run information from scrape_jobs
       const { data: jobsData, error: jobsError } = await supabase
@@ -58,7 +53,9 @@ const ScheduledJobsMonitor = () => {
   const triggerManualRun = async () => {
     setIsRefreshing(true);
     try {
-      const { error } = await supabase.functions.invoke('scheduled-scrape');
+      const { error } = await supabase.functions.invoke('scheduled-scrape', {
+        body: { force: true }
+      });
       
       if (error) {
         throw error;
@@ -94,7 +91,7 @@ const ScheduledJobsMonitor = () => {
           Scheduled Scraping
         </CardTitle>
         <CardDescription className="text-gray-400">
-          Status of automated race results scraping
+          Status of automated race data scraping
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -149,7 +146,8 @@ const ScheduledJobsMonitor = () => {
             </div>
             
             <div className="text-sm text-gray-400 mt-2 bg-betting-darkBlue p-3 rounded-lg">
-              <p>The scheduler runs every 15 minutes to check for race results to scrape based on active jobs.</p>
+              <p><span className="font-semibold">Schedule:</span> Odds and will-pays run every minute, results every 15 minutes</p>
+              <p><span className="font-semibold">Operating hours:</span> {operatingHours}</p>
             </div>
           </div>
         )}
