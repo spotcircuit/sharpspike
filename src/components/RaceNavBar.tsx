@@ -40,7 +40,18 @@ const RaceNavBar: React.FC<RaceNavBarProps> = ({
   const [track, setTrack] = useState(currentTrack);
   const [race, setRace] = useState(currentRace);
 
-  const tracks = ["CHURCHILL DOWNS", "BELMONT PARK", "SANTA ANITA", "DEL MAR", "KEENELAND"];
+  const tracks = [
+    "CHURCHILL DOWNS", 
+    "BELMONT PARK", 
+    "SANTA ANITA", 
+    "DEL MAR", 
+    "KEENELAND",
+    "MOUNTAINEER",
+    "LOS ALAMITOS",
+    "GULFSTREAM PARK",
+    "SARATOGA",
+    "AQUEDUCT"
+  ];
   const races = Array.from({ length: 12 }, (_, i) => i + 1);
 
   const handleTrackChange = (value: string) => {
