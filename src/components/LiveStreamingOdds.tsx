@@ -41,8 +41,8 @@ const LiveStreamingOdds: React.FC<LiveStreamingOddsProps> = ({ horses }) => {
   };
 
   return (
-    <Card className="border-4 border-betting-mediumBlue shadow-xl bg-betting-darkCard overflow-hidden">
-      <CardHeader className="bg-naval-gradient px-4 py-3">
+    <Card className="border-4 border-betting-tertiaryPurple shadow-xl bg-betting-darkPurple overflow-hidden">
+      <CardHeader className="bg-purple-header px-4 py-3">
         <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
           <ChartLine className="h-5 w-5" />
           Live Streaming Odds

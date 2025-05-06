@@ -18,7 +18,7 @@ const StreamItem: React.FC<StreamItemProps> = ({ item, index, jobType }) => {
   return (
     <div 
       className={`bg-betting-darkPurple/30 p-3 rounded-md border-l-4 ${
-        index === 0 ? 'border-green-500 animate-pulse' : 'border-betting-mediumBlue'
+        index === 0 ? 'border-green-500 animate-pulse' : 'border-betting-tertiaryPurple'
       }`}
     >
       <div className="flex justify-between items-start mb-2">
