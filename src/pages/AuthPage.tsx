@@ -19,7 +19,7 @@ const AuthPage = () => {
   }, [user, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-500 via-betting-vividPurple to-purple-900 p-6 text-white flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-orange-500 via-betting-navyBlue to-betting-darkPurple p-6 text-white flex items-center justify-center">
       <div className="w-full max-w-md">
         <AuthHeader />
 
