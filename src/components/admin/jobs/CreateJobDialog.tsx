@@ -8,7 +8,7 @@ import {
   Form, FormField, FormItem, FormLabel, 
   FormControl, FormDescription 
 } from '@/components/ui/form';
-import { UseFormReturn } from 'react-hook-form';
+import { UseFormReturn, useForm } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -18,16 +18,44 @@ import { TRACK_OPTIONS, JOB_TYPE_OPTIONS, INTERVAL_OPTIONS } from '@/types/Scrap
 interface CreateJobDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  form: UseFormReturn<any>;
-  onSubmit: (values: any) => void;
+  createJob: (values: any) => Promise<boolean>;
+  form?: UseFormReturn<any>;
+  onSubmit?: (values: any) => void;
 }
 
 const CreateJobDialog: React.FC<CreateJobDialogProps> = ({ 
   isOpen, 
   onOpenChange, 
-  form, 
-  onSubmit 
+  createJob,
+  form: externalForm,
+  onSubmit: externalOnSubmit
 }) => {
+  // Create an internal form if no external form is provided
+  const internalForm = useForm({
+    defaultValues: {
+      url: '',
+      track_name: '',
+      job_type: 'odds',
+      interval_seconds: 60,
+      is_active: true
+    }
+  });
+
+  // Use the external form if provided, otherwise use the internal form
+  const form = externalForm || internalForm;
+
+  // Define the internal submit handler
+  const handleSubmit = async (values: any) => {
+    const success = await createJob(values);
+    if (success) {
+      onOpenChange(false);
+      form.reset();
+    }
+  };
+
+  // Use the external onSubmit if provided, otherwise use the internal handleSubmit
+  const onSubmit = externalOnSubmit || handleSubmit;
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="bg-betting-darkCard border-betting-mediumBlue text-white">
@@ -125,7 +153,7 @@ const CreateJobDialog: React.FC<CreateJobDialogProps> = ({
                     <FormLabel>Interval</FormLabel>
                     <Select 
                       onValueChange={(val) => field.onChange(parseInt(val))} 
-                      defaultValue={field.value.toString()}
+                      defaultValue={field.value?.toString()}
                     >
                       <FormControl>
                         <SelectTrigger className="bg-betting-dark border-betting-mediumBlue text-white">

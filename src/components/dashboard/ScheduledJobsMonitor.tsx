@@ -16,15 +16,16 @@ const ScheduledJobsMonitor = () => {
   const fetchCronStatus = async () => {
     setIsLoading(true);
     try {
-      // Get the cron job information
-      const { data: cronData, error: cronError } = await supabase
-        .rpc('get_cron_job_info', { job_name: 'run-scheduled-scrape-every-15min' });
+      // Get the cron job information by querying the job directly
+      const { data: jobData, error: jobError } = await supabase
+        .from('cron.job')
+        .select('*')
+        .eq('jobname', 'run-scheduled-scrape-every-15min')
+        .single();
 
-      if (cronError) throw cronError;
+      if (jobError) throw jobError;
 
-      if (cronData && Array.isArray(cronData) && cronData.length > 0) {
-        const job = cronData[0];
-        
+      if (jobData) {
         // Calculate next run time based on schedule
         const now = new Date();
         const minutesPart = Math.ceil(now.getMinutes() / 15) * 15;
