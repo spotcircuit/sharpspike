@@ -70,7 +70,7 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-600 via-purple-700 to-blue-900 p-6 text-white flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-betting-darkPurple via-betting-vividPurple to-betting-secondaryPurple p-6 text-white flex items-center justify-center">
       <div className="w-full max-w-md">
         <header className="mb-6 text-center">
           <div className="flex justify-center mb-4">
@@ -89,24 +89,24 @@ const AuthPage = () => {
         </header>
 
         <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4 bg-white/10 backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-2 mb-4 bg-betting-darkPurple/50 backdrop-blur-sm">
             <TabsTrigger 
               value="login"
-              className="data-[state=active]:bg-white/20 data-[state=active]:text-white text-gray-200"
+              className="data-[state=active]:bg-betting-vividPurple/20 data-[state=active]:text-white text-gray-200"
             >
               Login
             </TabsTrigger>
             <TabsTrigger 
               value="signup"
-              className="data-[state=active]:bg-white/20 data-[state=active]:text-white text-gray-200"
+              className="data-[state=active]:bg-betting-vividPurple/20 data-[state=active]:text-white text-gray-200"
             >
               Sign Up
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="login">
-            <Card className="bg-black/30 border-orange-500/50 backdrop-blur-md">
-              <CardHeader>
+            <Card className="bg-betting-darkPurple/70 border-betting-secondaryPurple/50 backdrop-blur-md">
+              <CardHeader className="bg-betting-darkPurple">
                 <CardTitle className="text-white">Login</CardTitle>
               </CardHeader>
               <form onSubmit={handleLogin}>
@@ -138,7 +138,7 @@ const AuthPage = () => {
                   <Button 
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white"
+                    className="w-full bg-gradient-to-r from-betting-vividPurple to-betting-secondaryPurple hover:from-betting-secondaryPurple hover:to-betting-vividPurple text-white"
                   >
                     {isLoading ? "Signing in..." : "Sign In"}
                   </Button>
@@ -148,8 +148,8 @@ const AuthPage = () => {
           </TabsContent>
           
           <TabsContent value="signup">
-            <Card className="bg-black/30 border-orange-500/50 backdrop-blur-md">
-              <CardHeader>
+            <Card className="bg-betting-darkPurple/70 border-betting-secondaryPurple/50 backdrop-blur-md">
+              <CardHeader className="bg-betting-darkPurple">
                 <CardTitle className="text-white">Create Account</CardTitle>
               </CardHeader>
               <form onSubmit={handleSignup}>
@@ -193,7 +193,7 @@ const AuthPage = () => {
                   <Button 
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white"
+                    className="w-full bg-gradient-to-r from-betting-vividPurple to-betting-secondaryPurple hover:from-betting-secondaryPurple hover:to-betting-vividPurple text-white"
                   >
                     {isLoading ? "Creating Account..." : "Create Account"}
                   </Button>
