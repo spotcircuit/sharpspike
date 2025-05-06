@@ -39,6 +39,81 @@ export type Database = {
         }
         Relationships: []
       }
+      exotic_will_pays: {
+        Row: {
+          carryover_amount: number | null
+          combination: string
+          id: string
+          is_carryover: boolean | null
+          payout: number | null
+          race_date: string
+          race_number: number
+          scraped_at: string
+          track_name: string
+          wager_type: string
+        }
+        Insert: {
+          carryover_amount?: number | null
+          combination: string
+          id?: string
+          is_carryover?: boolean | null
+          payout?: number | null
+          race_date: string
+          race_number: number
+          scraped_at?: string
+          track_name: string
+          wager_type: string
+        }
+        Update: {
+          carryover_amount?: number | null
+          combination?: string
+          id?: string
+          is_carryover?: boolean | null
+          payout?: number | null
+          race_date?: string
+          race_number?: number
+          scraped_at?: string
+          track_name?: string
+          wager_type?: string
+        }
+        Relationships: []
+      }
+      odds_data: {
+        Row: {
+          horse_name: string
+          horse_number: number
+          id: string
+          pool_data: Json | null
+          race_date: string
+          race_number: number
+          scraped_at: string
+          track_name: string
+          win_odds: string | null
+        }
+        Insert: {
+          horse_name: string
+          horse_number: number
+          id?: string
+          pool_data?: Json | null
+          race_date: string
+          race_number: number
+          scraped_at?: string
+          track_name: string
+          win_odds?: string | null
+        }
+        Update: {
+          horse_name?: string
+          horse_number?: number
+          id?: string
+          pool_data?: Json | null
+          race_date?: string
+          race_number?: number
+          scraped_at?: string
+          track_name?: string
+          win_odds?: string | null
+        }
+        Relationships: []
+      }
       OddsPulse: {
         Row: {
           created_at: string
@@ -185,6 +260,51 @@ export type Database = {
           results_data?: Json
           source_url?: string | null
           track_name?: string
+        }
+        Relationships: []
+      }
+      scrape_jobs: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          interval_seconds: number
+          is_active: boolean
+          job_type: string
+          last_run_at: string | null
+          next_run_at: string
+          status: string
+          track_name: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          interval_seconds?: number
+          is_active?: boolean
+          job_type: string
+          last_run_at?: string | null
+          next_run_at?: string
+          status?: string
+          track_name: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          interval_seconds?: number
+          is_active?: boolean
+          job_type?: string
+          last_run_at?: string | null
+          next_run_at?: string
+          status?: string
+          track_name?: string
+          updated_at?: string
+          url?: string
         }
         Relationships: []
       }

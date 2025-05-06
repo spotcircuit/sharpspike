@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import RaceResultsPage from "./pages/RaceResultsPage";
 import RequireAuth from "./components/RequireAuth";
 import { AuthProvider } from "./contexts/AuthContext";
+import DataDashboardPage from "./pages/DataDashboardPage";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,14 @@ const App = () => (
               element={
                 <RequireAuth>
                   <RaceResultsPage />
+                </RequireAuth>
+              } 
+            />
+            <Route 
+              path="/data-dashboard" 
+              element={
+                <RequireAuth>
+                  <DataDashboardPage />
                 </RequireAuth>
               } 
             />

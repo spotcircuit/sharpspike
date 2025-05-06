@@ -3,3 +3,6 @@ project_id = "bqvavkzgmznjfirgfyhd"
 
 [functions.scrape-race-results]
 verify_jwt = true
+
+[functions.run-scrape-jobs]
+verify_jwt = true

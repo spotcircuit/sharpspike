@@ -9,6 +9,7 @@ import PDFUploader from '@/components/PDFUploader';
 import RaceDataManager from '@/components/RaceDataManager';
 import ApiConnectionTab from '@/components/admin/ApiConnectionTab';
 import DataImportTab from '@/components/admin/DataImportTab';
+import DataScraperTab from '@/components/admin/DataScraperTab';
 import { Button } from '@/components/ui/button';
 
 const AdminPage = () => {
@@ -73,9 +74,10 @@ const AdminPage = () => {
         </header>
 
         <Tabs defaultValue="connection" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-4">
+          <TabsList className="grid w-full grid-cols-5 mb-4">
             <TabsTrigger value="connection">API Connection</TabsTrigger>
             <TabsTrigger value="import">Data Import</TabsTrigger>
+            <TabsTrigger value="scraper">Data Scraper</TabsTrigger>
             <TabsTrigger value="pdf-import">PDF Import</TabsTrigger>
             <TabsTrigger value="race-data">Race Database</TabsTrigger>
           </TabsList>
@@ -98,6 +100,10 @@ const AdminPage = () => {
               apiKey={apiKey}
               isTestMode={isTestMode}
             />
+          </TabsContent>
+          
+          <TabsContent value="scraper">
+            <DataScraperTab />
           </TabsContent>
           
           <TabsContent value="pdf-import">
