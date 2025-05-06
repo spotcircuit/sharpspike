@@ -18,12 +18,32 @@ serve(async (req) => {
     
     console.log("Checking for pending scrape jobs...");
     
-    // Get all active scrape jobs that need to be run
-    const { data: jobs, error: jobsError } = await supabase
+    // Get specific job ID if provided
+    let jobId = null;
+    
+    try {
+      const requestData = await req.json();
+      jobId = requestData?.jobId;
+    } catch (e) {
+      // No request body or invalid JSON, proceed with all pending jobs
+    }
+    
+    // If jobId is provided, only get that specific job
+    let jobsQuery = supabase
       .from('scrape_jobs')
       .select('*')
-      .eq('is_active', true)
-      .lte('next_run_at', new Date().toISOString());
+      .eq('is_active', true);
+    
+    if (jobId) {
+      console.log(`Processing specific job: ${jobId}`);
+      jobsQuery = jobsQuery.eq('id', jobId);
+    } else {
+      // Get jobs that are due to run (next_run_at <= current time)
+      jobsQuery = jobsQuery.lte('next_run_at', new Date().toISOString());
+    }
+    
+    // Order by next_run_at to prioritize most overdue jobs
+    const { data: jobs, error: jobsError } = await jobsQuery.order('next_run_at');
     
     if (jobsError) {
       console.error("Error fetching scrape jobs:", jobsError);
@@ -70,12 +90,17 @@ serve(async (req) => {
             throw new Error(`Unknown job type: ${job.job_type}`);
         }
         
-        // Update job status to "completed" and set last_run_at
+        // Calculate next run time
+        const nextRunAt = new Date();
+        nextRunAt.setSeconds(nextRunAt.getSeconds() + job.interval_seconds);
+        
+        // Update job status to "completed" and set next_run_at
         await supabase
           .from('scrape_jobs')
           .update({ 
             status: 'completed', 
-            last_run_at: new Date().toISOString() 
+            last_run_at: new Date().toISOString(),
+            next_run_at: nextRunAt.toISOString()
           })
           .eq('id', job.id);
         
@@ -89,12 +114,17 @@ serve(async (req) => {
       } catch (error) {
         console.error(`Error processing job ${job.id}:`, error);
         
+        // Calculate next run time even for failed jobs
+        const nextRunAt = new Date();
+        nextRunAt.setSeconds(nextRunAt.getSeconds() + job.interval_seconds);
+        
         // Update job status to "failed"
         await supabase
           .from('scrape_jobs')
           .update({ 
             status: 'failed', 
-            last_run_at: new Date().toISOString() 
+            last_run_at: new Date().toISOString(),
+            next_run_at: nextRunAt.toISOString()
           })
           .eq('id', job.id);
         

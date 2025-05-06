@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Clock, RefreshCw, BarChart2, Zap, AlertCircle } from 'lucide-react';
+import { Clock, RefreshCw, BarChart2, Zap, AlertCircle, Loader2 } from 'lucide-react';
 import { OddsData, ExoticWillPay } from '@/types/ScraperTypes';
 import { RaceResult } from '@/types/RaceResultTypes';
 import { loadRaces, loadRaceData, formatTime } from './utils/scraper-utils';
@@ -28,6 +27,7 @@ const ScraperDataDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showActiveJobs, setShowActiveJobs] = useState(false);
   const [jobsCount, setJobsCount] = useState(0);
+  const [isRefreshingJobs, setIsRefreshingJobs] = useState(false);
 
   // Check active jobs count
   useEffect(() => {
@@ -140,6 +140,42 @@ const ScraperDataDashboard = () => {
     }
   };
 
+  // Function to manually trigger scrape jobs
+  const triggerScrapeJobs = async () => {
+    setIsRefreshingJobs(true);
+    try {
+      // Call the edge function to execute jobs
+      const { error } = await supabase.functions.invoke('run-scrape-jobs');
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Success",
+        description: "Scrape jobs triggered successfully",
+        variant: "default",
+      });
+      
+      // Wait a bit and then refresh the race data
+      setTimeout(() => {
+        if (selectedTrack) {
+          handleLoadRaces(selectedTrack);
+        }
+      }, 5000); // Give time for the scrape to complete
+      
+    } catch (error) {
+      console.error('Error triggering scrape jobs:', error);
+      toast({
+        title: "Error",
+        description: "Failed to trigger scrape jobs",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRefreshingJobs(false);
+    }
+  };
+
   // Toggle active jobs list
   const toggleActiveJobs = () => {
     setShowActiveJobs(!showActiveJobs);
@@ -188,6 +224,21 @@ const ScraperDataDashboard = () => {
           >
             <span>Active Jobs ({jobsCount})</span>
           </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={triggerScrapeJobs}
+            disabled={isRefreshingJobs}
+            className="ml-2"
+          >
+            {isRefreshingJobs ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <Zap className="h-4 w-4 mr-2" />
+            )}
+            <span>Run All Jobs</span>
+          </Button>
         </div>
       </div>
       
@@ -210,7 +261,7 @@ const ScraperDataDashboard = () => {
           <AlertCircle className="h-4 w-4 text-yellow-400" />
           <AlertDescription>
             No races found for {selectedTrack}. There may be a scrape job running to fetch this data.
-            Click the "Active Jobs" button to check the status of running jobs.
+            Click the "Active Jobs" button to check the status of running jobs, or click "Run All Jobs" to trigger the scraper.
           </AlertDescription>
         </Alert>
       )}

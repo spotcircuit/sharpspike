@@ -2,14 +2,27 @@
 import React, { useEffect, useState } from 'react';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2, Play } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { ScrapeJob, STATUS_COLORS } from '@/types/ScraperTypes';
+import { toast } from '@/components/ui/sonner';
 
 const ActiveScrapeJobsList = () => {
   const [jobs, setJobs] = useState<ScrapeJob[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [runningJob, setRunningJob] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Force refresh of job countdown timers
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRefreshKey(prev => prev + 1);
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const fetchActiveJobs = async () => {
@@ -62,6 +75,46 @@ const ActiveScrapeJobsList = () => {
     return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
   };
 
+  // Manually run a job
+  const runJobNow = async (job: ScrapeJob) => {
+    setRunningJob(job.id);
+    try {
+      // Update job to run immediately
+      const { error: updateError } = await supabase
+        .from('scrape_jobs')
+        .update({ 
+          next_run_at: new Date().toISOString(),
+          status: 'pending'
+        })
+        .eq('id', job.id);
+      
+      if (updateError) {
+        throw updateError;
+      }
+      
+      // Call the edge function to execute jobs
+      const { error: functionError } = await supabase.functions.invoke('run-scrape-jobs');
+      
+      if (functionError) {
+        throw functionError;
+      }
+      
+      toast.success('Job execution triggered successfully');
+    } catch (error) {
+      console.error('Error running job:', error);
+      toast.error('Failed to run job');
+    } finally {
+      setRunningJob(null);
+    }
+  };
+
+  // Check if a job is overdue
+  const isJobOverdue = (job: ScrapeJob): boolean => {
+    const now = new Date();
+    const nextRun = new Date(job.next_run_at);
+    return nextRun < now && job.status === 'pending';
+  };
+
   return (
     <div className="overflow-x-auto">
       {isLoading ? (
@@ -82,15 +135,17 @@ const ActiveScrapeJobsList = () => {
               <TableHead>Interval</TableHead>
               <TableHead>Last Run</TableHead>
               <TableHead>Next Run</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {jobs.map(job => {
               const statusColor = STATUS_COLORS[job.status as keyof typeof STATUS_COLORS];
               const secondsUntilNextRun = getSecondsUntilNextRun(job.next_run_at);
+              const overdue = isJobOverdue(job);
               
               return (
-                <TableRow key={job.id} className={`${statusColor.bg} hover:bg-opacity-30`}>
+                <TableRow key={job.id} className={`${statusColor.bg} hover:bg-opacity-30 ${overdue ? 'bg-red-500/10' : ''}`}>
                   <TableCell className="font-medium">{job.track_name}</TableCell>
                   <TableCell>
                     <span className="capitalize">{job.job_type.replace('_', ' ')}</span>
@@ -117,10 +172,28 @@ const ActiveScrapeJobsList = () => {
                   <TableCell>
                     <div className="flex flex-col">
                       <span>{format(parseISO(job.next_run_at), 'MM/dd HH:mm:ss')}</span>
-                      <span className="text-xs text-gray-400">
-                        {formatTimeRemaining(secondsUntilNextRun)} remaining
+                      <span className={`text-xs ${overdue ? 'text-red-400 font-bold' : 'text-gray-400'}`}>
+                        {overdue 
+                          ? 'OVERDUE' 
+                          : `${formatTimeRemaining(secondsUntilNextRun)} remaining`}
                       </span>
                     </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => runJobNow(job)}
+                      disabled={!!runningJob || job.status === 'running'}
+                      className="h-8 px-2 text-sm"
+                    >
+                      {runningJob === job.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Play className="h-4 w-4" />
+                      )}
+                      <span className="ml-1">Run Now</span>
+                    </Button>
                   </TableCell>
                 </TableRow>
               );
