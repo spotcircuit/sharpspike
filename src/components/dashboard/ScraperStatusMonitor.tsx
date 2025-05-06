@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { RefreshCw, Database, AlertCircle, FileText } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 
 interface DataStat {
   tableName: string;
@@ -167,7 +167,7 @@ const ScraperStatusMonitor: React.FC = () => {
                       <TableCell className="font-medium">{stat.tableName}</TableCell>
                       <TableCell>{stat.totalCount.toLocaleString()}</TableCell>
                       <TableCell>
-                        <Badge variant={isActive ? "success" : "secondary"}>
+                        <Badge variant={isActive ? "default" : "secondary"} className={isActive ? "bg-green-600" : ""}>
                           {stat.recentCount.toLocaleString()}
                         </Badge>
                       </TableCell>
@@ -178,7 +178,7 @@ const ScraperStatusMonitor: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         {isRecent ? (
-                          <Badge variant="success" className="bg-green-600">
+                          <Badge variant="default" className="bg-green-600">
                             <span className="w-2 h-2 rounded-full bg-white animate-pulse mr-2"></span>
                             Active
                           </Badge>

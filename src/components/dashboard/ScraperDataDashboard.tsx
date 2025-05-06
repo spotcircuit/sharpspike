@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Clock, RefreshCw, BarChart2, Zap, AlertCircle, Loader2 } from 'lucide-react';
+import { Clock, RefreshCw, BarChart2, Zap, AlertCircle, Loader2, Database } from 'lucide-react';
 import { OddsData, ExoticWillPay } from '@/types/ScraperTypes';
 import { RaceResult } from '@/types/RaceResultTypes';
 import { loadRaces, loadRaceData, formatTime } from './utils/scraper-utils';
@@ -11,7 +11,7 @@ import WillPaysDisplay from './WillPaysDisplay';
 import ResultsDisplay from './ResultsDisplay';
 import TrackSelector from './TrackSelector';
 import EmptyStatePrompt from './EmptyStatePrompt';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import ActiveScrapeJobsList from './ActiveScrapeJobsList';
 import ScraperStatusMonitor from './ScraperStatusMonitor';
@@ -77,15 +77,12 @@ const ScraperDataDashboard = () => {
       } else {
         setSelectedRace(null);
         toast({
-          title: "No races found",
           description: `No races available for ${trackName}. Data may still be loading.`,
-          variant: "default",
         });
       }
     } catch (error) {
       console.error('Error loading races:', error);
       toast({
-        title: "Error",
         description: "Failed to load races",
         variant: "destructive",
       });
@@ -108,7 +105,6 @@ const ScraperDataDashboard = () => {
     } catch (error) {
       console.error('Error loading data:', error);
       toast({
-        title: "Error",
         description: "Failed to load race data",
         variant: "destructive",
       });
@@ -156,9 +152,7 @@ const ScraperDataDashboard = () => {
       }
       
       toast({
-        title: "Success",
         description: "Scrape jobs triggered successfully",
-        variant: "default",
       });
       
       // Wait a bit and then refresh the race data
@@ -171,7 +165,6 @@ const ScraperDataDashboard = () => {
     } catch (error) {
       console.error('Error triggering scrape jobs:', error);
       toast({
-        title: "Error",
         description: "Failed to trigger scrape jobs",
         variant: "destructive",
       });
