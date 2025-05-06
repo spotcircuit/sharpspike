@@ -71,13 +71,13 @@ const RaceNavBar: React.FC<RaceNavBarProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between bg-naval-gradient p-3 rounded-md shadow-md mb-4 border-4 border-betting-mediumBlue">
+    <div className="flex items-center justify-between bg-naval-gradient p-3 rounded-md shadow-md mb-4 border-4 border-betting-secondaryPurple">
       <div className="flex items-center space-x-2">
         <Select value={track} onValueChange={handleTrackChange}>
-          <SelectTrigger className="w-[200px] bg-white text-black">
+          <SelectTrigger className="w-[200px] bg-betting-darkPurple text-white border border-betting-tertiaryPurple">
             <SelectValue placeholder="Select Track" />
           </SelectTrigger>
-          <SelectContent className="bg-white text-black">
+          <SelectContent className="bg-betting-darkPurple text-white border-2 border-betting-tertiaryPurple">
             {TRACK_OPTIONS.map((trackOption) => (
               <SelectItem key={trackOption.value} value={trackOption.value}>
                 {trackOption.label}
@@ -92,17 +92,17 @@ const RaceNavBar: React.FC<RaceNavBarProps> = ({
             size="icon"
             onClick={navigateToPreviousRace}
             disabled={race <= 1}
-            className="bg-white text-betting-navyBlue"
+            className="bg-betting-darkPurple text-white border border-betting-tertiaryPurple"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
           
           <div className="mx-2">
             <Select value={race.toString()} onValueChange={handleRaceChange}>
-              <SelectTrigger className="w-[120px] bg-white text-black">
+              <SelectTrigger className="w-[120px] bg-betting-darkPurple text-white border border-betting-tertiaryPurple">
                 <SelectValue placeholder="Race" />
               </SelectTrigger>
-              <SelectContent className="bg-white text-black">
+              <SelectContent className="bg-betting-darkPurple text-white border-2 border-betting-tertiaryPurple">
                 {races.map((raceNumber) => (
                   <SelectItem key={raceNumber} value={raceNumber.toString()}>
                     RACE {raceNumber}
@@ -117,13 +117,13 @@ const RaceNavBar: React.FC<RaceNavBarProps> = ({
             size="icon"
             onClick={navigateToNextRace}
             disabled={race >= 12}
-            className="bg-white text-betting-navyBlue"
+            className="bg-betting-darkPurple text-white border border-betting-tertiaryPurple"
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
         </div>
         
-        <div className="ml-2 rounded-md bg-betting-navyBlue text-white px-4 py-2 font-bold">
+        <div className="ml-2 rounded-md bg-betting-navyBlue text-white px-4 py-2 font-bold border border-betting-tertiaryPurple">
           {mtp} MTP
         </div>
       </div>

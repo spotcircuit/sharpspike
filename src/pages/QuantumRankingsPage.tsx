@@ -91,7 +91,7 @@ const QuantumRankingsPage: React.FC = () => {
                 <div className="w-full sm:w-1/2">
                   <label className="text-sm font-medium mb-2 block text-gray-300">Track</label>
                   <select 
-                    className="w-full p-2 rounded bg-betting-darkPurple border border-betting-secondaryPurple text-white"
+                    className="w-full p-2 rounded bg-betting-darkPurple border border-betting-tertiaryPurple text-white"
                     value={selectedTrack}
                     onChange={(e) => {
                       setSelectedTrack(e.target.value);
@@ -106,7 +106,7 @@ const QuantumRankingsPage: React.FC = () => {
                 <div className="w-full sm:w-1/2">
                   <label className="text-sm font-medium mb-2 block text-gray-300">Race</label>
                   <select 
-                    className="w-full p-2 rounded bg-betting-darkPurple border border-betting-secondaryPurple text-white"
+                    className="w-full p-2 rounded bg-betting-darkPurple border border-betting-tertiaryPurple text-white"
                     value={selectedRace}
                     onChange={(e) => setSelectedRace(Number(e.target.value))}
                   >

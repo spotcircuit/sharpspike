@@ -28,10 +28,10 @@ const TrackSelector: React.FC<TrackSelectorProps> = ({
         onValueChange={(value) => onTrackChange(value)}
         disabled={isLoading}
       >
-        <SelectTrigger className="w-full sm:w-40 bg-betting-dark border-betting-mediumBlue text-white">
+        <SelectTrigger className="w-full sm:w-40 bg-betting-darkPurple border-betting-tertiaryPurple text-white">
           <SelectValue placeholder="Select track" />
         </SelectTrigger>
-        <SelectContent className="bg-betting-dark border-betting-mediumBlue text-white">
+        <SelectContent className="bg-betting-darkPurple border-betting-tertiaryPurple text-white">
           {TRACK_OPTIONS.map(track => (
             <SelectItem key={track.value} value={track.value}>
               {track.label}
@@ -46,13 +46,13 @@ const TrackSelector: React.FC<TrackSelectorProps> = ({
           onValueChange={(value) => onRaceChange(parseInt(value))}
           disabled={races.length === 0 || isLoading}
         >
-          <SelectTrigger className="w-full sm:w-32 bg-betting-dark border-betting-mediumBlue text-white">
+          <SelectTrigger className="w-full sm:w-32 bg-betting-darkPurple border-betting-tertiaryPurple text-white">
             <div className="flex items-center justify-between">
               <SelectValue placeholder="Race #" />
               {isLoading && <Loader2 className="h-4 w-4 ml-2 animate-spin" />}
             </div>
           </SelectTrigger>
-          <SelectContent className="bg-betting-dark border-betting-mediumBlue text-white">
+          <SelectContent className="bg-betting-darkPurple border-betting-tertiaryPurple text-white">
             {races.length > 0 ? (
               races.map(race => (
                 <SelectItem key={race} value={race.toString()}>
