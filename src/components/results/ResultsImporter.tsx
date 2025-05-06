@@ -71,13 +71,12 @@ const ResultsImporter: React.FC<ResultsImporterProps> = ({
       
       setPreviewData(data.results);
       
-      // Try to auto-detect track name if not provided
-      if (!raceTrack && data.results?.trackName) {
+      // Auto-detect track name and race number from scraped results
+      if (data.results?.trackName) {
         setRaceTrack(data.results.trackName);
       }
       
-      // Try to auto-detect race number if not provided
-      if (!raceNumber && data.results?.raceNumber) {
+      if (data.results?.raceNumber) {
         setRaceNumber(data.results.raceNumber.toString());
       }
       
@@ -109,12 +108,15 @@ const ResultsImporter: React.FC<ResultsImporterProps> = ({
     setIsImporting(true);
     
     try {
+      // Use the race number from the previewData to ensure consistency
+      const raceNum = previewData.raceNumber || parseInt(raceNumber);
+      
       // Save the results to Supabase
       const { data, error } = await supabase
         .from('race_results')
         .insert({
           track_name: raceTrack,
-          race_number: parseInt(raceNumber),
+          race_number: raceNum,
           race_date: new Date().toISOString(),
           results_data: previewData,
           source_url: url
