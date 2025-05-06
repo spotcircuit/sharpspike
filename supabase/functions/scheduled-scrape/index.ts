@@ -15,6 +15,9 @@ const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
 const START_HOUR_ET = 8; // 8 AM Eastern
 const END_HOUR_ET = 24; // Midnight Eastern
 
+// Morning entries scraping hours (8am, 9am, 10am Eastern)
+const MORNING_ENTRIES_HOURS_ET = [8, 9, 10];
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -61,13 +64,78 @@ serve(async (req) => {
     const forceRun = requestData?.force === true;
     const jobType = requestData?.jobType;
     
+    // Check if we should run morning entries scrape (8am, 9am, 10am Eastern)
+    const isEntriesHour = MORNING_ENTRIES_HOURS_ET.includes(etHour);
+    
     // Determine which job types to process in this run
     // For high-frequency jobs (odds, will_pays) run every minute
     // For results jobs, run every 15 minutes
     const currentMinute = currentTime.getMinutes();
     const isFullRunMinute = currentMinute % 15 === 0;
     
-    console.log(`Current minute: ${currentMinute}, Is 15-minute mark: ${isFullRunMinute}`);
+    console.log(`Current minute: ${currentMinute}, Is 15-minute mark: ${isFullRunMinute}, Is entries hour: ${isEntriesHour}`);
+    
+    // If it's one of the morning entries scraping hours, trigger entries jobs
+    if (isEntriesHour && currentMinute === 0 && !jobId && !jobType) {
+      console.log(`Morning entries scraping time (${etHour}:00 ET). Running entries scrape jobs.`);
+      
+      // Get all active tracks to scrape entries for
+      const { data: activeTracks, error: tracksError } = await supabase
+        .from('scrape_jobs')
+        .select('track_name')
+        .eq('is_active', true)
+        .order('track_name')
+        .distinct();
+      
+      if (tracksError) {
+        console.error("Error fetching active tracks:", tracksError);
+      } else if (activeTracks && activeTracks.length > 0) {
+        console.log(`Found ${activeTracks.length} active tracks for entries scraping`);
+        
+        // Process each track
+        const entriesResults = [];
+        for (const trackObj of activeTracks) {
+          const trackName = trackObj.track_name;
+          console.log(`Processing entries for track: ${trackName}`);
+          
+          try {
+            // Generate URL for this track's entries
+            const trackSlug = trackName.toLowerCase().replace(/\s+/g, '-');
+            const entriesUrl = `https://app.offtrackbetting.com/#/lobby/live-racing?programName=${trackSlug}&entries=true`;
+            
+            // Call the run-scrape-jobs function with entries scrape parameters
+            const { data: scrapeResult, error: scrapeError } = await supabase.functions.invoke('run-scrape-jobs', {
+              body: { 
+                jobType: 'entries',
+                trackName: trackName,
+                url: entriesUrl,
+                force: true
+              }
+            });
+            
+            if (scrapeError) {
+              throw scrapeError;
+            }
+            
+            entriesResults.push({
+              track: trackName,
+              success: true,
+              message: `Successfully scraped entries for ${trackName}`
+            });
+            
+          } catch (error) {
+            console.error(`Error scraping entries for ${trackName}:`, error);
+            entriesResults.push({
+              track: trackName,
+              success: false,
+              error: error instanceof Error ? error.message : 'Unknown error'
+            });
+          }
+        }
+        
+        console.log(`Completed entries scraping with results:`, entriesResults);
+      }
+    }
     
     // Start with base query for active jobs
     let jobsQuery = supabase.from('scrape_jobs')

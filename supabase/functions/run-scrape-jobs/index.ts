@@ -6,6 +6,7 @@ import { corsHeaders, SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.ts";
 import { scrapeOdds } from "./scrape-odds.ts";
 import { scrapeWillPays } from "./scrape-will-pays.ts";
 import { scrapeResults } from "./scrape-results.ts";
+import { scrapeEntries } from "./scrape-entries.ts";
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -19,18 +20,44 @@ serve(async (req) => {
     console.log("=== Starting scrape job runner ===");
     console.log("Checking for pending scrape jobs...");
     
-    // Get specific job ID if provided
-    let jobId = null;
-    let forcedRun = false;
+    // Get request data
+    const requestData = await req.json().catch(() => ({}));
     
-    try {
-      const requestData = await req.json();
-      jobId = requestData?.jobId;
-      forcedRun = requestData?.force === true;
-      console.log(`Request data: ${JSON.stringify(requestData)}`);
-    } catch (e) {
-      // No request body or invalid JSON, proceed with all pending jobs
-      console.log("No specific job ID provided, will check all pending jobs");
+    // Extract job specific details
+    const jobId = requestData?.jobId;
+    const jobType = requestData?.jobType;
+    const trackName = requestData?.trackName;
+    const url = requestData?.url;
+    const forcedRun = requestData?.force === true;
+    
+    console.log(`Request data: ${JSON.stringify(requestData)}`);
+    
+    // Special case for entries scraping
+    if (jobType === 'entries' && trackName && url) {
+      console.log(`Manual entries scraping for ${trackName} from ${url}`);
+      try {
+        const entriesResult = await scrapeEntries(url, trackName, supabase);
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            message: `Successfully scraped entries for ${trackName}`,
+            data: entriesResult
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (error) {
+        console.error(`Error scraping entries for ${trackName}:`, error);
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: error instanceof Error ? error.message : 'Unknown error occurred'
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        );
+      }
     }
     
     // If jobId is provided, only get that specific job
@@ -103,6 +130,10 @@ serve(async (req) => {
           case 'results':
             console.log(`Scraping results for ${job.track_name}`);
             jobResult = await scrapeResults(jobUrl, job.track_name, supabase);
+            break;
+          case 'entries':
+            console.log(`Scraping entries for ${job.track_name}`);
+            jobResult = await scrapeEntries(jobUrl, job.track_name, supabase);
             break;
           default:
             throw new Error(`Unknown job type: ${job.job_type}`);

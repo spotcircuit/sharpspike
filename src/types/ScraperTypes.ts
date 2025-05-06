@@ -3,7 +3,7 @@ export interface ScrapeJob {
   id: string;
   url: string;
   track_name: string;
-  job_type: "odds" | "will_pays" | "results";
+  job_type: "odds" | "will_pays" | "results" | "entries";
   status: "pending" | "running" | "completed" | "failed";
   last_run_at: string | null;
   next_run_at: string;
@@ -58,7 +58,8 @@ export interface TrackOption {
 export const JOB_TYPE_OPTIONS = [
   { value: "odds", label: "Race Odds" },
   { value: "will_pays", label: "Exotic Will Pays" },
-  { value: "results", label: "Race Results" }
+  { value: "results", label: "Race Results" },
+  { value: "entries", label: "Morning Entries" }
 ];
 
 export const INTERVAL_OPTIONS = [

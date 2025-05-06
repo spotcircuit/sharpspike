@@ -13,6 +13,7 @@ const ScheduledJobsMonitor = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [operatingHours, setOperatingHours] = useState<string>('');
+  const [entriesSchedule, setEntriesSchedule] = useState<string>('');
 
   const fetchCronStatus = async () => {
     setIsLoading(true);
@@ -29,6 +30,9 @@ const ScheduledJobsMonitor = () => {
       
       // Set operating hours info
       setOperatingHours('8:00 AM - 12:00 AM Eastern Time');
+      
+      // Set entries schedule info
+      setEntriesSchedule('8:00 AM, 9:00 AM, 10:00 AM Eastern Time');
 
       // Get the last run information from scrape_jobs
       const { data: jobsData, error: jobsError } = await supabase
@@ -145,9 +149,16 @@ const ScheduledJobsMonitor = () => {
               </Button>
             </div>
             
-            <div className="text-sm text-gray-400 mt-2 bg-betting-darkBlue p-3 rounded-lg">
-              <p><span className="font-semibold">Schedule:</span> Odds and will-pays run every minute, results every 15 minutes</p>
-              <p><span className="font-semibold">Operating hours:</span> {operatingHours}</p>
+            <div className="text-sm text-gray-400 space-y-2">
+              <div className="bg-betting-darkBlue p-3 rounded-lg">
+                <p><span className="font-semibold">Regular Scraping:</span> Odds and will-pays run every minute, results every 15 minutes</p>
+                <p><span className="font-semibold">Operating hours:</span> {operatingHours}</p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-betting-darkBlue to-betting-navyBlue/80 p-3 rounded-lg border-l-4 border-betting-vividPurple">
+                <p className="font-semibold text-betting-vividPurple">Morning Entries Scraping</p>
+                <p className="text-xs mt-1">Daily entries (horses, ML odds, jockeys, trainers) at {entriesSchedule}</p>
+              </div>
             </div>
           </div>
         )}
