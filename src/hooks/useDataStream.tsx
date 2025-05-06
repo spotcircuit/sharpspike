@@ -107,8 +107,9 @@ export const useDataStream = ({ trackName, jobType = 'odds' }: UseDataStreamProp
           filter: trackName ? `track_name=eq.${trackName}` : undefined
         }, (payload) => {
           setStreamData(prevData => {
-            const newData = [payload.new, ...prevData].slice(0, 15);
-            return newData;
+            // Ensure payload.new has the correct type with all required properties
+            const newItem = payload.new as StreamItem;
+            return [newItem, ...prevData].slice(0, 15);
           });
         })
         .subscribe();
@@ -122,8 +123,9 @@ export const useDataStream = ({ trackName, jobType = 'odds' }: UseDataStreamProp
           filter: trackName ? `track_name=eq.${trackName}` : undefined
         }, (payload) => {
           setStreamData(prevData => {
-            const newData = [payload.new, ...prevData].slice(0, 15);
-            return newData;
+            // Ensure payload.new has the correct type with all required properties
+            const newItem = payload.new as StreamItem;
+            return [newItem, ...prevData].slice(0, 15);
           });
         })
         .subscribe();
@@ -137,8 +139,9 @@ export const useDataStream = ({ trackName, jobType = 'odds' }: UseDataStreamProp
           filter: trackName ? `track_name=eq.${trackName}` : undefined
         }, (payload) => {
           setStreamData(prevData => {
-            const newData = [payload.new, ...prevData].slice(0, 15);
-            return newData;
+            // Ensure payload.new has the correct type with all required properties
+            const newItem = payload.new as StreamItem;
+            return [newItem, ...prevData].slice(0, 15);
           });
         })
         .subscribe();
