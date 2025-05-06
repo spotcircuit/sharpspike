@@ -16,9 +16,9 @@ const NoRacesAlert: React.FC<NoRacesAlertProps> = ({ selectedTrack, races }) => 
   }
 
   return (
-    <Alert variant="default" className="bg-betting-darkCard border-yellow-600">
+    <Alert variant="default" className="bg-betting-darkPurple border-betting-tertiaryPurple border-4">
       <AlertCircle className="h-4 w-4 text-yellow-400" />
-      <AlertDescription className="flex flex-col space-y-3">
+      <AlertDescription className="flex flex-col space-y-3 text-white">
         <div>
           No races found for {selectedTrack}. There may be a scrape job running to fetch this data,
           or you can manually import race results using our Results Importer tool.
@@ -28,7 +28,7 @@ const NoRacesAlert: React.FC<NoRacesAlertProps> = ({ selectedTrack, races }) => 
           <Button 
             variant="outline" 
             size="sm" 
-            className="text-yellow-400 border-yellow-600 hover:bg-yellow-900/20"
+            className="text-yellow-400 border-betting-tertiaryPurple hover:bg-betting-darkPurple/20"
             asChild
           >
             <Link to={`/results/${selectedTrack}`}>
@@ -40,7 +40,7 @@ const NoRacesAlert: React.FC<NoRacesAlertProps> = ({ selectedTrack, races }) => 
           <Button 
             variant="outline" 
             size="sm" 
-            className="text-blue-400 border-blue-600 hover:bg-blue-900/20"
+            className="text-blue-400 border-betting-tertiaryPurple hover:bg-betting-darkPurple/20"
           >
             Check Active Jobs
           </Button>

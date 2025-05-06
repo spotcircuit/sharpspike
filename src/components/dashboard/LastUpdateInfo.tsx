@@ -26,17 +26,17 @@ const LastUpdateInfo: React.FC<LastUpdateInfoProps> = ({
     : null;
     
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 text-white">
       {formattedTime && (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="text-sm text-gray-400 flex items-center gap-1">
+              <div className="text-sm text-gray-300 flex items-center gap-1">
                 <Clock className="h-4 w-4" />
                 Last updated: {formattedTime}
               </div>
             </TooltipTrigger>
-            <TooltipContent>
+            <TooltipContent className="bg-betting-darkPurple border-betting-tertiaryPurple text-white">
               <p>Data was last refreshed at this time</p>
             </TooltipContent>
           </Tooltip>
@@ -49,6 +49,7 @@ const LastUpdateInfo: React.FC<LastUpdateInfoProps> = ({
           size="sm"
           onClick={onRefresh}
           disabled={isLoading || !selectedTrack || selectedRace === null}
+          className="border-betting-tertiaryPurple bg-betting-darkPurple text-white hover:bg-betting-tertiaryPurple/20"
         >
           {isLoading ? (
             <RefreshCw className="h-4 w-4 animate-spin" />
@@ -63,6 +64,7 @@ const LastUpdateInfo: React.FC<LastUpdateInfoProps> = ({
             variant="outline"
             size="sm"
             asChild
+            className="border-betting-tertiaryPurple bg-betting-darkPurple text-white hover:bg-betting-tertiaryPurple/20"
           >
             <Link to={`/results/${selectedTrack}`}>
               <ExternalLink className="h-4 w-4 mr-1" />

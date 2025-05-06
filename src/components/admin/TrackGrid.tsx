@@ -43,9 +43,9 @@ const TrackGrid: React.FC<TrackGridProps> = ({ jobs, onRunJob, isRunningJob }) =
       </div>
       
       <Dialog open={!!selectedTrack} onOpenChange={() => setSelectedTrack(null)}>
-        <DialogContent className="bg-betting-darkCard border-betting-mediumBlue text-white max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="bg-betting-darkPurple border-betting-tertiaryPurple text-white max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{selectedTrack} Data</DialogTitle>
+            <DialogTitle className="text-white">{selectedTrack} Data</DialogTitle>
           </DialogHeader>
           
           {selectedTrack && (

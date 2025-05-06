@@ -37,16 +37,11 @@ const TrackCard: React.FC<TrackCardProps> = ({
   const hasRunningJobs = jobs.some(job => job.status === 'running');
   
   return (
-    <Card className={`border-2 ${
-      hasFailedJobs ? 'border-red-500' : 
-      hasRunningJobs ? 'border-blue-500' : 
-      activeJobs > 0 ? 'border-green-500' : 
-      'border-betting-mediumBlue'
-    } bg-betting-darkCard transition-all hover:scale-[1.02]`}>
+    <Card className="border-4 border-betting-tertiaryPurple bg-betting-darkPurple transition-all hover:scale-[1.02]">
       <CardContent className="p-4">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-lg font-bold">{trackName}</h3>
+            <h3 className="text-lg font-bold text-white">{trackName}</h3>
             <div className="flex items-center gap-2 mt-1">
               <Badge variant={activeJobs > 0 ? "default" : "outline"} 
                 className={activeJobs > 0 ? "bg-green-600" : "text-gray-400"}>
@@ -72,7 +67,7 @@ const TrackCard: React.FC<TrackCardProps> = ({
                 if (activeJob) onRunJob(activeJob);
               }}
               disabled={activeJobs === 0 || isRunningJob}
-              className="h-8 px-3 text-xs"
+              className="h-8 px-3 text-xs border-betting-tertiaryPurple text-white"
             >
               {activeJobs > 0 ? (
                 hasRunningJobs ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />
@@ -87,7 +82,7 @@ const TrackCard: React.FC<TrackCardProps> = ({
               variant="outline"
               size="sm"
               onClick={() => onViewTrackData(trackName)}
-              className="h-8 px-3 text-xs"
+              className="h-8 px-3 text-xs border-betting-tertiaryPurple text-white"
             >
               View Data
             </Button>
@@ -96,7 +91,7 @@ const TrackCard: React.FC<TrackCardProps> = ({
         
         <div className="mt-3 grid grid-cols-3 gap-2">
           {jobs.map((job, index) => (
-            <div key={index} className="text-xs bg-black/20 p-1.5 rounded">
+            <div key={index} className="text-xs bg-black/20 p-1.5 rounded text-gray-200">
               <div className="flex items-center justify-between">
                 <span className="capitalize">{job.job_type.replace('_', ' ')}</span>
                 <span className={`w-2 h-2 rounded-full ${

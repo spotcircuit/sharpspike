@@ -49,6 +49,9 @@ const ScraperControls: React.FC<ScraperControlsProps> = ({
       <Button
         variant={showActiveJobs ? "default" : "outline"}
         size="sm"
+        className={showActiveJobs 
+          ? "bg-betting-tertiaryPurple text-white hover:bg-betting-secondaryPurple" 
+          : "border-betting-tertiaryPurple text-white hover:bg-betting-darkPurple/20"}
         onClick={toggleActiveJobs}
       >
         <span>Active Jobs ({jobsCount})</span>
@@ -57,6 +60,9 @@ const ScraperControls: React.FC<ScraperControlsProps> = ({
       <Button
         variant={showDatabaseMonitor ? "default" : "outline"}
         size="sm"
+        className={showDatabaseMonitor 
+          ? "bg-betting-tertiaryPurple text-white hover:bg-betting-secondaryPurple" 
+          : "border-betting-tertiaryPurple text-white hover:bg-betting-darkPurple/20"}
         onClick={toggleDatabaseMonitor}
       >
         <Database className="h-4 w-4 mr-2" />
@@ -68,6 +74,7 @@ const ScraperControls: React.FC<ScraperControlsProps> = ({
         size="sm"
         onClick={triggerScrapeJobs}
         disabled={isRefreshingJobs}
+        className="border-betting-tertiaryPurple text-white hover:bg-betting-darkPurple/20"
       >
         {isRefreshingJobs ? (
           <Loader2 className="h-4 w-4 animate-spin mr-2" />

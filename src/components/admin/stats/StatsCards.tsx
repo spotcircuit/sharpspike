@@ -12,11 +12,11 @@ interface StatsCardsProps {
 const StatsCards: React.FC<StatsCardsProps> = ({ stats, isLoading }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <Card className="bg-betting-darkCard border-betting-mediumBlue">
+      <Card className="bg-betting-darkPurple border-betting-tertiaryPurple border-4">
         <CardContent className="p-4 flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-400">Total Jobs</p>
-            <h3 className="text-2xl font-bold">{stats.totalJobs}</h3>
+            <h3 className="text-2xl font-bold text-white">{stats.totalJobs}</h3>
           </div>
           <div className="h-10 w-10 rounded-full bg-purple-500/20 flex items-center justify-center">
             <BarChart2 className="h-5 w-5 text-purple-500" />
@@ -24,11 +24,11 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats, isLoading }) => {
         </CardContent>
       </Card>
       
-      <Card className="bg-betting-darkCard border-betting-mediumBlue">
+      <Card className="bg-betting-darkPurple border-betting-tertiaryPurple border-4">
         <CardContent className="p-4 flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-400">Active Jobs</p>
-            <h3 className="text-2xl font-bold">{stats.activeJobs}</h3>
+            <h3 className="text-2xl font-bold text-white">{stats.activeJobs}</h3>
           </div>
           <div className="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center">
             <Play className="h-5 w-5 text-green-500" />
@@ -36,11 +36,11 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats, isLoading }) => {
         </CardContent>
       </Card>
       
-      <Card className="bg-betting-darkCard border-betting-mediumBlue">
+      <Card className="bg-betting-darkPurple border-betting-tertiaryPurple border-4">
         <CardContent className="p-4 flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-400">Total Records</p>
-            <h3 className="text-2xl font-bold">
+            <h3 className="text-2xl font-bold text-white">
               {stats.oddsRecords + stats.willPaysRecords + stats.resultsRecords}
             </h3>
           </div>
@@ -50,11 +50,11 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats, isLoading }) => {
         </CardContent>
       </Card>
       
-      <Card className="bg-betting-darkCard border-betting-mediumBlue">
+      <Card className="bg-betting-darkPurple border-betting-tertiaryPurple border-4">
         <CardContent className="p-4 flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-400">Last Execution</p>
-            <h3 className="text-lg font-medium">
+            <h3 className="text-lg font-medium text-white">
               {stats.lastExecutionTime 
                 ? new Date(stats.lastExecutionTime).toLocaleString()
                 : 'Never'}

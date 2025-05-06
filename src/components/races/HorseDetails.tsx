@@ -20,9 +20,9 @@ const HorseDetails: React.FC<HorseDetailsProps> = ({
   if (!selectedRace) return null;
   
   return (
-    <>
+    <div className="bg-betting-darkPurple border-4 border-betting-tertiaryPurple rounded-lg p-4">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-medium">
+        <h3 className="text-lg font-medium text-white">
           {selectedRace.track_name} - Race {selectedRace.race_number}
         </h3>
         <Button
@@ -30,14 +30,15 @@ const HorseDetails: React.FC<HorseDetailsProps> = ({
           size="sm"
           onClick={() => onLoadRace(selectedRace.id)}
           disabled={isLoading}
+          className="bg-betting-tertiaryPurple hover:bg-betting-secondaryPurple text-white"
         >
           Load into Application
         </Button>
       </div>
       
-      <div className="rounded-md border border-betting-mediumBlue overflow-hidden">
+      <div className="rounded-md border border-betting-tertiaryPurple overflow-hidden">
         <Table>
-          <TableHeader className="bg-betting-dark">
+          <TableHeader className="bg-betting-darkPurple">
             <TableRow>
               <TableHead className="text-gray-300">PP</TableHead>
               <TableHead className="text-gray-300">Horse</TableHead>
@@ -55,9 +56,9 @@ const HorseDetails: React.FC<HorseDetailsProps> = ({
               </TableRow>
             ) : (
               horses.map((horse) => (
-                <TableRow key={horse.id} className="hover:bg-betting-dark/50">
+                <TableRow key={horse.id} className="hover:bg-betting-darkPurple/50">
                   <TableCell>{horse.pp}</TableCell>
-                  <TableCell className="font-medium">{horse.name}</TableCell>
+                  <TableCell className="font-medium text-white">{horse.name}</TableCell>
                   <TableCell>{horse.jockey || 'N/A'}</TableCell>
                   <TableCell>{horse.trainer || 'N/A'}</TableCell>
                   <TableCell>
@@ -69,7 +70,7 @@ const HorseDetails: React.FC<HorseDetailsProps> = ({
           </TableBody>
         </Table>
       </div>
-    </>
+    </div>
   );
 };
 

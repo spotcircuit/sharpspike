@@ -45,14 +45,14 @@ const LiveDataStream: React.FC<LiveDataStreamProps> = ({
   };
 
   return (
-    <Card className="border-betting-mediumBlue bg-betting-darkCard">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg flex items-center">
+    <Card className="border-4 border-betting-tertiaryPurple bg-betting-darkPurple">
+      <CardHeader className="bg-purple-header pb-2">
+        <CardTitle className="text-lg flex items-center text-white">
           <Database className="h-4 w-4 mr-2" />
           Live Data Stream
           {isLoading && <Loader2 className="h-4 w-4 ml-2 animate-spin" />}
         </CardTitle>
-        <div className="text-sm text-gray-400">
+        <div className="text-sm text-gray-300">
           {trackName ? `Track: ${trackName}` : 'All Tracks'} • 
           {jobType ? ` Type: ${jobType}` : ' All Types'} •
           {' '}{streamData.length} records
