@@ -1,10 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useForm } from 'react-hook-form';
-import { Loader2, RefreshCw, PlusCircle } from 'lucide-react';
+import { Loader2, RefreshCw, PlusCircle, Activity } from 'lucide-react';
 import { useScrapeJobs } from '@/hooks/useScrapeJobs';
 import StatsCards from './stats/StatsCards';
 import CreateJobDialog from './jobs/CreateJobDialog';
@@ -12,10 +12,12 @@ import JobsTable from './jobs/JobsTable';
 import ConfigInfo from './config/ConfigInfo';
 import TrackGrid from './TrackGrid';
 import ActiveJobsList from './ActiveJobsList';
+import { toast } from '@/components/ui/sonner';
 
 const DataScraperTab = () => {
-  const [activeTab, setActiveTab] = useState('tracks');
+  const [activeTab, setActiveTab] = useState('active');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   
   const {
     jobs,
@@ -40,21 +42,46 @@ const DataScraperTab = () => {
     }
   });
 
+  // Auto-refresh data every 30 seconds
+  useEffect(() => {
+    const refreshInterval = setInterval(() => {
+      loadJobs();
+      loadStats();
+      setLastRefresh(new Date());
+    }, 30000);
+    
+    return () => clearInterval(refreshInterval);
+  }, [loadJobs, loadStats]);
+
   // Function to handle form submission to create a new job
   const handleCreateJob = async (values: any) => {
     const success = await createJob(values);
     if (success) {
       setIsDialogOpen(false);
       form.reset();
+      toast.success("New scrape job created successfully");
     }
+  };
+
+  const handleManualRefresh = () => {
+    loadJobs();
+    loadStats();
+    setLastRefresh(new Date());
+    toast.success("Data refreshed successfully");
   };
 
   return (
     <>
       <CardHeader className="px-0 pt-0">
         <CardTitle>Off-Track Betting Data Scraper</CardTitle>
-        <div className="text-gray-400 mt-2">
-          Configure automated scraping for odds, will pays, and results from offtrackbetting.com
+        <div className="text-gray-400 mt-2 flex items-center justify-between">
+          <div>
+            Configure and monitor automated scraping for odds, will pays, and results from offtrackbetting.com
+          </div>
+          <div className="text-xs text-gray-500 flex items-center">
+            <Activity className="h-3 w-3 mr-1 text-betting-skyBlue" />
+            Last Updated: {lastRefresh.toLocaleTimeString()}
+          </div>
         </div>
       </CardHeader>
       
@@ -63,8 +90,8 @@ const DataScraperTab = () => {
       <div className="flex justify-between items-center mb-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-[500px] grid-cols-4">
-            <TabsTrigger value="tracks">Track Overview</TabsTrigger>
             <TabsTrigger value="active">Active Jobs</TabsTrigger>
+            <TabsTrigger value="tracks">Track Overview</TabsTrigger>
             <TabsTrigger value="jobs">All Jobs</TabsTrigger>
             <TabsTrigger value="config">Configuration</TabsTrigger>
           </TabsList>
@@ -73,10 +100,7 @@ const DataScraperTab = () => {
         <div className="flex items-center gap-2">
           <Button 
             variant="outline"
-            onClick={() => {
-              loadJobs();
-              loadStats();
-            }}
+            onClick={handleManualRefresh}
             disabled={isLoading}
             className="h-8 px-3"
           >
@@ -97,16 +121,16 @@ const DataScraperTab = () => {
         </div>
       </div>
       
-      <TabsContent value="tracks" className="mt-0">
-        <TrackGrid 
+      <TabsContent value="active" className="mt-0">
+        <ActiveJobsList 
           jobs={jobs} 
           onRunJob={runJobManually} 
           isRunningJob={isRunningJob} 
         />
       </TabsContent>
       
-      <TabsContent value="active" className="mt-0">
-        <ActiveJobsList 
+      <TabsContent value="tracks" className="mt-0">
+        <TrackGrid 
           jobs={jobs} 
           onRunJob={runJobManually} 
           isRunningJob={isRunningJob} 
