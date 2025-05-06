@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,6 +31,7 @@ import {
   JOB_TYPE_OPTIONS, INTERVAL_OPTIONS 
 } from '@/types/ScraperTypes';
 import TrackGrid from './TrackGrid';
+import ActiveJobsList from './ActiveJobsList';
 
 const DataScraperTab = () => {
   const [activeTab, setActiveTab] = useState('tracks');
@@ -317,9 +317,10 @@ const DataScraperTab = () => {
       
       <div className="flex justify-between items-center mb-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-[400px] grid-cols-3">
+          <TabsList className="grid w-[500px] grid-cols-4">
             <TabsTrigger value="tracks">Track Overview</TabsTrigger>
-            <TabsTrigger value="jobs">Scrape Jobs</TabsTrigger>
+            <TabsTrigger value="active">Active Jobs</TabsTrigger>
+            <TabsTrigger value="jobs">All Jobs</TabsTrigger>
             <TabsTrigger value="config">Configuration</TabsTrigger>
           </TabsList>
         </Tabs>
@@ -353,6 +354,14 @@ const DataScraperTab = () => {
       
       <TabsContent value="tracks" className="mt-0">
         <TrackGrid 
+          jobs={jobs} 
+          onRunJob={runJobManually} 
+          isRunningJob={isRunningJob} 
+        />
+      </TabsContent>
+      
+      <TabsContent value="active" className="mt-0">
+        <ActiveJobsList 
           jobs={jobs} 
           onRunJob={runJobManually} 
           isRunningJob={isRunningJob} 
