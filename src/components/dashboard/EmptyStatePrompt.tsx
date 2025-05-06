@@ -5,7 +5,7 @@ import { BarChart2 } from 'lucide-react';
 
 const EmptyStatePrompt: React.FC = () => {
   return (
-    <Card className="bg-betting-darkCard border-betting-mediumBlue">
+    <Card className="bg-betting-darkCard border-betting-secondaryPurple">
       <CardContent className="p-8 flex flex-col items-center justify-center text-center">
         <BarChart2 className="h-16 w-16 text-gray-400 mb-4 opacity-50" />
         <h3 className="text-xl font-medium mb-2">Select a Track and Race</h3>

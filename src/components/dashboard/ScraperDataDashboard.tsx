@@ -66,7 +66,7 @@ const ScraperDataDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-6">
-        <Card className="bg-betting-navyBlue border-betting-mediumBlue">
+        <Card className="bg-betting-navyBlue border-betting-secondaryPurple">
           <CardHeader>
             <CardTitle>Active Scrape Jobs</CardTitle>
           </CardHeader>

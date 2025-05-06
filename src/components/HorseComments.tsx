@@ -13,7 +13,7 @@ interface HorseCommentsProps {
 
 const HorseComments: React.FC<HorseCommentsProps> = ({ comments }) => {
   return (
-    <Card className="border-4 border-betting-mediumBlue shadow-xl bg-betting-darkCard overflow-hidden">
+    <Card className="border-4 border-betting-secondaryPurple shadow-xl bg-betting-darkCard overflow-hidden">
       <CardHeader className="bg-naval-gradient px-4 py-3">
         <CardTitle className="text-lg font-semibold text-white">Horse Comments</CardTitle>
       </CardHeader>
