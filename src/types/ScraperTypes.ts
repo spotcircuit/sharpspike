@@ -79,5 +79,7 @@ export const TRACK_OPTIONS: TrackOption[] = [
   { value: "SARATOGA", label: "Saratoga" },
   { value: "GULFSTREAM", label: "Gulfstream Park" },
   { value: "DEL MAR", label: "Del Mar" },
-  { value: "KEENELAND", label: "Keeneland" }
+  { value: "KEENELAND", label: "Keeneland" },
+  { value: "OAKLAWN PARK", label: "Oaklawn Park" },
+  { value: "NZ-HAWERA", label: "NZ-Hawera (TB)" }
 ];
