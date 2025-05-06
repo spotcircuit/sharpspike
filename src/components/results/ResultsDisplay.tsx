@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -192,31 +193,37 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
                 </div>
                 
                 <div className="bg-betting-navyBlue p-4 rounded-md overflow-auto max-h-[500px]">
-                  {selectedResult.results_data && selectedResult.results_data.finishOrder ? (
+                  {selectedResult.results_data && (
                     <div className="space-y-4">
                       <h4 className="text-md font-medium">Final Results</h4>
-                      <Table>
-                        <TableHeader className="bg-betting-dark/50">
-                          <TableRow>
-                            <TableHead className="text-gray-300">Position</TableHead>
-                            <TableHead className="text-gray-300">Horse</TableHead>
-                            <TableHead className="text-gray-300">Jockey</TableHead>
-                            <TableHead className="text-gray-300">Time</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {selectedResult.results_data.finishOrder.map((horse: any, index: number) => (
-                            <TableRow key={index}>
-                              <TableCell>{index + 1}</TableCell>
-                              <TableCell>{horse.name}</TableCell>
-                              <TableCell>{horse.jockey || 'N/A'}</TableCell>
-                              <TableCell>{horse.time || 'N/A'}</TableCell>
+                      {selectedResult.results_data.finishOrder ? (
+                        <Table>
+                          <TableHeader className="bg-betting-dark/50">
+                            <TableRow>
+                              <TableHead className="text-gray-300">Position</TableHead>
+                              <TableHead className="text-gray-300">Horse</TableHead>
+                              <TableHead className="text-gray-300">Jockey</TableHead>
+                              <TableHead className="text-gray-300">Time</TableHead>
                             </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
+                          </TableHeader>
+                          <TableBody>
+                            {selectedResult.results_data.finishOrder.map((horse: any, index: number) => (
+                              <TableRow key={index}>
+                                <TableCell>{horse.position || (index + 1)}</TableCell>
+                                <TableCell>{horse.name}</TableCell>
+                                <TableCell>{horse.jockey || 'N/A'}</TableCell>
+                                <TableCell>{horse.time || 'N/A'}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      ) : (
+                        <div className="text-center py-4 text-gray-400">
+                          No finish order data available
+                        </div>
+                      )}
                       
-                      {selectedResult.results_data.payouts && (
+                      {selectedResult.results_data.payouts && Object.keys(selectedResult.results_data.payouts).length > 0 ? (
                         <div className="mt-4">
                           <h4 className="text-md font-medium mb-2">Payouts</h4>
                           <div className="grid grid-cols-2 gap-4">
@@ -228,12 +235,12 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
                             ))}
                           </div>
                         </div>
+                      ) : (
+                        <div className="text-center py-4 text-gray-400">
+                          No payout data available
+                        </div>
                       )}
                     </div>
-                  ) : (
-                    <pre className="text-xs text-gray-300">
-                      {JSON.stringify(selectedResult.results_data, null, 2)}
-                    </pre>
                   )}
                 </div>
               </CardContent>

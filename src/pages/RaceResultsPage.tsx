@@ -4,14 +4,16 @@ import { useParams } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ResultsImporter from '@/components/results/ResultsImporter';
 import ResultsDisplay from '@/components/results/ResultsDisplay';
 import { supabase } from '@/integrations/supabase/client';
 import { RaceResult } from '@/types/RaceResultTypes';
+import { Loader2 } from 'lucide-react';
 
 const RaceResultsPage: React.FC = () => {
-  const { toast } = useToast();
+  const { toast: toastNotification } = useToast();
   const { trackName } = useParams<{ trackName: string }>();
   const [activeTab, setActiveTab] = useState('view');
   const [results, setResults] = useState<RaceResult[]>([]);
@@ -43,6 +45,7 @@ const RaceResultsPage: React.FC = () => {
       }
 
       if (data) {
+        console.log("Fetched race results:", data);
         setResults(data as RaceResult[]);
         if (data.length > 0 && !selectedResult) {
           setSelectedResult(data[0] as RaceResult);
@@ -50,11 +53,7 @@ const RaceResultsPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching results:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch race results.',
-        variant: 'destructive',
-      });
+      toast.error('Failed to fetch race results.');
     } finally {
       setIsLoading(false);
     }
@@ -64,10 +63,7 @@ const RaceResultsPage: React.FC = () => {
     setResults([newResult, ...results]);
     setSelectedResult(newResult);
     setActiveTab('view');
-    toast({
-      title: 'Success',
-      description: 'Race results imported successfully.',
-    });
+    toast.success('Race results imported successfully.');
   };
 
   return (
@@ -98,7 +94,10 @@ const RaceResultsPage: React.FC = () => {
           <TabsContent value="view">
             <Card className="bg-betting-navyBlue border-betting-mediumBlue">
               <CardHeader>
-                <CardTitle>Race Results</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  Race Results
+                  {isLoading && <Loader2 className="w-4 h-4 animate-spin ml-2" />}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <ResultsDisplay 

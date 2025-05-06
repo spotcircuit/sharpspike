@@ -209,7 +209,7 @@ serve(async (req) => {
           }
         }
         
-        // Specific sample data for Hawera Race 1
+        // Use race-specific demo data based on the race number
         if (raceNumber === 1) {
           finishOrder = [
             { position: "1", name: "Taupo Dancer", jockey: "Chris Dell / Kevin Lodge", time: "N/A" },
@@ -227,7 +227,42 @@ serve(async (req) => {
             "$0.20 SUPERFECTA": 182.78
           };
         }
-        // Specific sample data for Hawera Race 7
+        else if (raceNumber === 2) {
+          finishOrder = [
+            { position: "1", name: "Lucky Fortune", jockey: "Sam Spratt", time: "N/A" },
+            { position: "2", name: "Mega Win", jockey: "Rosie Myers", time: "N/A" },
+            { position: "3", name: "Speed Demon", jockey: "Lisa Allpress", time: "N/A" },
+            { position: "4", name: "Quick Silver", jockey: "Danielle Johnson", time: "N/A" }
+          ];
+          
+          payouts = {
+            "Win": 32.40,
+            "Place": 8.60,
+            "Place (2)": 3.20,
+            "Place (3)": 4.10,
+            "$1.00 EXACTA": 84.30,
+            "$0.20 TRIFECTA": 67.50,
+            "Daily Double (R1-R2)": 122.80
+          };
+        }
+        else if (raceNumber === 3) {
+          finishOrder = [
+            { position: "1", name: "Mountain Spirit", jockey: "Craig Grylls", time: "N/A" },
+            { position: "2", name: "Gallant Runner", jockey: "Opie Bosson", time: "N/A" },
+            { position: "3", name: "Sunset Express", jockey: "Joe Doyle", time: "N/A" },
+            { position: "4", name: "Rapid Fire", jockey: "Michael McNab", time: "N/A" }
+          ];
+          
+          payouts = {
+            "Win": 12.80,
+            "Place": 4.20,
+            "Place (2)": 2.70,
+            "Place (3)": 3.60,
+            "$1.00 EXACTA": 38.40,
+            "$0.20 TRIFECTA": 78.60,
+            "Daily Double (R2-R3)": 56.20
+          };
+        }
         else if (raceNumber === 7) {
           finishOrder = [
             { position: "1", name: "Old Town Road", jockey: "Amber Riddell", time: "N/A" },
@@ -242,22 +277,27 @@ serve(async (req) => {
             "Trifecta (1-2-3)": 182.50,
             "Daily Double (R6-R7)": 55.00
           };
-        } else if (raceNumber === 8) {
+        } 
+        else if (raceNumber === 8) {
           finishOrder = [
-            { position: "1", name: "Old Town Road", jockey: "Amber Riddell", time: "N/A" },
-            { position: "2", name: "Idyllic", jockey: "Kavish Chowdhoory", time: "N/A" },
-            { position: "3", name: "Make Time", jockey: "Jonathan Riddell", time: "N/A" },
-            { position: "4", name: "Meritable", jockey: "Kate Hercock", time: "N/A" },
-            { position: "5", name: "Reign It In", jockey: "Craig Grylls", time: "N/A" }
+            { position: "1", name: "Golden Flash", jockey: "Leith Innes", time: "N/A" },
+            { position: "2", name: "Silver Streak", jockey: "Sam Weatherly", time: "N/A" },
+            { position: "3", name: "Bronze Beauty", jockey: "Kozzi Asano", time: "N/A" },
+            { position: "4", name: "Medal Winner", jockey: "Ryan Elliot", time: "N/A" }
           ];
           
           payouts = {
-            "Exacta (1-2)": 42.80,
-            "Trifecta (1-2-3)": 182.50,
-            "Daily Double (R7-R8)": 55.00
+            "Win": 15.20,
+            "Place": 5.10,
+            "Place (2)": 2.40,
+            "Place (3)": 3.80,
+            "Exacta (1-2)": 47.60,
+            "Trifecta (1-2-3)": 196.40,
+            "Daily Double (R7-R8)": 68.50
           };
-        } else {
-          // Default sample data
+        } 
+        else {
+          // Default sample data for any other race numbers
           finishOrder = [
             { position: "1", name: "Race Winner", jockey: "J. Rider", time: "N/A" },
             { position: "2", name: "Second Place", jockey: "T. Jockey", time: "N/A" },
@@ -266,13 +306,17 @@ serve(async (req) => {
           ];
           
           payouts = {
+            "Win": 12.40,
+            "Place": 4.60,
+            "Place (2)": 3.20,
+            "Place (3)": 5.80,
             "Exacta (1-2)": 35.60,
             "Trifecta (1-2-3)": 150.20,
             "Daily Double": 28.40
           };
         }
       } else {
-        // Generic demo data
+        // Generic demo data for non-Hawera tracks
         trackName = trackName || "CHURCHILL DOWNS";
         raceNumber = raceNumber || 5;
         
