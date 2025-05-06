@@ -1,14 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Table, TableBody, TableCell, TableHead, 
-  TableHeader, TableRow 
-} from '@/components/ui/table';
 import { 
   Dialog, DialogContent, DialogHeader, 
   DialogTitle, DialogDescription, DialogFooter 
@@ -27,9 +22,10 @@ import {
   ScrapeJob, ScraperStats, TRACK_OPTIONS,
   JOB_TYPE_OPTIONS, INTERVAL_OPTIONS 
 } from '@/types/ScraperTypes';
+import TrackGrid from './TrackGrid';
 
 const DataScraperTab = () => {
-  const [activeTab, setActiveTab] = useState('jobs');
+  const [activeTab, setActiveTab] = useState('tracks');
   const [jobs, setJobs] = useState<ScrapeJob[]>([]);
   const [stats, setStats] = useState<ScraperStats>({
     totalJobs: 0,
@@ -55,7 +51,7 @@ const DataScraperTab = () => {
     }
   });
 
-  // Load jobs on mount
+  // Load jobs and stats on mount
   useEffect(() => {
     loadJobs();
     loadStats();
@@ -240,100 +236,6 @@ const DataScraperTab = () => {
     }
   };
 
-  // Render the jobs table
-  const renderJobsTable = () => (
-    <div className="rounded-md border border-betting-mediumBlue overflow-hidden">
-      <Table>
-        <TableHeader className="bg-betting-darkPurple">
-          <TableRow>
-            <TableHead className="text-white">Track</TableHead>
-            <TableHead className="text-white">Job Type</TableHead>
-            <TableHead className="text-white">Status</TableHead>
-            <TableHead className="text-white">Interval</TableHead>
-            <TableHead className="text-white">Last Run</TableHead>
-            <TableHead className="text-white">Next Run</TableHead>
-            <TableHead className="text-white">Active</TableHead>
-            <TableHead className="text-white text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {jobs.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={8} className="text-center text-gray-400">
-                No scrape jobs found. Create your first job to get started.
-              </TableCell>
-            </TableRow>
-          ) : (
-            jobs.map(job => (
-              <TableRow key={job.id} className="hover:bg-betting-darkPurple/20">
-                <TableCell className="font-medium">{job.track_name}</TableCell>
-                <TableCell>
-                  <span className="capitalize">{job.job_type.replace('_', ' ')}</span>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${
-                      job.status === 'running' ? 'bg-blue-500' :
-                      job.status === 'completed' ? 'bg-green-500' :
-                      job.status === 'failed' ? 'bg-red-500' :
-                      'bg-yellow-500'
-                    }`}></span>
-                    <span className="capitalize">{job.status}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {job.interval_seconds >= 60 
-                    ? `${Math.floor(job.interval_seconds / 60)} min`
-                    : `${job.interval_seconds} sec`}
-                </TableCell>
-                <TableCell>
-                  {job.last_run_at 
-                    ? format(parseISO(job.last_run_at), 'MM/dd HH:mm:ss')
-                    : '-'}
-                </TableCell>
-                <TableCell>
-                  {format(parseISO(job.next_run_at), 'MM/dd HH:mm:ss')}
-                </TableCell>
-                <TableCell>
-                  <Switch 
-                    checked={job.is_active}
-                    onCheckedChange={() => toggleJobStatus(job)}
-                    className="data-[state=checked]:bg-green-500"
-                  />
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => runJobManually(job)}
-                      disabled={isRunningJob}
-                      className="h-8 px-2 text-sm"
-                    >
-                      {isRunningJob ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Play className="h-4 w-4" />
-                      )}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => deleteJob(job.id)}
-                      className="h-8 px-2 text-sm"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </div>
-  );
-
   // Render stats cards
   const renderStatsCards = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -381,7 +283,7 @@ const DataScraperTab = () => {
             <p className="text-sm text-gray-400">Last Execution</p>
             <h3 className="text-lg font-medium">
               {stats.lastExecutionTime 
-                ? format(parseISO(stats.lastExecutionTime), 'MM/dd HH:mm:ss')
+                ? new Date(stats.lastExecutionTime).toLocaleString()
                 : 'Never'}
             </h3>
           </div>
@@ -407,8 +309,8 @@ const DataScraperTab = () => {
       <div className="flex justify-between items-center mb-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-[400px] grid-cols-3">
+            <TabsTrigger value="tracks">Track Overview</TabsTrigger>
             <TabsTrigger value="jobs">Scrape Jobs</TabsTrigger>
-            <TabsTrigger value="latest">Latest Data</TabsTrigger>
             <TabsTrigger value="config">Configuration</TabsTrigger>
           </TabsList>
         </Tabs>
@@ -416,7 +318,10 @@ const DataScraperTab = () => {
         <div className="flex items-center gap-2">
           <Button 
             variant="outline"
-            onClick={loadJobs}
+            onClick={() => {
+              loadJobs();
+              loadStats();
+            }}
             disabled={isLoading}
             className="h-8 px-3"
           >
@@ -437,8 +342,105 @@ const DataScraperTab = () => {
         </div>
       </div>
       
+      <TabsContent value="tracks" className="mt-0">
+        <TrackGrid 
+          jobs={jobs} 
+          onRunJob={runJobManually} 
+          isRunningJob={isRunningJob} 
+        />
+      </TabsContent>
+      
       <TabsContent value="jobs" className="mt-0">
-        {renderJobsTable()}
+        <div className="rounded-md border border-betting-mediumBlue overflow-hidden">
+          <Table>
+            <TableHeader className="bg-betting-darkPurple">
+              <TableRow>
+                <TableHead className="text-white">Track</TableHead>
+                <TableHead className="text-white">Job Type</TableHead>
+                <TableHead className="text-white">Status</TableHead>
+                <TableHead className="text-white">Interval</TableHead>
+                <TableHead className="text-white">Last Run</TableHead>
+                <TableHead className="text-white">Next Run</TableHead>
+                <TableHead className="text-white">Active</TableHead>
+                <TableHead className="text-white text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {jobs.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center text-gray-400">
+                    No scrape jobs found. Create your first job to get started.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                jobs.map(job => (
+                  <TableRow key={job.id} className="hover:bg-betting-darkPurple/20">
+                    <TableCell className="font-medium">{job.track_name}</TableCell>
+                    <TableCell>
+                      <span className="capitalize">{job.job_type.replace('_', ' ')}</span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${
+                          job.status === 'running' ? 'bg-blue-500' :
+                          job.status === 'completed' ? 'bg-green-500' :
+                          job.status === 'failed' ? 'bg-red-500' :
+                          'bg-yellow-500'
+                        }`}></span>
+                        <span className="capitalize">{job.status}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {job.interval_seconds >= 60 
+                        ? `${Math.floor(job.interval_seconds / 60)} min`
+                        : `${job.interval_seconds} sec`}
+                    </TableCell>
+                    <TableCell>
+                      {job.last_run_at 
+                        ? format(parseISO(job.last_run_at), 'MM/dd HH:mm:ss')
+                        : '-'}
+                    </TableCell>
+                    <TableCell>
+                      {format(parseISO(job.next_run_at), 'MM/dd HH:mm:ss')}
+                    </TableCell>
+                    <TableCell>
+                      <Switch 
+                        checked={job.is_active}
+                        onCheckedChange={() => toggleJobStatus(job)}
+                        className="data-[state=checked]:bg-green-500"
+                      />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => runJobManually(job)}
+                          disabled={isRunningJob}
+                          className="h-8 px-2 text-sm"
+                        >
+                          {isRunningJob ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Play className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => deleteJob(job.id)}
+                          className="h-8 px-2 text-sm"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </TabsContent>
       
       <TabsContent value="latest" className="mt-0">
