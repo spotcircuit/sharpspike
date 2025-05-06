@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,76 +25,99 @@ const LiveDataStream: React.FC<LiveDataStreamProps> = ({
     
     const fetchData = async () => {
       try {
-        // Use direct table references instead of dynamic string variables
         let data;
         
         if (jobType === 'odds') {
-          let query = supabase
+          const response = await supabase
             .from('odds_data')
             .select('*')
             .order('scraped_at', { ascending: false })
             .limit(15);
             
           if (trackName) {
-            query = query.eq('track_name', trackName);
+            const filteredResponse = await supabase
+              .from('odds_data')
+              .select('*')
+              .eq('track_name', trackName)
+              .order('scraped_at', { ascending: false })
+              .limit(15);
+            
+            if (filteredResponse.error) throw filteredResponse.error;
+            data = filteredResponse.data;
+          } else {
+            if (response.error) throw response.error;
+            data = response.data;
           }
           
-          const response = await query;
-          if (response.error) throw response.error;
-          data = response.data;
-          
         } else if (jobType === 'will_pays') {
-          let query = supabase
+          const response = await supabase
             .from('exotic_will_pays')
             .select('*')
             .order('scraped_at', { ascending: false })
             .limit(15);
             
           if (trackName) {
-            query = query.eq('track_name', trackName);
+            const filteredResponse = await supabase
+              .from('exotic_will_pays')
+              .select('*')
+              .eq('track_name', trackName)
+              .order('scraped_at', { ascending: false })
+              .limit(15);
+            
+            if (filteredResponse.error) throw filteredResponse.error;
+            data = filteredResponse.data;
+          } else {
+            if (response.error) throw response.error;
+            data = response.data;
           }
           
-          const response = await query;
-          if (response.error) throw response.error;
-          data = response.data;
-          
         } else if (jobType === 'results') {
-          let query = supabase
+          const response = await supabase
             .from('race_results')
             .select('*')
             .order('created_at', { ascending: false })
             .limit(15);
             
           if (trackName) {
-            query = query.eq('track_name', trackName);
+            const filteredResponse = await supabase
+              .from('race_results')
+              .select('*')
+              .eq('track_name', trackName)
+              .order('created_at', { ascending: false })
+              .limit(15);
+            
+            if (filteredResponse.error) throw filteredResponse.error;
+            data = filteredResponse.data;
+          } else {
+            if (response.error) throw response.error;
+            data = response.data;
           }
-          
-          const response = await query;
-          if (response.error) throw response.error;
-          data = response.data;
           
         } else {
           // Default to odds data if no type specified
-          let query = supabase
+          const response = await supabase
             .from('odds_data')
             .select('*')
             .order('scraped_at', { ascending: false })
             .limit(15);
             
           if (trackName) {
-            query = query.eq('track_name', trackName);
+            const filteredResponse = await supabase
+              .from('odds_data')
+              .select('*')
+              .eq('track_name', trackName)
+              .order('scraped_at', { ascending: false })
+              .limit(15);
+            
+            if (filteredResponse.error) throw filteredResponse.error;
+            data = filteredResponse.data;
+          } else {
+            if (response.error) throw response.error;
+            data = response.data;
           }
-          
-          const response = await query;
-          if (response.error) throw response.error;
-          data = response.data;
         }
         
         setStreamData(data || []);
-        
-        if (data && data.length > 0) {
-          
-        }
       } catch (err: any) {
         console.error('Error fetching stream data:', err);
         setError(err.message || 'Failed to fetch data');
@@ -105,7 +129,7 @@ const LiveDataStream: React.FC<LiveDataStreamProps> = ({
     // Initial fetch
     fetchData();
     
-    // Set up real-time subscription - using the correct table name directly
+    // Set up real-time subscription
     let channel;
     
     if (jobType === 'odds') {
