@@ -108,8 +108,9 @@ const ResultsImporter: React.FC<ResultsImporterProps> = ({
     setIsImporting(true);
     
     try {
-      // Use the race number from the previewData to ensure consistency
-      const raceNum = previewData.raceNumber || parseInt(raceNumber);
+      // Always use the race number from the preview data, which comes from the scraper
+      // This ensures consistency between what was scraped and what is saved
+      const raceNum = previewData.raceNumber;
       
       // Save the results to Supabase
       const { data, error } = await supabase
