@@ -1,23 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trash2, RefreshCw, Search, ChevronDown } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { RaceData, RaceHorse } from '@/utils/types';
 import { updateMockData } from '@/utils/mockData';
+import RacesList from './races/RacesList';
+import HorseDetails from './races/HorseDetails';
 
 const RaceDataManager: React.FC = () => {
   const { toast } = useToast();
@@ -195,11 +185,6 @@ const RaceDataManager: React.FC = () => {
     }
   };
 
-  const filteredRaces = races.filter(race => 
-    race.track_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    race.race_number.toString().includes(searchQuery)
-  );
-
   return (
     <Card className="bg-betting-navyBlue border-betting-mediumBlue">
       <CardHeader>
@@ -213,152 +198,26 @@ const RaceDataManager: React.FC = () => {
           </TabsList>
           
           <TabsContent value="races">
-            <div className="flex items-center justify-between mb-4">
-              <div className="relative w-full md:w-64">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search races..."
-                  className="pl-8 bg-betting-dark text-white border-betting-mediumBlue"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={fetchRaces}
-                disabled={isLoading}
-                className="ml-2"
-              >
-                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-              </Button>
-            </div>
-            
-            <div className="rounded-md border border-betting-mediumBlue overflow-hidden">
-              <Table>
-                <TableHeader className="bg-betting-dark">
-                  <TableRow>
-                    <TableHead className="text-gray-300">Track</TableHead>
-                    <TableHead className="text-gray-300">Race</TableHead>
-                    <TableHead className="text-gray-300">Date</TableHead>
-                    <TableHead className="text-gray-300">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredRaces.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-gray-400">
-                        {isLoading ? 'Loading races...' : 'No race data found.'}
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredRaces.map((race) => (
-                      <TableRow 
-                        key={race.id} 
-                        className={`hover:bg-betting-dark/50 ${selectedRace?.id === race.id ? 'bg-betting-dark/70' : ''}`}
-                        onClick={() => setSelectedRace(race)}
-                      >
-                        <TableCell className="font-medium">{race.track_name}</TableCell>
-                        <TableCell>{race.race_number}</TableCell>
-                        <TableCell>
-                          {new Date(race.race_date).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                          })}
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <ChevronDown className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-betting-dark border-betting-mediumBlue">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator className="bg-betting-mediumBlue/50" />
-                              <DropdownMenuItem 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  loadRaceIntoApp(race.id);
-                                }}
-                                className="cursor-pointer"
-                              >
-                                Load into Application
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  deleteRace(race.id);
-                                }}
-                                className="text-red-500 cursor-pointer"
-                              >
-                                Delete Race
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+            <RacesList
+              races={races}
+              selectedRace={selectedRace}
+              isLoading={isLoading}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              onRefresh={fetchRaces}
+              onSelectRace={setSelectedRace}
+              onLoadRace={loadRaceIntoApp}
+              onDeleteRace={deleteRace}
+            />
           </TabsContent>
           
           <TabsContent value="horses">
-            {selectedRace && (
-              <>
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium">
-                    {selectedRace.track_name} - Race {selectedRace.race_number}
-                  </h3>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => loadRaceIntoApp(selectedRace.id)}
-                    disabled={isLoading}
-                  >
-                    Load into Application
-                  </Button>
-                </div>
-                
-                <div className="rounded-md border border-betting-mediumBlue overflow-hidden">
-                  <Table>
-                    <TableHeader className="bg-betting-dark">
-                      <TableRow>
-                        <TableHead className="text-gray-300">PP</TableHead>
-                        <TableHead className="text-gray-300">Horse</TableHead>
-                        <TableHead className="text-gray-300">Jockey</TableHead>
-                        <TableHead className="text-gray-300">Trainer</TableHead>
-                        <TableHead className="text-gray-300">ML Odds</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {horses.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={5} className="text-center py-8 text-gray-400">
-                            {isLoading ? 'Loading horses...' : 'No horses found for this race.'}
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        horses.map((horse) => (
-                          <TableRow key={horse.id} className="hover:bg-betting-dark/50">
-                            <TableCell>{horse.pp}</TableCell>
-                            <TableCell className="font-medium">{horse.name}</TableCell>
-                            <TableCell>{horse.jockey || 'N/A'}</TableCell>
-                            <TableCell>{horse.trainer || 'N/A'}</TableCell>
-                            <TableCell>
-                              {horse.ml_odds ? `${horse.ml_odds}-1` : 'N/A'}
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </>
-            )}
+            <HorseDetails
+              selectedRace={selectedRace}
+              horses={horses}
+              isLoading={isLoading}
+              onLoadRace={loadRaceIntoApp}
+            />
           </TabsContent>
         </Tabs>
       </CardContent>
