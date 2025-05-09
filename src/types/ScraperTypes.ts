@@ -1,4 +1,3 @@
-
 export interface ScrapeJob {
   id: string;
   url: string;
@@ -73,19 +72,20 @@ export const INTERVAL_OPTIONS = [
 ];
 
 export const TRACK_OPTIONS: TrackOption[] = [
-  { value: "CHURCHILL DOWNS", label: "Churchill Downs" },
-  { value: "BELMONT PARK", label: "Belmont Park" },
-  { value: "SANTA ANITA", label: "Santa Anita" },
   { value: "AQUEDUCT", label: "Aqueduct" },
-  { value: "SARATOGA", label: "Saratoga" },
-  { value: "GULFSTREAM", label: "Gulfstream Park" },
+  { value: "BELMONT PARK", label: "Belmont Park" },
+  { value: "CHURCHILL DOWNS", label: "Churchill Downs" },
   { value: "DEL MAR", label: "Del Mar" },
+  { value: "GULFSTREAM", label: "Gulfstream Park" },
   { value: "KEENELAND", label: "Keeneland" },
-  { value: "OAKLAWN PARK", label: "Oaklawn Park" },
-  { value: "PIMLICO", label: "Pimlico" },
+  { value: "KENTUCKY DOWNS", label: "Kentucky Downs" },
   { value: "LOS ALAMITOS-DAY", label: "Los Alamitos (Day)" },
   { value: "LOS ALAMITOS-NIGHT", label: "Los Alamitos (Night)" },
-  { value: "NZ-HAWERA", label: "NZ-Hawera (TB)" }
+  { value: "NZ-HAWERA", label: "NZ-Hawera (TB)" },
+  { value: "OAKLAWN PARK", label: "Oaklawn Park" },
+  { value: "PIMLICO", label: "Pimlico" },
+  { value: "SANTA ANITA", label: "Santa Anita" },
+  { value: "SARATOGA", label: "Saratoga" }
 ];
 
 // Status color configuration
