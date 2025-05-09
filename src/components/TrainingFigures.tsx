@@ -23,7 +23,7 @@ const TrainingFigures: React.FC<TrainingFiguresProps> = ({ figures }) => {
   return (
     <Card className="border-4 border-betting-tertiaryPurple shadow-xl bg-betting-darkPurple overflow-hidden h-full">
       <CardHeader className="bg-purple-header px-4 py-3">
-        <CardTitle className="text-lg font-semibold text-white">Best Recent Training Figures</CardTitle>
+        <CardTitle className="text-lg font-semibold text-white">Best Recent Workout Figures</CardTitle>
       </CardHeader>
       
       <CardContent className="p-0">

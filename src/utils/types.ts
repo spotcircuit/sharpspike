@@ -1,4 +1,3 @@
-
 // Define all type interfaces
 export interface Horse {
   id: number;
@@ -79,6 +78,10 @@ export interface TrainingFigure {
   distance: string;
   improvement: number;
 }
+
+// Keeping the original interface for backward compatibility 
+// and adding an alias for semantic consistency
+export type WorkoutFigure = TrainingFigure;
 
 export interface TrackStatistics {
   totalRaces: number;
@@ -180,7 +183,7 @@ export interface MockData {
   paceData: PaceData[];
   sharpMovements: SharpMove[];
   bettingTimeline: BettingDataPoint[];
-  trainingFigures: TrainingFigure[];
+  trainingFigures: WorkoutFigure[];
   trackProfile: {
     statistics: TrackStatistics;
     postPositions: PostPosition[];

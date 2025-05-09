@@ -1,8 +1,8 @@
 
-import { TrainingFigure } from '../types';
+import { WorkoutFigure } from '../types';
 
-// Generate training figures
-export const generateTrainingFigures = (): TrainingFigure[] => {
+// Generate workout figures
+export const generateTrainingFigures = (): WorkoutFigure[] => {
   return [
     {
       horse: 'Silver Streak',
