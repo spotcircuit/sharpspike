@@ -83,6 +83,8 @@ export const TRACK_OPTIONS: TrackOption[] = [
   { value: "KEENELAND", label: "Keeneland" },
   { value: "OAKLAWN PARK", label: "Oaklawn Park" },
   { value: "PIMLICO", label: "Pimlico" },
+  { value: "LOS ALAMITOS-DAY", label: "Los Alamitos (Day)" },
+  { value: "LOS ALAMITOS-NIGHT", label: "Los Alamitos (Night)" },
   { value: "NZ-HAWERA", label: "NZ-Hawera (TB)" }
 ];
 
