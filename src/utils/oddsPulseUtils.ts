@@ -64,11 +64,29 @@ export const processOddsData = async (data: OddsPulseData): Promise<boolean> => 
     // If race found, update it with odds data
     if (raceResults && raceResults.length > 0) {
       const raceResult = raceResults[0];
+      let currentResultsData: Record<string, any> = {};
+      
+      // Safely handle results_data which could be a string, object, or null
+      if (raceResult.results_data) {
+        if (typeof raceResult.results_data === 'string') {
+          try {
+            currentResultsData = JSON.parse(raceResult.results_data);
+          } catch (e) {
+            console.error('Error parsing results_data string:', e);
+            currentResultsData = {};
+          }
+        } else if (typeof raceResult.results_data === 'object') {
+          currentResultsData = raceResult.results_data as Record<string, any>;
+        }
+      }
       
       // Merge existing odds history with new data
       const updatedResultsData = { 
-        ...raceResult.results_data,
-        odds_pulse: mergeOddsData(raceResult.results_data?.odds_pulse || null, data)
+        ...currentResultsData,
+        odds_pulse: mergeOddsData(
+          (currentResultsData.odds_pulse as OddsPulseData | null) || null, 
+          data
+        )
       };
       
       const { error: updateError } = await supabase
