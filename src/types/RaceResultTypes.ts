@@ -4,10 +4,12 @@ export interface RaceResult {
   track_name: string;
   race_number: number;
   race_date: string;
-  results_data: any;
+  results_data: {
+    [key: string]: any;
+    odds_pulse?: OddsPulseData;
+  };
   source_url?: string;
   created_at: string;
-  odds_data?: OddsPulseData; // Added to store odds data without changing schema
 }
 
 // New types for Odds Pulse API integration

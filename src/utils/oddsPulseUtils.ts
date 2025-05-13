@@ -50,7 +50,7 @@ export const processOddsData = async (data: OddsPulseData): Promise<boolean> => 
     // Try to find existing race result to update with odds data
     const { data: raceResults, error } = await supabase
       .from('race_results')
-      .select('id, odds_data')
+      .select('id, results_data')
       .eq('track_name', track_id)
       .eq('race_number', race_number)
       .order('created_at', { ascending: false })
@@ -63,15 +63,18 @@ export const processOddsData = async (data: OddsPulseData): Promise<boolean> => 
 
     // If race found, update it with odds data
     if (raceResults && raceResults.length > 0) {
-      const { id, odds_data: existingOddsData } = raceResults[0];
+      const raceResult = raceResults[0];
       
       // Merge existing odds history with new data
-      const mergedOddsData = mergeOddsData(existingOddsData, data);
+      const updatedResultsData = { 
+        ...raceResult.results_data,
+        odds_pulse: mergeOddsData(raceResult.results_data?.odds_pulse || null, data)
+      };
       
       const { error: updateError } = await supabase
         .from('race_results')
-        .update({ odds_data: mergedOddsData })
-        .eq('id', id);
+        .update({ results_data: updatedResultsData })
+        .eq('id', raceResult.id);
 
       if (updateError) {
         console.error('Error updating odds data:', updateError);
