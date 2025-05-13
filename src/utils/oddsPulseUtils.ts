@@ -80,13 +80,16 @@ export const processOddsData = async (data: OddsPulseData): Promise<boolean> => 
         }
       }
       
-      // Merge existing odds history with new data
+      // Process the OddsPulseData into a plain object compatible with Json type
+      const mergedOddsData = mergeOddsData(
+        (currentResultsData.odds_pulse as OddsPulseData | null) || null, 
+        data
+      );
+      
+      // Create the updated results data with the merged odds
       const updatedResultsData = { 
         ...currentResultsData,
-        odds_pulse: mergeOddsData(
-          (currentResultsData.odds_pulse as OddsPulseData | null) || null, 
-          data
-        )
+        odds_pulse: mergedOddsData
       };
       
       const { error: updateError } = await supabase
