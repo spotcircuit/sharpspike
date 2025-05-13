@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +12,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, fullName: string) => Promise<void>;
   signOut: () => Promise<void>;
+  createDevAccount: () => Promise<void>; // New function for developer testing
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -138,6 +138,68 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Add a new function to create/login as a developer with admin privileges
+  const createDevAccount = async () => {
+    try {
+      const devEmail = "developer@test.com";
+      const devPassword = "developer123";
+      const devName = "Test Developer";
+
+      // First try to sign in with the developer account
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: devEmail,
+        password: devPassword
+      });
+
+      // If developer account doesn't exist, create it
+      if (signInError) {
+        // Create the developer account
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: devEmail,
+          password: devPassword,
+          options: {
+            data: {
+              full_name: devName,
+            },
+          },
+        });
+        
+        if (signUpError) {
+          toast.error(signUpError.message);
+          throw signUpError;
+        }
+        
+        // Set developer as admin in profiles table
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ is_admin: true })
+          .eq('email', devEmail);
+          
+        if (updateError) {
+          toast.error('Failed to set admin privileges');
+          throw updateError;
+        }
+        
+        // Login with the newly created account
+        const { error: loginError } = await supabase.auth.signInWithPassword({
+          email: devEmail,
+          password: devPassword
+        });
+        
+        if (loginError) {
+          toast.error(loginError.message);
+          throw loginError;
+        }
+      }
+      
+      toast.success('Signed in as developer with admin privileges');
+      navigate('/');
+    } catch (error) {
+      console.error('Developer login error:', error);
+      toast.error('Failed to create/login as developer');
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -148,6 +210,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signIn,
         signUp,
         signOut,
+        createDevAccount,
       }}
     >
       {children}
