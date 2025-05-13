@@ -86,10 +86,10 @@ export const processOddsData = async (data: OddsPulseData): Promise<boolean> => 
         data
       );
       
-      // Create the updated results data with the merged odds
+      // Create the updated results data with the merged odds - convert to plain object
       const updatedResultsData = { 
         ...currentResultsData,
-        odds_pulse: mergedOddsData
+        odds_pulse: JSON.parse(JSON.stringify(mergedOddsData)) // Convert to plain object
       };
       
       const { error: updateError } = await supabase

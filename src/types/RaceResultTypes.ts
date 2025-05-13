@@ -19,6 +19,7 @@ export interface OddsPulseData {
   track_id: string;
   race_number: number;
   odds_data: HorseOdds[];
+  [key: string]: any; // Add index signature to make compatible with Json type
 }
 
 export interface HorseOdds {
@@ -28,9 +29,11 @@ export interface HorseOdds {
   morning_line?: number;
   current_odds: number;
   odds_history?: OddsHistoryEntry[];
+  [key: string]: any; // Add index signature to make compatible with Json type
 }
 
 export interface OddsHistoryEntry {
   timestamp: string;
   odds: number;
+  [key: string]: any; // Add index signature to make compatible with Json type
 }
