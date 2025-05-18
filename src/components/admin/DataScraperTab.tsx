@@ -13,11 +13,17 @@ import ConfigInfo from './config/ConfigInfo';
 import TrackGrid from './TrackGrid';
 import ActiveJobsList from './ActiveJobsList';
 import { toast } from '@/components/ui/sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const DataScraperTab = () => {
   const [activeTab, setActiveTab] = useState('active');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const [apiUrl, setApiUrl] = useState<string>('');
+  const [apiKey, setApiKey] = useState<string>('');
+  const [isTestMode, setIsTestMode] = useState<boolean>(true);
+  const { user } = useAuth();
   
   const {
     jobs,
@@ -41,6 +47,27 @@ const DataScraperTab = () => {
       is_active: true
     }
   });
+
+  // Load API settings from Supabase
+  useEffect(() => {
+    const loadApiSettings = async () => {
+      if (user) {
+        const { data, error } = await supabase
+          .from('api_connections')
+          .select('api_url, api_key, is_test_mode')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (data) {
+          setApiUrl(data.api_url || '');
+          setApiKey(data.api_key || '');
+          setIsTestMode(data.is_test_mode !== false);  // Default to true if null
+        }
+      }
+    };
+
+    loadApiSettings();
+  }, [user]);
 
   // Auto-refresh data every 30 seconds
   useEffect(() => {
@@ -148,7 +175,14 @@ const DataScraperTab = () => {
       </TabsContent>
       
       <TabsContent value="config" className="mt-0">
-        <ConfigInfo />
+        <ConfigInfo 
+          apiUrl={apiUrl}
+          setApiUrl={setApiUrl}
+          apiKey={apiKey}
+          setApiKey={setApiKey}
+          isTestMode={isTestMode}
+          setIsTestMode={setIsTestMode}
+        />
       </TabsContent>
       
       <CreateJobDialog
