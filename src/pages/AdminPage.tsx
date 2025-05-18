@@ -1,137 +1,130 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import UserProfile from '@/components/UserProfile';
-import PDFUploader from '@/components/PDFUploader';
-import RaceDataManager from '@/components/RaceDataManager';
-import ApiConnectionTab from '@/components/admin/ApiConnectionTab';
-import DataImportTab from '@/components/admin/DataImportTab';
+import JobsTable from '@/components/admin/jobs/JobsTable';
+import CreateJobDialog from '@/components/admin/jobs/CreateJobDialog';
+import ActiveJobsList from '@/components/admin/ActiveJobsList';
+import TrackGrid from '@/components/admin/TrackGrid';
+import OddsPulseConfigTab from '@/components/admin/OddsPulseConfigTab';
 import DataScraperTab from '@/components/admin/DataScraperTab';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { Database } from 'lucide-react';
+import DataImportTab from '@/components/admin/DataImportTab';
+import RaceDataManager from '@/components/RaceDataManager';
+import StatsCards from '@/components/admin/stats/StatsCards';
+import ConfigInfo from '@/components/admin/config/ConfigInfo';
+import DemoDataGenerator from '@/components/admin/DemoDataGenerator';
 
-const AdminPage = () => {
-  const { user } = useAuth();
+const AdminPage: React.FC = () => {
+  const { user, isLoading, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [apiUrl, setApiUrl] = useState('');
-  const [apiKey, setApiKey] = useState('');
-  const [isTestMode, setIsTestMode] = useState(true);
+  const [apiUrl, setApiUrl] = useState<string>('');
+  const [apiKey, setApiKey] = useState<string>('');
+  const [isTestMode, setIsTestMode] = useState<boolean>(true);
 
   useEffect(() => {
-    // Load API connection settings from Supabase
-    const loadApiConnectionSettings = async () => {
-      if (!user) return;
-      
-      try {
+    const loadApiSettings = async () => {
+      if (user) {
         const { data, error } = await supabase
           .from('api_connections')
-          .select('*')
+          .select('api_url, api_key, is_test_mode')
           .eq('user_id', user.id)
           .maybeSingle();
-        
-        if (error) {
-          console.error('Error loading API connection settings:', error);
-          return;
-        }
-        
+
         if (data) {
-          setApiUrl(data.api_url);
+          setApiUrl(data.api_url || '');
           setApiKey(data.api_key || '');
-          setIsTestMode(data.is_test_mode);
+          setIsTestMode(data.is_test_mode !== false);  // Default to true if null
         }
-      } catch (error) {
-        console.error('Error in loading API settings:', error);
       }
     };
-    
-    loadApiConnectionSettings();
+
+    loadApiSettings();
   }, [user]);
 
-  const handlePDFDataExtracted = (data: any) => {
-    console.log('Extracted PDF data:', data);
-    // The data is already updated in the updateMockData function in PDFUploader
-  };
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
+
+  if (!user || !isAdmin) {
+    return <Navigate to="/auth" replace />;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-radial from-betting-dark to-black p-6 text-white">
-      <div className="max-w-5xl mx-auto">
-        <header className="mb-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-600">
-              Odds Admin Panel
-            </h1>
-            <div className="flex items-center gap-4">
-              <Button 
-                variant="default"
-                onClick={() => navigate('/data-dashboard')}
-                className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2"
-              >
-                <Database className="h-4 w-4" />
-                Data Dashboard
-              </Button>
-              <Button variant="outline" onClick={() => window.location.href = "/"}>
-                Back to Dashboard
-              </Button>
-              <UserProfile />
-            </div>
-          </div>
-          <p className="text-gray-400 mt-2">
-            Configure API connections and import race data
-          </p>
-        </header>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
 
-        <Tabs defaultValue="connection" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-4">
-            <TabsTrigger value="connection">API Connection</TabsTrigger>
-            <TabsTrigger value="import">Data Import</TabsTrigger>
-            <TabsTrigger value="scraper">Data Scraper</TabsTrigger>
-            <TabsTrigger value="pdf-import">PDF Import</TabsTrigger>
-            <TabsTrigger value="race-data">Race Database</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="connection">
-            <ApiConnectionTab 
-              user={user}
-              apiUrl={apiUrl}
-              apiKey={apiKey}
-              isTestMode={isTestMode}
-              setApiUrl={setApiUrl}
-              setApiKey={setApiKey}
-              setIsTestMode={setIsTestMode}
-            />
-          </TabsContent>
-          
-          <TabsContent value="import">
-            <DataImportTab 
-              apiUrl={apiUrl}
-              apiKey={apiKey}
-              isTestMode={isTestMode}
-            />
-          </TabsContent>
-          
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <StatsCards />
+      </div>
+
+      <Tabs defaultValue="scraper">
+        <TabsList className="mb-4">
+          <TabsTrigger value="scraper">Data Scraper</TabsTrigger>
+          <TabsTrigger value="jobs">Job Management</TabsTrigger>
+          <TabsTrigger value="tracks">Track Management</TabsTrigger>
+          <TabsTrigger value="raceData">Race Data</TabsTrigger>
+          <TabsTrigger value="oddsPulse">Odds Pulse API</TabsTrigger>
+          <TabsTrigger value="import">Data Import</TabsTrigger>
+          <TabsTrigger value="demo">Demo Data</TabsTrigger>
+          <TabsTrigger value="config">Configuration</TabsTrigger>
+        </TabsList>
+
+        <div className="bg-betting-dark p-4 rounded-md border border-gray-700">
           <TabsContent value="scraper">
             <DataScraperTab />
           </TabsContent>
-          
-          <TabsContent value="pdf-import">
-            <CardHeader className="px-0 pt-0">
-              <CardTitle>Import Race Data from PDF</CardTitle>
-            </CardHeader>
-            <PDFUploader onDataExtracted={handlePDFDataExtracted} />
+
+          <TabsContent value="jobs">
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold mb-2">Active Jobs</h2>
+              <div className="bg-betting-darkBlue border border-betting-mediumBlue p-4 rounded-md">
+                <ActiveJobsList />
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="text-xl font-semibold">Scheduled Jobs</h2>
+                <CreateJobDialog />
+              </div>
+              <JobsTable />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="tracks">
+            <TrackGrid />
           </TabsContent>
           
-          <TabsContent value="race-data">
-            <CardHeader className="px-0 pt-0">
-              <CardTitle>Manage Race Database</CardTitle>
-            </CardHeader>
+          <TabsContent value="raceData">
             <RaceDataManager />
           </TabsContent>
-        </Tabs>
-      </div>
+
+          <TabsContent value="oddsPulse">
+            <OddsPulseConfigTab />
+          </TabsContent>
+
+          <TabsContent value="import">
+            <DataImportTab apiUrl={apiUrl} apiKey={apiKey} isTestMode={isTestMode} />
+          </TabsContent>
+          
+          <TabsContent value="demo">
+            <DemoDataGenerator />
+          </TabsContent>
+
+          <TabsContent value="config">
+            <ConfigInfo 
+              apiUrl={apiUrl} 
+              setApiUrl={setApiUrl} 
+              apiKey={apiKey} 
+              setApiKey={setApiKey} 
+              isTestMode={isTestMode}
+              setIsTestMode={setIsTestMode}
+            />
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 };
