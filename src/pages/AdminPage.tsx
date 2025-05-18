@@ -15,6 +15,7 @@ import RaceDataManager from '@/components/RaceDataManager';
 import StatsCards from '@/components/admin/stats/StatsCards';
 import ConfigInfo from '@/components/admin/config/ConfigInfo';
 import DemoDataGenerator from '@/components/admin/DemoDataGenerator';
+import { useScrapeJobs } from '@/hooks/useScrapeJobs';
 
 const AdminPage: React.FC = () => {
   const { user, isLoading, isAdmin } = useAuth();
@@ -22,6 +23,19 @@ const AdminPage: React.FC = () => {
   const [apiUrl, setApiUrl] = useState<string>('');
   const [apiKey, setApiKey] = useState<string>('');
   const [isTestMode, setIsTestMode] = useState<boolean>(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Get all the required state and functions from useScrapeJobs hook
+  const {
+    jobs,
+    stats,
+    isLoading: isJobsLoading,
+    isRunningJob,
+    createJob,
+    toggleJobStatus,
+    deleteJob,
+    runJobManually
+  } = useScrapeJobs();
 
   useEffect(() => {
     const loadApiSettings = async () => {
@@ -56,7 +70,7 @@ const AdminPage: React.FC = () => {
       <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <StatsCards />
+        <StatsCards stats={stats} isLoading={isJobsLoading} />
       </div>
 
       <Tabs defaultValue="scraper">
@@ -80,21 +94,40 @@ const AdminPage: React.FC = () => {
             <div className="mb-4">
               <h2 className="text-xl font-semibold mb-2">Active Jobs</h2>
               <div className="bg-betting-darkBlue border border-betting-mediumBlue p-4 rounded-md">
-                <ActiveJobsList />
+                <ActiveJobsList 
+                  jobs={jobs} 
+                  onRunJob={runJobManually} 
+                  isRunningJob={isRunningJob} 
+                />
               </div>
             </div>
 
             <div className="mb-4">
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-xl font-semibold">Scheduled Jobs</h2>
-                <CreateJobDialog />
+                <CreateJobDialog 
+                  isOpen={isDialogOpen} 
+                  onOpenChange={setIsDialogOpen} 
+                  createJob={createJob} 
+                />
               </div>
-              <JobsTable />
+              <JobsTable 
+                jobs={jobs}
+                onRunJob={runJobManually}
+                onToggleJobStatus={toggleJobStatus}
+                onDeleteJob={deleteJob}
+                isRunningJob={isRunningJob}
+                isLoading={isJobsLoading}
+              />
             </div>
           </TabsContent>
 
           <TabsContent value="tracks">
-            <TrackGrid />
+            <TrackGrid 
+              jobs={jobs} 
+              onRunJob={runJobManually} 
+              isRunningJob={isRunningJob} 
+            />
           </TabsContent>
           
           <TabsContent value="raceData">
@@ -114,6 +147,7 @@ const AdminPage: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="config">
+            {/* Note: TypeScript doesn't like forwarding all these props directly, so we use a wrapper */}
             <ConfigInfo 
               apiUrl={apiUrl} 
               setApiUrl={setApiUrl} 
