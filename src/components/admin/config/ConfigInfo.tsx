@@ -4,7 +4,23 @@ import { Card } from '@/components/ui/card';
 import { TRACK_OPTIONS } from '@/types/ScraperTypes';
 import { AlertTriangle, CheckCircle2, HelpCircle, InfoIcon } from 'lucide-react';
 
-const ConfigInfo: React.FC = () => {
+interface ConfigInfoProps {
+  apiUrl: string;
+  setApiUrl: React.Dispatch<React.SetStateAction<string>>;
+  apiKey: string;
+  setApiKey: React.Dispatch<React.SetStateAction<string>>;
+  isTestMode: boolean;
+  setIsTestMode: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const ConfigInfo: React.FC<ConfigInfoProps> = ({ 
+  apiUrl, 
+  setApiUrl, 
+  apiKey, 
+  setApiKey, 
+  isTestMode, 
+  setIsTestMode 
+}) => {
   return (
     <Card className="bg-betting-darkCard border-betting-mediumBlue p-4">
       <h3 className="text-lg font-medium mb-4 flex items-center">
