@@ -17,6 +17,12 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// List of admin emails that should always have admin privileges
+const ADMIN_EMAILS = [
+  'developer@test.com',
+  'jeffgus@gmail.com'
+];
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -32,7 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (currentSession?.user) {
           setTimeout(() => {
-            checkAdminStatus(currentSession.user.id);
+            checkAdminStatus(currentSession.user.id, currentSession.user.email);
           }, 0);
         } else {
           setIsAdmin(false);
@@ -45,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(currentSession?.user ?? null);
       
       if (currentSession?.user) {
-        checkAdminStatus(currentSession.user.id);
+        checkAdminStatus(currentSession.user.id, currentSession.user.email);
       }
       
       setIsLoading(false);
@@ -56,8 +62,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const checkAdminStatus = async (userId: string) => {
+  const checkAdminStatus = async (userId: string, email?: string | null) => {
     try {
+      // First check if email is in the ADMIN_EMAILS list
+      if (email && ADMIN_EMAILS.includes(email)) {
+        // Update the database to ensure the profile has admin privileges
+        await ensureAdminPrivileges(userId);
+        setIsAdmin(true);
+        return;
+      }
+
+      // Otherwise check the database as before
       const { data, error } = await supabase
         .from('profiles')
         .select('is_admin')
@@ -74,6 +89,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Error in admin check:', error);
       setIsAdmin(false);
+    }
+  };
+
+  // Helper function to ensure the user has admin privileges in the database
+  const ensureAdminPrivileges = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ is_admin: true })
+        .eq('id', userId);
+      
+      if (error) {
+        console.error('Error updating admin privileges:', error);
+      }
+    } catch (error) {
+      console.error('Error ensuring admin privileges:', error);
     }
   };
 
