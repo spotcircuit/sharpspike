@@ -11,6 +11,7 @@ import { Code } from 'lucide-react';
 const LoginForm = () => {
   const { signIn, createDevAccount } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [devLoading, setDevLoading] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
@@ -33,13 +34,13 @@ const LoginForm = () => {
   };
 
   const handleDevLogin = async () => {
-    setIsLoading(true);
+    setDevLoading(true);
     try {
       await createDevAccount();
     } catch (error) {
       console.error('Dev login error:', error);
     } finally {
-      setIsLoading(false);
+      setDevLoading(false);
     }
   };
 
@@ -85,12 +86,12 @@ const LoginForm = () => {
           <Button 
             type="button"
             variant="outline"
-            disabled={isLoading}
+            disabled={devLoading}
             onClick={handleDevLogin}
             className="w-full border-betting-secondaryPurple/50 text-orange-400 flex items-center gap-2"
           >
             <Code size={16} />
-            {isLoading ? "Creating Developer Account..." : "Developer Test Login"}
+            {devLoading ? "Creating Developer Account..." : "Developer Test Login"}
           </Button>
         </CardFooter>
       </form>

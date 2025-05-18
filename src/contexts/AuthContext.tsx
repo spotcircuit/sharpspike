@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,7 +12,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, fullName: string) => Promise<void>;
   signOut: () => Promise<void>;
-  createDevAccount: () => Promise<void>; // New function for developer testing
+  createDevAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,14 +25,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
         if (currentSession?.user) {
-          // Use setTimeout to avoid potential deadlocks with Supabase auth
           setTimeout(() => {
             checkAdminStatus(currentSession.user.id);
           }, 0);
@@ -43,7 +40,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
@@ -139,23 +135,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Add a new function to create/login as a developer with admin privileges
   const createDevAccount = async () => {
     try {
       const devEmail = "developer@test.com";
       const devPassword = "developer123";
       const devName = "Test Developer";
 
-      // First try to sign in with the developer account
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      toast.info('Attempting developer login...');
+      
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email: devEmail,
         password: devPassword
       });
 
-      // If developer account doesn't exist, create it
+      if (signInData?.user) {
+        toast.success('Developer account login successful');
+        
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('is_admin')
+          .eq('id', signInData.user.id)
+          .single();
+
+        if (profileData && !profileData.is_admin) {
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ is_admin: true })
+            .eq('id', signInData.user.id);
+            
+          if (updateError) {
+            console.error('Error setting admin privileges:', updateError);
+            toast.error('Failed to set admin privileges, but login successful');
+          } else {
+            toast.success('Admin privileges granted');
+          }
+        }
+        
+        navigate('/');
+        return;
+      }
+      
       if (signInError) {
-        // Create the developer account
-        const { error: signUpError } = await supabase.auth.signUp({
+        toast.info('Creating developer account...');
+        
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: devEmail,
           password: devPassword,
           options: {
@@ -170,31 +193,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           throw signUpError;
         }
         
-        // Set developer as admin in profiles table
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({ is_admin: true })
-          .eq('email', devEmail);
-          
-        if (updateError) {
-          toast.error('Failed to set admin privileges');
-          throw updateError;
+        if (!signUpData.user) {
+          toast.error('Failed to create developer account');
+          return;
         }
         
-        // Login with the newly created account
-        const { error: loginError } = await supabase.auth.signInWithPassword({
+        toast.info('Setting up developer account...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const { data: newLoginData, error: newLoginError } = await supabase.auth.signInWithPassword({
           email: devEmail,
           password: devPassword
         });
         
-        if (loginError) {
-          toast.error(loginError.message);
-          throw loginError;
+        if (newLoginError) {
+          toast.error(newLoginError.message);
+          throw newLoginError;
+        }
+        
+        if (newLoginData.user) {
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ is_admin: true })
+            .eq('id', newLoginData.user.id);
+            
+          if (updateError) {
+            toast.error('Failed to set admin privileges, but login successful');
+            throw updateError;
+          }
+          
+          toast.success('Developer account created and logged in with admin privileges');
+          navigate('/');
         }
       }
-      
-      toast.success('Signed in as developer with admin privileges');
-      navigate('/');
     } catch (error) {
       console.error('Developer login error:', error);
       toast.error('Failed to create/login as developer');
