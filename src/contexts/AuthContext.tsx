@@ -169,7 +169,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const createDevAccount = async () => {
     try {
       const devEmail = "developer@test.com";
-      const devPassword = "Developer123"; // Updated to match the requested password
+      const devPassword = "S3cure@Dev#2025!"; // Updated to use a stronger password that meets security criteria
       const devName = "Test Developer";
 
       toast.info('Creating developer account...');

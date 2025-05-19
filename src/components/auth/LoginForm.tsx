@@ -92,7 +92,7 @@ const LoginForm = () => {
           </Button>
           
           <div className="text-center text-sm text-gray-400">
-            <p>Or use test account (Email: developer@test.com, Password: Developer123)</p>
+            <p>Or use test account (Email: developer@test.com, Password: S3cure@Dev#2025!)</p>
           </div>
           
           <Button 
