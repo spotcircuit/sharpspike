@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,7 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // List of admin emails that should always have admin privileges
 const ADMIN_EMAILS = [
-  'developer@test.com',
+  'nft.king137@gmail.com',
   'jeffgus@gmail.com'
 ];
 
@@ -168,7 +169,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const createDevAccount = async () => {
     try {
-      const devEmail = "developer@test.com";
+      const devEmail = "nft.king137@gmail.com";
       const devPassword = "S3cure@Dev#2025!"; // Updated to use a stronger password that meets security criteria
       const devName = "Test Developer";
 
