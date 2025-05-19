@@ -39,6 +39,7 @@ const LoginForm = () => {
       await createDevAccount();
     } catch (error) {
       console.error('Dev login error:', error);
+      toast.error('Failed to create/login developer account. Please try again.');
     } finally {
       setDevLoading(false);
     }
@@ -59,6 +60,7 @@ const LoginForm = () => {
               placeholder="your.email@example.com"
               value={loginEmail}
               onChange={(e) => setLoginEmail(e.target.value)}
+              disabled={isLoading || devLoading}
               className="bg-white/10 text-white border-white/20 placeholder:text-gray-400"
             />
           </div>
@@ -70,6 +72,7 @@ const LoginForm = () => {
               type="password"
               value={loginPassword}
               onChange={(e) => setLoginPassword(e.target.value)}
+              disabled={isLoading || devLoading}
               className="bg-white/10 text-white border-white/20"
             />
           </div>
@@ -77,7 +80,7 @@ const LoginForm = () => {
         <CardFooter className="flex flex-col gap-4">
           <Button 
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || devLoading}
             className="w-full bg-gradient-to-r from-orange-500 to-purple-900 hover:from-purple-900 hover:to-orange-500 text-white"
           >
             {isLoading ? (
@@ -91,7 +94,7 @@ const LoginForm = () => {
           <Button 
             type="button"
             variant="outline"
-            disabled={devLoading}
+            disabled={isLoading || devLoading}
             onClick={handleDevLogin}
             className="w-full border-betting-secondaryPurple/50 text-orange-400 flex items-center justify-center gap-2"
           >

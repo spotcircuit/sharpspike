@@ -181,7 +181,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         password: devPassword
       });
 
+      // If sign-in is successful
       if (signInData?.user) {
+        console.log('Developer account login successful', signInData.user);
         toast.success('Developer account login successful');
         
         // Ensure admin privileges
@@ -195,10 +197,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // If sign-in failed, create a new account
       if (signInError) {
-        console.log('Sign in failed, creating new developer account...');
+        console.log('Sign in failed, creating new developer account...', signInError);
         toast.info('Creating developer account...');
         
-        // Create new user
+        // Create new user with auto-confirm (no email verification needed)
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: devEmail,
           password: devPassword,
@@ -206,12 +208,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             data: {
               full_name: devName,
             },
+            emailRedirectTo: window.location.origin,
           },
         });
         
         if (signUpError) {
           console.error('Error creating developer account:', signUpError);
-          toast.error(signUpError.message);
+          toast.error(`Failed to create developer account: ${signUpError.message}`);
           throw signUpError;
         }
         
@@ -221,10 +224,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
         
+        console.log('Developer account created, attempting login...', signUpData.user);
         toast.info('Setting up developer account...');
         
         // Wait a moment for Supabase to process the signup
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 3000));
         
         // Try to sign in with the new account
         const { data: newLoginData, error: newLoginError } = await supabase.auth.signInWithPassword({
@@ -234,12 +238,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (newLoginError) {
           console.error('Error logging in to new developer account:', newLoginError);
-          toast.error(newLoginError.message);
+          toast.error(`Login error: ${newLoginError.message}`);
           throw newLoginError;
         }
         
         if (newLoginData.user) {
-          // Ensure the profile exists and has admin privileges
+          console.log('Successfully logged in with new developer account', newLoginData.user);
+          
+          // Ensure the profile exists with admin privileges - handle both cases
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('*')
@@ -247,6 +253,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             .maybeSingle();
             
           if (!profileData || profileError) {
+            console.log('Creating new profile for developer account');
             // Create profile if it doesn't exist
             const { error: insertError } = await supabase
               .from('profiles')
@@ -259,8 +266,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 
             if (insertError) {
               console.error('Failed to create profile:', insertError);
+              toast.error(`Failed to create profile: ${insertError.message}`);
             }
           } else {
+            console.log('Updating existing profile with admin privileges');
             // Update existing profile to have admin privileges
             const { error: updateError } = await supabase
               .from('profiles')
@@ -269,8 +278,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 
             if (updateError) {
               console.error('Failed to update profile:', updateError);
+              toast.error(`Failed to update profile: ${updateError.message}`);
             }
           }
+          
+          // Double-check admin status
+          await checkAdminStatus(newLoginData.user.id, devEmail);
           
           // Force update the admin status
           setIsAdmin(true);
@@ -278,9 +291,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           navigate('/');
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Developer login error:', error);
-      toast.error('Failed to create/login as developer');
+      toast.error(`Developer login failed: ${error?.message || 'Unknown error'}`);
     }
   };
 
