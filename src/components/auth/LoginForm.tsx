@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { Code } from 'lucide-react';
+import { Code, Loader2 } from 'lucide-react';
 
 const LoginForm = () => {
   const { signIn, createDevAccount } = useAuth();
@@ -80,7 +80,12 @@ const LoginForm = () => {
             disabled={isLoading}
             className="w-full bg-gradient-to-r from-orange-500 to-purple-900 hover:from-purple-900 hover:to-orange-500 text-white"
           >
-            {isLoading ? "Signing In..." : "Sign In"}
+            {isLoading ? (
+              <>
+                <Loader2 size={16} className="mr-2 animate-spin" />
+                Signing In...
+              </>
+            ) : "Sign In"}
           </Button>
           
           <Button 
@@ -88,10 +93,19 @@ const LoginForm = () => {
             variant="outline"
             disabled={devLoading}
             onClick={handleDevLogin}
-            className="w-full border-betting-secondaryPurple/50 text-orange-400 flex items-center gap-2"
+            className="w-full border-betting-secondaryPurple/50 text-orange-400 flex items-center justify-center gap-2"
           >
-            <Code size={16} />
-            {devLoading ? "Creating Developer Account..." : "Developer Test Login"}
+            {devLoading ? (
+              <>
+                <Loader2 size={16} className="mr-2 animate-spin" />
+                Creating Developer Account...
+              </>
+            ) : (
+              <>
+                <Code size={16} />
+                Developer Test Login
+              </>
+            )}
           </Button>
         </CardFooter>
       </form>
