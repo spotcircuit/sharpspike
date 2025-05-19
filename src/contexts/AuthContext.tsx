@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -170,10 +169,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const createDevAccount = async () => {
     try {
       const devEmail = "developer@test.com";
-      const devPassword = "developer123";
+      const devPassword = "Developer123"; // Updated to match the requested password
       const devName = "Test Developer";
 
-      toast.info('Attempting developer login...');
+      toast.info('Creating developer account...');
       
       // First try to sign in
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
@@ -200,7 +199,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Sign in failed, creating new developer account...', signInError);
         toast.info('Creating developer account...');
         
-        // Create new user with auto-confirm (no email verification needed)
+        // Create new user with auto-confirm
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: devEmail,
           password: devPassword,
@@ -208,7 +207,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             data: {
               full_name: devName,
             },
-            emailRedirectTo: window.location.origin,
           },
         });
         
@@ -225,12 +223,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         
         console.log('Developer account created, attempting login...', signUpData.user);
-        toast.info('Setting up developer account...');
         
-        // Wait a moment for Supabase to process the signup
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        
-        // Try to sign in with the new account
+        // Try to sign in with the new account immediately
         const { data: newLoginData, error: newLoginError } = await supabase.auth.signInWithPassword({
           email: devEmail,
           password: devPassword
@@ -245,7 +239,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (newLoginData.user) {
           console.log('Successfully logged in with new developer account', newLoginData.user);
           
-          // Ensure the profile exists with admin privileges - handle both cases
+          // Check if profile exists
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('*')
@@ -253,8 +247,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             .maybeSingle();
             
           if (!profileData || profileError) {
-            console.log('Creating new profile for developer account');
-            // Create profile if it doesn't exist
+            // Create profile
             const { error: insertError } = await supabase
               .from('profiles')
               .insert({
@@ -269,8 +262,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               toast.error(`Failed to create profile: ${insertError.message}`);
             }
           } else {
-            console.log('Updating existing profile with admin privileges');
-            // Update existing profile to have admin privileges
+            // Update existing profile with admin privileges
             const { error: updateError } = await supabase
               .from('profiles')
               .update({ is_admin: true })

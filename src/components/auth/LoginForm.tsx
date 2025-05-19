@@ -91,6 +91,10 @@ const LoginForm = () => {
             ) : "Sign In"}
           </Button>
           
+          <div className="text-center text-sm text-gray-400">
+            <p>Or use test account (Email: developer@test.com, Password: Developer123)</p>
+          </div>
+          
           <Button 
             type="button"
             variant="outline"
