@@ -77,10 +77,6 @@ const LoginForm = () => {
               </>
             ) : "Sign In"}
           </Button>
-          
-          <div className="text-center text-sm text-gray-400">
-            <p>Or use test account (Email: nft.king137@gmail.com, Password: S3cure@Dev#2025!)</p>
-          </div>
         </CardFooter>
       </form>
     </Card>
