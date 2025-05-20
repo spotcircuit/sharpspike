@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth/AuthContext';
 import { toast } from '@/components/ui/sonner';
 
 interface RequireAuthProps {

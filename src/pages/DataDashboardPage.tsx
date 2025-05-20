@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +6,7 @@ import AdminLink from '@/components/AdminLink';
 import UserProfile from '@/components/UserProfile';
 import ScraperDataDashboard from '@/components/dashboard/ScraperDataDashboard';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth/AuthContext';
 
 const DataDashboardPage: React.FC = () => {
   const navigate = useNavigate();

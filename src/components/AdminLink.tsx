@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Settings } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth/AuthContext';
 
 const AdminLink = () => {
   const navigate = useNavigate();

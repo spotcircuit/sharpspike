@@ -11,7 +11,7 @@ import NotFound from "./pages/NotFound";
 import RaceResultsPage from "./pages/RaceResultsPage";
 import PublicResultsPage from "./pages/PublicResultsPage";
 import RequireAuth from "./components/RequireAuth";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider } from "./contexts/auth/AuthContext";
 import DataDashboardPage from "./pages/DataDashboardPage";
 import QuantumRankingsPage from "./pages/QuantumRankingsPage";
 import ModelProcessPage from "./pages/ModelProcessPage";
