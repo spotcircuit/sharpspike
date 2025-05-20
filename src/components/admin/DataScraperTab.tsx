@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,7 @@ import TrackGrid from './TrackGrid';
 import ActiveJobsList from './ActiveJobsList';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth/AuthContext';
 
 const DataScraperTab = () => {
   const [activeTab, setActiveTab] = useState('active');
