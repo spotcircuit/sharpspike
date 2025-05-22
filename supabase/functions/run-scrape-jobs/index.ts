@@ -2,11 +2,192 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.31.0";
+import * as cheerio from "https://esm.sh/cheerio@1.0.0-rc.12";
 import { corsHeaders, SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.ts";
 import { scrapeOdds } from "./scrape-odds.ts";
 import { scrapeWillPays } from "./scrape-will-pays.ts";
 import { scrapeResults } from "./scrape-results.ts";
 import { scrapeEntries } from "./scrape-entries.ts";
+
+// Function to discover active tracks from the main schedule page
+async function discoverActiveTracks(supabase: any) {
+  console.log("Discovering active tracks from schedule page...");
+  const scheduleUrl = "https://www.offtrackbetting.com/horse-racing-schedule.html";
+  
+  try {
+    const response = await fetch(scheduleUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch schedule page: ${response.status} ${response.statusText}`);
+    }
+    
+    const html = await response.text();
+    const $ = cheerio.load(html);
+    const trackLinks: { name: string; url: string }[] = [];
+    
+    // Use Cheerio to find active track links
+    console.log("Looking for active track links...");
+    
+    // First, look for specific tracks mentioned in the "Bet Horse Racing with OTB" section
+    $('h3:contains("Bet Horse Racing with OTB")').next('ul').find('a').each((i, el) => {
+      const href = $(el).attr('href') || '';
+      const text = $(el).text().trim();
+      
+      // Extract track name from the link text
+      let trackName = text;
+      if (text.includes('at ')) {
+        const parts = text.split('at ');
+        if (parts.length > 1) {
+          trackName = parts[1].split('-')[0].trim();
+        }
+      } else if (text.includes('|')) {
+        const parts = text.split('|');
+        if (parts.length > 0) {
+          trackName = parts[0].replace('Bet', '').trim();
+        }
+      }
+      
+      // Skip results and news links
+      if (!href.includes('/results/') && 
+          !href.includes('/news/') && 
+          trackName && 
+          trackName.length > 0) {
+        const fullUrl = href.startsWith('http') ? href : new URL(href, scheduleUrl).href;
+        trackLinks.push({ name: trackName, url: fullUrl });
+        console.log(`Found active track: ${trackName} (${fullUrl})`);
+      }
+    });
+    
+    // If no tracks found, try to find links to specific tracks in the page
+    if (trackLinks.length === 0) {
+      console.log("No tracks found in primary section, looking elsewhere...");
+      
+      // Look for track links in the main content
+      $('a').each((i, el) => {
+        const href = $(el).attr('href') || '';
+        const text = $(el).text().trim();
+        
+        // Check for known track patterns
+        if ((href.includes('/racetracks/') || 
+             href.includes('/tracks/') || 
+             href.includes('/santa-anita') || 
+             href.includes('/belmont') || 
+             href.includes('/saratoga') || 
+             href.includes('/del-mar')) && 
+            !href.includes('/results/')) {
+          
+          // Extract track name
+          let trackName = text;
+          if (!trackName || trackName.length === 0) {
+            // Try to extract from URL
+            const urlParts = href.split('/');
+            const lastPart = urlParts[urlParts.length - 1];
+            if (lastPart) {
+              trackName = lastPart.replace(/-/g, ' ').replace('.html', '').trim();
+              // Capitalize first letter of each word
+              trackName = trackName.split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+            }
+          }
+          
+          if (trackName && trackName.length > 0) {
+            const fullUrl = href.startsWith('http') ? href : new URL(href, scheduleUrl).href;
+            trackLinks.push({ name: trackName, url: fullUrl });
+            console.log(`Found track link: ${trackName} (${fullUrl})`);
+          }
+        }
+      });
+    }
+    
+    // Also look for links with '/horse-racing/' which indicate active tracks
+    $('a[href*="/horse-racing/"]').each((i, el) => {
+      const href = $(el).attr('href') || '';
+      const text = $(el).text().trim();
+      
+      // Skip results links
+      if (!href.includes('/results/')) {
+        // Extract track name
+        let trackName = text;
+        
+        // If no text, try to extract from URL
+        if (!trackName || trackName.length === 0) {
+          const match = href.match(/\/horse-racing\/([\w-]+)/);
+          if (match && match[1]) {
+            trackName = match[1].replace(/-/g, ' ').trim();
+            // Capitalize first letter of each word
+            trackName = trackName.split(' ')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ');
+          }
+        }
+        
+        if (trackName && trackName.length > 0) {
+          const fullUrl = href.startsWith('http') ? href : new URL(href, scheduleUrl).href;
+          
+          // Check if this track is already in our list
+          const exists = trackLinks.some(track => 
+            track.name.toLowerCase() === trackName.toLowerCase() ||
+            track.url === fullUrl
+          );
+          
+          if (!exists) {
+            trackLinks.push({ name: trackName, url: fullUrl });
+            console.log(`Found active track link: ${trackName} (${fullUrl})`);
+          }
+        }
+      }
+    });
+    
+    // If still no tracks found, add some default tracks for testing
+    if (trackLinks.length === 0) {
+      console.log("No active tracks found on page, adding default tracks for testing...");
+      
+      // Add Santa Anita as a default track for testing
+      trackLinks.push({
+        name: "Santa Anita",
+        url: "https://www.offtrackbetting.com/racetracks/SA/santa_anita.html"
+      });
+      
+      // Add Belmont Park as another default track
+      trackLinks.push({
+        name: "Belmont Park",
+        url: "https://www.offtrackbetting.com/racetracks/BEL/belmont_park.html"
+      });
+      
+      console.log("Added default tracks for testing");
+    }
+    
+    // Remove duplicates based on track name
+    const uniqueTracks = trackLinks.filter((track, index, self) =>
+      index === self.findIndex(t => t.name.toLowerCase() === track.name.toLowerCase())
+    );
+    
+    console.log(`Found ${uniqueTracks.length} unique active tracks`);
+    
+    // Log the discovered tracks
+    uniqueTracks.forEach(track => {
+      console.log(`Active track: ${track.name} (${track.url})`);
+      
+      // Record this discovery in the scrape_attempts table for tracking
+      supabase.from('scrape_attempts').insert({
+        track_name: track.name,
+        url: track.url,
+        job_type: 'discovery',
+        status: 'completed',
+        created_at: new Date().toISOString()
+      }).then(result => {
+        if (result.error) {
+          console.error(`Error recording discovery for ${track.name}:`, result.error);
+        }
+      });
+    });
+    
+    return uniqueTracks;
+  } catch (error) {
+    console.error("Error discovering active tracks:", error);
+    throw error;
+  }
+}
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -32,6 +213,152 @@ serve(async (req) => {
     
     console.log(`Request data: ${JSON.stringify(requestData)}`);
     
+    // Special case for discover-tracks - find all active tracks and scrape entries
+    if (jobType === 'discover-tracks') {
+      console.log(`Discovering active tracks and scraping entries`);
+      try {
+        // Call the discovery function
+        const discoveredTracks = await discoverActiveTracks(supabase);
+        console.log(`Discovered ${discoveredTracks.length} active tracks`);
+        
+        // For each discovered track, we can optionally scrape entries right away
+        const scrapeResults = [];
+        
+        if (requestData.scrapeEntries === true) {
+          console.log("Auto-scraping entries for discovered tracks...");
+          
+          for (const track of discoveredTracks) {
+            try {
+              // Generate URL for entries
+              const trackSlug = track.name.toLowerCase().replace(/\s+/g, '-');
+              const entriesUrl = `https://www.offtrackbetting.com/tracks/${trackSlug}`;
+              
+              console.log(`Scraping entries for ${track.name}`);
+              const result = await scrapeEntries(entriesUrl, track.name, supabase);
+              
+              scrapeResults.push({
+                track: track.name,
+                success: true,
+                message: `Successfully scraped entries for ${track.name}`,
+                data: result
+              });
+            } catch (error) {
+              console.error(`Error scraping entries for ${track.name}:`, error);
+              
+              scrapeResults.push({
+                track: track.name,
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error'
+              });
+            }
+          }
+        }
+        
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            tracks: discoveredTracks,
+            scrapeResults: scrapeResults.length > 0 ? scrapeResults : undefined
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (error) {
+        console.error("Error during track discovery:", error);
+        
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: error instanceof Error ? error.message : 'Unknown error occurred' 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        );
+      }
+    }
+    
+    // Special case for check-active-odds - find races within 40 minutes of post time and scrape their odds
+    if (jobType === 'check-active-odds') {
+      console.log("Checking for active races within 40 minutes of post time...");
+      const now = new Date();
+      const cutoffTime = new Date(now.getTime() + 40 * 60 * 1000); // 40 minutes from now
+      
+      try {
+        // Get races that are scheduled to run within the next 40 minutes
+        const { data: activeRaces, error: racesError } = await supabase
+          .from('race_data')
+          .select('*')
+          .gte('race_time', now.toISOString())
+          .lte('race_time', cutoffTime.toISOString())
+          .order('race_time');
+        
+        if (racesError) {
+          throw racesError;
+        }
+        
+        console.log(`Found ${activeRaces?.length || 0} races within 40 minutes of post time`);
+        
+        if (activeRaces && activeRaces.length > 0) {
+          const oddsResults = [];
+          
+          // Scrape odds for each active race
+          for (const race of activeRaces) {
+            try {
+              const trackSlug = race.track_name.toLowerCase().replace(/\s+/g, '-');
+              const oddsUrl = `https://www.offtrackbetting.com/tracks/${trackSlug}?raceNumber=${race.race_number}`;
+              
+              console.log(`Scraping odds for ${race.track_name} Race ${race.race_number}`);
+              const result = await scrapeOdds(oddsUrl, race.track_name, supabase, race.race_number);
+              
+              oddsResults.push({
+                track: race.track_name,
+                race: race.race_number,
+                success: true,
+                message: `Successfully scraped odds for ${race.track_name} Race ${race.race_number}`
+              });
+            } catch (error) {
+              console.error(`Error scraping odds for ${race.track_name} Race ${race.race_number}:`, error);
+              
+              oddsResults.push({
+                track: race.track_name,
+                race: race.race_number,
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error'
+              });
+            }
+          }
+          
+          return new Response(
+            JSON.stringify({ success: true, results: oddsResults }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } else {
+          return new Response(
+            JSON.stringify({ 
+              success: true, 
+              message: "No races found within 40 minutes of post time", 
+              results: [] 
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      } catch (error) {
+        console.error("Error checking for active races:", error);
+        
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: error instanceof Error ? error.message : 'Unknown error occurred' 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        );
+      }
+    }
+    
     // Special case for entries scraping
     if (jobType === 'entries' && trackName && url) {
       console.log(`Manual entries scraping for ${trackName} from ${url}`);
@@ -47,6 +374,62 @@ serve(async (req) => {
         );
       } catch (error) {
         console.error(`Error scraping entries for ${trackName}:`, error);
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: error instanceof Error ? error.message : 'Unknown error occurred'
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        );
+      }
+    }
+    
+    // Special case for odds scraping
+    if (jobType === 'odds' && trackName) {
+      console.log(`Manual odds scraping for ${trackName}${url ? ` from ${url}` : ''}`);
+      try {
+        const oddsResult = await scrapeOdds(url || '', trackName, supabase);
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            message: `Successfully scraped odds for ${trackName}`,
+            data: oddsResult
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (error) {
+        console.error(`Error scraping odds for ${trackName}:`, error);
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: error instanceof Error ? error.message : 'Unknown error occurred'
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        );
+      }
+    }
+    
+    // Special case for results scraping
+    if (jobType === 'results' && trackName) {
+      console.log(`Manual results scraping for ${trackName}${url ? ` from ${url}` : ''}`);
+      try {
+        const resultsResult = await scrapeResults(url || '', trackName, supabase);
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            message: `Successfully scraped results for ${trackName}`,
+            data: resultsResult
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (error) {
+        console.error(`Error scraping results for ${trackName}:`, error);
         return new Response(
           JSON.stringify({ 
             success: false, 

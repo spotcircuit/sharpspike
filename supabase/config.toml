@@ -40,11 +40,12 @@ enabled = true
 enabled = true
 file_size_limit = "50MiB"
 
-[edge_functions]
-enabled = true
-
+[functions]
 [functions.run-scrape-jobs]
 verify_jwt = false
 
 [functions.scheduled-scrape]
+verify_jwt = false
+
+[functions.scrape-race-results]
 verify_jwt = false

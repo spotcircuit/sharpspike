@@ -67,7 +67,7 @@ function formatTrackUrl(trackName: string, raceNumber?: number): string {
 // Check if a track is running today
 function isTrackRunningToday(trackName: string): boolean {
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-  const trackDays = TRACK_SCHEDULE[trackName] || [];
+  const trackDays = TRACK_SCHEDULE[trackName.toUpperCase()] || [];
   return trackDays.includes(today);
 }
 
@@ -116,6 +116,112 @@ serve(async (req) => {
     const jobId = requestData?.jobId;
     const forceRun = requestData?.force === true;
     const jobType = requestData?.jobType;
+    const skipDiscovery = requestData?.skipDiscovery === true;
+    
+    // Always run discovery first unless explicitly skipped
+    // This ensures we're always working with the latest active tracks
+    const discoveryResults = [];
+    if (!skipDiscovery && !jobId) {
+      console.log("Running track discovery to find active tracks...");
+      
+      try {
+        // Call the run-scrape-jobs function with discover-tracks job type
+        const { data: discoveryData, error: discoveryError } = await supabase.functions.invoke('run-scrape-jobs', {
+          body: { 
+            jobType: 'discover-tracks',
+            force: true
+          }
+        });
+        
+        if (discoveryError) {
+          console.error("Error during track discovery:", discoveryError);
+        } else if (discoveryData && discoveryData.tracks && Array.isArray(discoveryData.tracks)) {
+          console.log(`Discovery found ${discoveryData.tracks.length} active tracks`);
+          
+          // Process discovered tracks - ensure they're in the scrape_jobs table
+          for (const track of discoveryData.tracks) {
+            const trackName = track.name.toUpperCase();
+            console.log(`Processing discovered track: ${trackName}`);
+            
+            // Check if track already exists in scrape_jobs
+            const { data: existingJobs, error: checkError } = await supabase
+              .from('scrape_jobs')
+              .select('id, job_type')
+              .eq('track_name', trackName);
+              
+            if (checkError) {
+              console.error(`Error checking for existing jobs for ${trackName}:`, checkError);
+              continue;
+            }
+            
+            // Create a map of existing job types for this track
+            const existingJobTypes = new Set(existingJobs?.map(job => job.job_type) || []);
+            
+            // Standard job types to ensure for each track
+            const standardJobTypes = ['entries', 'odds', 'results'];
+            
+            // Add missing job types
+            for (const jobType of standardJobTypes) {
+              if (!existingJobTypes.has(jobType)) {
+                console.log(`Adding new ${jobType} job for ${trackName}`);
+                
+                // Calculate interval based on job type
+                let interval = 3600; // Default 1 hour
+                if (jobType === 'odds') interval = 60; // Every minute
+                if (jobType === 'results') interval = 900; // Every 15 minutes
+                
+                // Create new job
+                const { error: insertError } = await supabase
+                  .from('scrape_jobs')
+                  .insert({
+                    track_name: trackName,
+                    job_type: jobType,
+                    url: formatTrackUrl(trackName),
+                    interval_seconds: interval,
+                    is_active: true,
+                    status: 'pending',
+                    next_run_at: new Date().toISOString()
+                  });
+                   
+                if (insertError) {
+                  console.error(`Error creating ${jobType} job for ${trackName}:`, insertError);
+                } else {
+                  discoveryResults.push({
+                    track: trackName,
+                    type: jobType,
+                    action: 'created',
+                    success: true
+                  });
+                }
+              } else {
+                // Update existing job to ensure it's active
+                const jobToUpdate = existingJobs?.find(job => job.job_type === jobType);
+                if (jobToUpdate) {
+                  await supabase
+                    .from('scrape_jobs')
+                    .update({
+                      is_active: true,
+                      url: formatTrackUrl(trackName)
+                    })
+                    .eq('id', jobToUpdate.id);
+                    
+                  discoveryResults.push({
+                    track: trackName,
+                    type: jobType,
+                    action: 'updated',
+                    success: true
+                  });
+                }
+              }
+            }
+          }
+          
+          console.log(`Discovery processing complete with ${discoveryResults.length} actions`);
+        }
+      } catch (error) {
+        console.error("Error during discovery process:", error);
+      }
+    }
     
     // Check if we should run morning entries scrape (8am, 9am, 10am Eastern)
     const isEntriesHour = MORNING_ENTRIES_HOURS_ET.includes(etHour);
@@ -129,6 +235,7 @@ serve(async (req) => {
     console.log(`Current minute: ${currentMinute}, Is 15-minute mark: ${isFullRunMinute}, Is entries hour: ${isEntriesHour}`);
     
     // If it's one of the morning entries scraping hours, trigger entries jobs
+    const entriesResults = [];
     if (isEntriesHour && currentMinute === 0 && !jobId && !jobType) {
       console.log(`Morning entries scraping time (${etHour}:00 ET). Running entries scrape jobs.`);
       
@@ -137,6 +244,7 @@ serve(async (req) => {
         .from('scrape_jobs')
         .select('track_name')
         .eq('is_active', true)
+        .eq('job_type', 'entries')
         .order('track_name')
         .distinct();
       
@@ -146,7 +254,6 @@ serve(async (req) => {
         console.log(`Found ${activeTracks.length} active tracks for entries scraping`);
         
         // Process each track
-        const entriesResults = [];
         for (const trackObj of activeTracks) {
           const trackName = trackObj.track_name;
           console.log(`Processing entries for track: ${trackName}`);
@@ -366,7 +473,12 @@ serve(async (req) => {
     }
     
     return new Response(
-      JSON.stringify({ success: true, results }),
+      JSON.stringify({ 
+        success: true, 
+        discovery: discoveryResults,
+        entriesJobs: entriesResults,
+        regularJobs: results
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
     
