@@ -135,6 +135,62 @@ serve(async (req) => {
             console.log(`Scraping entries for ${job.track_name}`);
             jobResult = await scrapeEntries(jobUrl, job.track_name, supabase);
             break;
+          case 'daily_schedule_scrape': // New job type
+            console.log(`Processing daily_schedule_scrape job ${job.id}`);
+            // Note: This job type typically does not use job.url or job.track_name from the scrape_jobs table
+            // as scrape-daily-schedule has its own configured SCHEDULE_URL.
+            const { data: scheduleScrapeData, error: scheduleScrapeError } = await supabase.functions.invoke(
+              "scrape-daily-schedule", 
+              { body: { /* No top-level params for scrape-daily-schedule currently */ } }
+            );
+
+            if (scheduleScrapeError) {
+              console.error(`Error invoking scrape-daily-schedule for job ${job.id}:`, scheduleScrapeError.message);
+              throw scheduleScrapeError; // Let the main catch block handle this as a job failure
+            }
+
+            let overallSuccess = true;
+            let failureReason = "Daily schedule scrape completed but with issues.";
+
+            if (scheduleScrapeData && Array.isArray(scheduleScrapeData.invocationSummary)) {
+              if (scheduleScrapeData.invocationSummary.length === 0 && (scheduleScrapeData.message || "").includes("Processed 0 tracks")) {
+                // This could be a success if no tracks were scheduled for the day.
+                // However, if it's consistently 0, it might indicate an upstream issue with schedule page itself.
+                // For now, treat as success but log a warning.
+                console.warn(`Job ${job.id} (daily_schedule_scrape): scrape-daily-schedule reported 0 tracks processed. This might be normal or an issue with the source page.`);
+              }
+              for (const summary of scheduleScrapeData.invocationSummary) {
+                if (summary.status === 'failed') {
+                  overallSuccess = false;
+                  failureReason = `One or more track scrapes failed. First failure: Track ${summary.trackName || 'Unknown'} - ${summary.error || 'Unknown error'}`;
+                  console.warn(`Track ${summary.trackName || summary.trackId || 'Unknown'} failed during daily schedule scrape for job ${job.id}. Error: ${summary.error}`);
+                  break; 
+                }
+              }
+            } else if (!scheduleScrapeData || typeof scheduleScrapeData !== 'object') { 
+              overallSuccess = false;
+              failureReason = "scrape-daily-schedule returned no data or unexpected data format.";
+              console.error(`Job ${job.id} (daily_schedule_scrape) failed: ${failureReason}. Data:`, scheduleScrapeData);
+            }
+            // Additional check: if invocationSummary is empty but the main message indicates tracks were processed,
+            // it implies an issue with the invocation loop or response from scrape-track-races.
+            else if (Array.isArray(scheduleScrapeData.invocationSummary) && 
+                     scheduleScrapeData.invocationSummary.length === 0 && 
+                     !(scheduleScrapeData.message || "").includes("Processed 0 tracks")) {
+                overallSuccess = false;
+                failureReason = `scrape-daily-schedule processed tracks but invocation summary is empty. Message: ${scheduleScrapeData.message}`;
+                console.error(`Job ${job.id} (daily_schedule_scrape) failed: ${failureReason}`);
+            }
+
+
+            if (!overallSuccess) {
+              console.error(`Daily schedule job ${job.id} determined as failed: ${failureReason}`);
+              throw new Error(failureReason); // This will be caught by the outer try/catch
+            }
+            
+            jobResult = scheduleScrapeData; // Store the summary from scrape-daily-schedule
+            console.log(`Daily schedule job ${job.id} completed successfully.`);
+            break;
           default:
             throw new Error(`Unknown job type: ${job.job_type}`);
         }
