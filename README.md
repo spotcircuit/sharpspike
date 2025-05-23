@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+# Trackside Odds Pulse
 
 ## Project info
 
@@ -59,6 +59,21 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- Supabase
+
+## Code Quality
+
+This project uses ESLint for code quality. To run the linter:
+
+```sh
+# Run ESLint to check for code issues
+npm run lint
+
+# Fix automatically fixable issues
+npm run lint:fix
+```
+
+Please ensure all code passes linting before submitting pull requests.
 
 ## How can I deploy this project?
 
@@ -71,3 +86,53 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+## Setup
+
+To set up the project for development:
+
+```sh
+# Run the setup script to install dependencies and configure the project
+npm run setup
+```
+
+This will install all necessary dependencies, set up Supabase functions, and verify the linting configuration.
+
+## How Codex runs this project
+
+Codex executes `./setup.sh` during setup to install dependencies with `npm ci`.
+After setup completes, Codex runs `npm test` which currently prints a message
+because no automated tests are configured.
+
+## Cross-Platform Development
+
+This project uses a `.gitattributes` file to handle line ending differences between operating systems:
+
+```
+* text=auto
+*.sh text eol=lf
+*.ts text eol=lf
+*.js text eol=lf
+# ... other file types
+```
+
+This ensures that:
+- Shell scripts (`.sh`) always use LF line endings, even on Windows
+- Text files are normalized to the platform's native line endings on checkout
+- Binary files are left untouched
+
+If you encounter line ending issues (e.g., `$'\r': command not found` errors when running shell scripts), you may need to:
+
+1. Ensure you have the `.gitattributes` file in your repository
+2. Reset the file with line ending issues:
+   ```sh
+   git add --renormalize .
+   ```
+3. For existing files with incorrect line endings, you can use tools like `dos2unix` (Linux/Mac) or the following Git commands:
+   ```sh
+   # Configure Git (for Windows users)
+   git config --global core.autocrlf true
+   
+   # For Linux/Mac users
+   git config --global core.autocrlf input
+   ```

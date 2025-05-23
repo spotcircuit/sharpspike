@@ -6,12 +6,24 @@ export const corsHeaders = {
 };
 
 // Environment variables
-export const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
-export const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
+// Use type declaration to handle Deno in TypeScript
+declare const Deno: {
+  env: {
+    get: (key: string) => string | undefined;
+  };
+};
 
-// OTB site credentials
-export const OTB_USERNAME = Deno.env.get("OTB_USERNAME") || "jeffgus@gmail.com";
-export const OTB_PASSWORD = Deno.env.get("OTB_PASSWORD") || "Gusboys1!";
+// Get environment variables with fallbacks
+export const SUPABASE_URL = (typeof Deno !== 'undefined' ? Deno.env.get("SUPABASE_URL") : undefined) || "";
+export const SUPABASE_ANON_KEY = (typeof Deno !== 'undefined' ? Deno.env.get("SUPABASE_ANON_KEY") : undefined) || "";
+
+// OTB site credentials - only use environment variables, no defaults
+export const OTB_USERNAME = (typeof Deno !== 'undefined' ? Deno.env.get("OTB_USERNAME") : undefined) || "";
+export const OTB_PASSWORD = (typeof Deno !== 'undefined' ? Deno.env.get("OTB_PASSWORD") : undefined) || "";
+
+// Base URLs for scraping
+export const OTB_BASE_URL = "https://www.offtrackbetting.com";
+export const OTB_SCHEDULE_URL = `${OTB_BASE_URL}/horse-racing-schedule.html`;
 
 // Track mappings for URL formatting
 export const TRACK_SLUGS: Record<string, string> = {

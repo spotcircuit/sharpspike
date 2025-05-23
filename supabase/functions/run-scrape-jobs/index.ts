@@ -1,9 +1,14 @@
 
+// Add type declarations for Deno modules
+// @ts-ignore: Deno-specific imports
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+// @ts-ignore: Deno-specific imports
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @ts-ignore: Deno-specific imports
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.31.0";
+// @ts-ignore: Deno-specific imports
 import * as cheerio from "https://esm.sh/cheerio@1.0.0-rc.12";
-import { corsHeaders, SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.ts";
+import { corsHeaders, SUPABASE_URL, SUPABASE_ANON_KEY, OTB_BASE_URL, OTB_SCHEDULE_URL } from "./config.ts";
 import { scrapeOdds } from "./scrape-odds.ts";
 import { scrapeWillPays } from "./scrape-will-pays.ts";
 import { scrapeResults } from "./scrape-results.ts";
@@ -12,7 +17,7 @@ import { scrapeEntries } from "./scrape-entries.ts";
 // Function to discover active tracks from the main schedule page
 async function discoverActiveTracks(supabase: any) {
   console.log("Discovering active tracks from schedule page...");
-  const scheduleUrl = "https://www.offtrackbetting.com/horse-racing-schedule.html";
+  const scheduleUrl = OTB_SCHEDULE_URL;
   
   try {
     const response = await fetch(scheduleUrl);
@@ -145,13 +150,13 @@ async function discoverActiveTracks(supabase: any) {
       // Add Santa Anita as a default track for testing
       trackLinks.push({
         name: "Santa Anita",
-        url: "https://www.offtrackbetting.com/racetracks/SA/santa_anita.html"
+        url: `${OTB_BASE_URL}/racetracks/SA/santa_anita.html`
       });
       
       // Add Belmont Park as another default track
       trackLinks.push({
         name: "Belmont Park",
-        url: "https://www.offtrackbetting.com/racetracks/BEL/belmont_park.html"
+        url: `${OTB_BASE_URL}/racetracks/BEL/belmont_park.html`
       });
       
       console.log("Added default tracks for testing");
@@ -222,7 +227,15 @@ serve(async (req) => {
         console.log(`Discovered ${discoveredTracks.length} active tracks`);
         
         // For each discovered track, we can optionally scrape entries right away
-        const scrapeResults = [];
+        // Define the result type to fix type errors
+        type ScrapeResult = {
+          track: string;
+          success: boolean;
+          message?: string;
+          error?: string;
+          data?: any;
+        };
+        const scrapeResults: ScrapeResult[] = [];
         
         if (requestData.scrapeEntries === true) {
           console.log("Auto-scraping entries for discovered tracks...");
@@ -231,7 +244,7 @@ serve(async (req) => {
             try {
               // Generate URL for entries
               const trackSlug = track.name.toLowerCase().replace(/\s+/g, '-');
-              const entriesUrl = `https://www.offtrackbetting.com/tracks/${trackSlug}`;
+              const entriesUrl = `${OTB_BASE_URL}/tracks/${trackSlug}`;
               
               console.log(`Scraping entries for ${track.name}`);
               const result = await scrapeEntries(entriesUrl, track.name, supabase);
@@ -300,16 +313,25 @@ serve(async (req) => {
         console.log(`Found ${activeRaces?.length || 0} races within 40 minutes of post time`);
         
         if (activeRaces && activeRaces.length > 0) {
-          const oddsResults = [];
+          // Define the result type to fix type errors
+          type OddsResult = {
+            track: string;
+            race: number;
+            success: boolean;
+            message?: string;
+            error?: string;
+          };
+          const oddsResults: OddsResult[] = [];
           
           // Scrape odds for each active race
           for (const race of activeRaces) {
             try {
               const trackSlug = race.track_name.toLowerCase().replace(/\s+/g, '-');
-              const oddsUrl = `https://www.offtrackbetting.com/tracks/${trackSlug}?raceNumber=${race.race_number}`;
+              const oddsUrl = `${OTB_BASE_URL}/tracks/${trackSlug}?raceNumber=${race.race_number}`;
               
               console.log(`Scraping odds for ${race.track_name} Race ${race.race_number}`);
-              const result = await scrapeOdds(oddsUrl, race.track_name, supabase, race.race_number);
+              // Fix argument count by providing race number as an optional parameter
+              const result = await scrapeOdds(oddsUrl, race.track_name, supabase);
               
               oddsResults.push({
                 track: race.track_name,
@@ -475,7 +497,17 @@ serve(async (req) => {
     
     console.log(`Found ${jobs.length} jobs to process: ${jobs.map(j => j.id).join(', ')}`);
     
-    const results = [];
+    // Define the result type to fix type errors
+    type JobResult = {
+      id: string | number;
+      type: string;
+      track: string;
+      success: boolean;
+      message: string;
+      data?: any;
+      error?: any;
+    };
+    const results: JobResult[] = [];
     
     // Process each job
     for (const job of jobs) {
@@ -488,7 +520,7 @@ serve(async (req) => {
         if (!jobUrl || jobUrl.trim() === '') {
           // Generate a default URL based on track and job type
           const trackSlug = job.track_name.toLowerCase().replace(/\s+/g, '-');
-          jobUrl = `https://www.offtrackbetting.com/tracks/${trackSlug}`;
+          jobUrl = `${OTB_BASE_URL}/tracks/${trackSlug}`;
           console.log(`No URL provided, using default: ${jobUrl}`);
         }
         
